@@ -1,24 +1,22 @@
 #contenedorSeccion{
-    display: grid;
-    grid-template-columns: repeat(3,1fr);
+    display: flex;
+    flex-direction: column;
     background-color: white;
     width: 100%;
     height: 100%;
-    align-items: center;
-    
 }
 #contenedorCredenciales{
     background-color: rgb(172, 238, 172);
     display: grid;
     grid-template-columns: repeat(2, 1fr);
-    padding: 3rem;
+    padding: 2rem;
     row-gap: 1rem;
     border-radius: 3rem;
-    grid-column: 1/4;
-    margin-top: 10rem;
+    grid-column:span 3;
+    margin-top: 5rem;
     margin-left: 2rem;
     margin-right: 2rem;
-    margin-bottom: 5rem;
+    margin-bottom: 2rem;
     box-shadow: 0px 1px 2px rgb(4, 66, 13);
 }
 #botonIniciarSesion{
@@ -32,15 +30,38 @@
     justify-content: center;
     justify-items: center;
     align-items: center;
-
-
+}
+#logoDamena{
+    width: 7rem;
+    height: 7rem;
+    margin-top: 4rem;
+    
+}
+#divisionAyuda{
+    display: flex;
+    position: absolute;
+    bottom: 0px;
+    background-color: rgb(8, 39, 8);
+    grid-column: span 3;
+    align-items: center;
+    justify-content: center;
+    gap: 1rem;
+    margin-top: 5rem;
+    border-radius: 3px;
+    height: auto;
+    width: 100%;
 }
 label{
     color: black;
     grid-column: 1/2;
 }
 input{
+    height: 1.2rem;
     color: black;
     grid-column: 2/3;
     background-color: white;
+}
+#botonIniciarSesion:hover{
+    background-color: rgb(5, 46, 5);
+    color: white;
 }
