@@ -1,0 +1,121 @@
+#contenedor{
+    width: 100%;
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+    background-color: white;
+}
+#seccionRecuperacion{
+    margin: 2rem;
+    margin-top: 0rem;
+    background-color: #16774f;
+    display: flex;
+    flex-direction: column;
+    height: 60%;
+    padding-left: 1rem;
+    padding-right: 1rem;
+    padding-top: 3rem;
+    border-radius: 1rem;
+    box-shadow: 1px 1px 12px rgb(4, 66, 13);
+}
+#textoCodigo{
+    height: 3rem;
+    font-size: 30px;
+}
+#logoDamena{
+    width: 9rem;
+    height: 9rem;
+    margin-top: 0rem;
+    align-self: center;
+    
+}
+#labelRecuperacion{
+    margin-top: 5rem;
+}
+#textoEmailUsuario{
+    height: 2rem;
+    font-size:17px;
+}
+button{
+    margin-top: 1rem;
+    background-color: rgb(65, 62, 62);
+}
+label{
+    align-self: self-start;
+    margin-top: 2rem;
+}
+input{
+    border-radius: 0.5rem;
+}
+h2{
+    color:black;
+}
+button:hover{
+    background-color: #4EDFA2;
+    color: black;
+}
+
+@media (min-width: 768px) {
+    #contenedor{
+        width: 100%;
+        height: 100%;
+        display: grid;
+        grid-template-columns: 1fr;
+        align-items: center;
+        place-items: center;
+        background-color: rgb(255, 255, 255);
+        overflow: auto;
+    }
+    #seccionRecuperacion{
+        display: grid;
+        grid-template-columns: repeat(2,1fr);
+        padding: 2rem;
+        column-gap: 2rem;
+        margin-bottom: 10rem;
+        
+    }
+    #labelRecuperacion{
+        grid-column-start: 2;
+        grid-row-start: 1;
+    }
+    #textoCodigo{
+        align-self: end;
+        grid-column-start: 2;
+        width: 98%;
+        grid-row-start: 2;
+    }
+    #botonValidacion{
+        grid-column-start: 2;
+        width: 100%;
+        grid-row-start: 3;
+    }
+
+    #textoEmailUsuario{
+        grid-column-start: 1;
+        grid-row-start: 2;
+        align-self: end;
+        width: 48%;
+        justify-self: stretch;
+        box-sizing: border-box;
+
+    }
+    #botonEnviarCodigo{
+        grid-column-start: 1;
+        grid-row-start: 3;
+    }
+    #labelCorreo{
+        grid-column-start: 1;
+        grid-row-start: 1;
+        align-self: end;
+    }
+    #logoDamena{
+        width: 9rem;
+        height: 9rem;
+        margin-right: 7rem;
+        align-self: center;
+        
+    }
+    h2{
+        margin-right: 6rem;
+    }
+}

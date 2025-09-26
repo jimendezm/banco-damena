@@ -5,13 +5,14 @@ import './App.css'
 import '../src/pages/Registro'
 import Registro from '../src/pages/Registro'
 import Login from './pages/Login'
+import Recuperacion from './pages/Recuperacion'
 
 function App() {
   const [count, setCount] = useState(0)
 
   return (
     <>
-      <Login />
+      <Recuperacion />
     </>
       
 
