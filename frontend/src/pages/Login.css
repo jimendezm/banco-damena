@@ -1,3 +1,17 @@
+/*
+#E9FBF4
+#C3F4DF
+#9CEDCB
+#75E6B7
+#4EDFA2
+#25CB86
+#20B175
+#198A5B
+#126341
+#0B3C28
+#04160E
+*/
+
 #contenedorPagina{
     display: flex;
     flex-direction: column;
@@ -15,7 +29,7 @@
     align-items: center;
 }
 #contenedorCredenciales{
-    background-color: rgb(172, 238, 172);
+    background-color: #9CEDCB;
     display: grid;
     width: 70%;
     grid-template-columns: repeat(2, 1fr);
@@ -53,7 +67,7 @@
     display: flex;
     position: absolute;
     bottom: 0px;
-    background-color: rgb(8, 39, 8);
+    background-color: #0B3C28;
     grid-column: span 3;
     align-items: center;
     justify-content: center;
@@ -133,7 +147,7 @@ h2{
         display: flex;
         position: absolute;
         bottom: 0px;
-        background-color: rgb(8, 39, 8);
+        background-color: #0B3C28;
         align-items: center;
         justify-content: center;
         gap: 1rem;
@@ -181,9 +195,12 @@ h2{
 
 @media (min-width: 1024px) {
     #contenedorSeccion{
-        display: flex;
-        background-color: white;
-        width: 100%;
-        height: 70%;
+
+    }
+    #contenedorCredenciales{
+        width: 70%;
+    }
+    p{
+        margin-left: 1rem;
     }
 }
