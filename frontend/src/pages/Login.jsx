@@ -14,7 +14,7 @@ function Login(){
                     <input type="password" />
                     <button id='botonIniciarSesion'>Iniciar sesión</button>
                 </form>
-                <p>Lorem ipsum dolor sit amet consectetur adipisicing elit. Cupiditate odio quae, esse quaerat dignissimos magni vero expedita veritatis? Voluptas distinctio sint deleniti quos quam inventore alias quas amet, ut est.</p>
+                <p>En banco Damena sabemos que una de las cosas más importantes para ti es tu seguridad. Por eso, contamos con los más altos estándares en este ámbito y con profesionales especializados. Porque nosotros cuidamos lo tuyo.</p>
                 <div id='divisionAyuda'>
                     <a href="">Olvidé mi contraseña</a>  <a href="">Ayuda</a>
                 </div>
