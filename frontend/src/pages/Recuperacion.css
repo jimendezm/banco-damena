@@ -64,9 +64,10 @@ button:hover{
         align-items: center;
         place-items: center;
         background-color: rgb(255, 255, 255);
-        overflow: auto;
+        overflow: inherit;
     }
     #seccionRecuperacion{
+        height: 15rem;
         display: grid;
         grid-template-columns: repeat(2,1fr);
         padding: 2rem;
@@ -77,23 +78,27 @@ button:hover{
     #labelRecuperacion{
         grid-column-start: 2;
         grid-row-start: 1;
+        align-self: self-end;
+        margin-top: 0rem;
     }
     #textoCodigo{
-        align-self: end;
+
         grid-column-start: 2;
         width: 98%;
         grid-row-start: 2;
+
     }
     #botonValidacion{
         grid-column-start: 2;
         width: 100%;
         grid-row-start: 3;
+        align-self: self-start;
     }
 
     #textoEmailUsuario{
         grid-column-start: 1;
         grid-row-start: 2;
-        align-self: end;
+        align-self: self-start;
         width: 48%;
         justify-self: stretch;
         box-sizing: border-box;
@@ -102,11 +107,12 @@ button:hover{
     #botonEnviarCodigo{
         grid-column-start: 1;
         grid-row-start: 3;
+        align-self: self-start;
     }
     #labelCorreo{
         grid-column-start: 1;
         grid-row-start: 1;
-        align-self: end;
+        align-self: self-end;
     }
     #logoDamena{
         width: 9rem;
