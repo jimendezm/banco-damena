@@ -5,6 +5,7 @@ import './App.css'
 import '../src/pages/Registro'
 import Registro from '../src/pages/Registro'
 import Login from './pages/Login'
+import Restablecer from './pages/Restablecer'
 import Recuperacion from './pages/Recuperacion'
 
 function App() {
@@ -12,7 +13,7 @@ function App() {
 
   return (
     <>
-      <Recuperacion />
+      <Restablecer />
     </>
       
 

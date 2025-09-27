@@ -84,13 +84,10 @@ button:hover{
         margin-top: 0rem;
     }
     #textoCodigo{
-
         grid-column-start: 2;
         width: 98%;
         grid-row-start: 2;
         height: 1.75rem;
-        
-
     }
     #botonValidacion{
         grid-column-start: 2;
