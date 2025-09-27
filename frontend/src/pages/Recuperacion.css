@@ -73,12 +73,14 @@ button:hover{
         padding: 2rem;
         column-gap: 2rem;
         margin-bottom: 10rem;
+        row-gap: 0rem;
+        align-self: self-start;
         
     }
     #labelRecuperacion{
         grid-column-start: 2;
         grid-row-start: 1;
-        align-self: self-end;
+        align-self: center;
         margin-top: 0rem;
     }
     #textoCodigo{
@@ -86,6 +88,8 @@ button:hover{
         grid-column-start: 2;
         width: 98%;
         grid-row-start: 2;
+        height: 1.75rem;
+        
 
     }
     #botonValidacion{
@@ -112,7 +116,7 @@ button:hover{
     #labelCorreo{
         grid-column-start: 1;
         grid-row-start: 1;
-        align-self: self-end;
+        align-self: self-start;
     }
     #logoDamena{
         width: 9rem;
