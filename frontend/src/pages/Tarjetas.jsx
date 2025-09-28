@@ -32,19 +32,35 @@ function Tarjetas() {
         if (tarjetas.length === 0) return;
         setIndice((prev) => (prev - 1 + tarjetas.length) % tarjetas.length);
     };
+    const coloresTarjeta = {
+        Gold: "#FFD700",
+        Platinum: "#E5E4E2",
+        Black: "#1C1C1C"
+    };
 
     return (
-        <div className={styles.contenedorSeccion}>
+        <div className={styles.contenedorSeccion}
+        style={{
+            background: `linear-gradient(145deg, ${coloresTarjeta[tarjetas[indice].tipo]}80, white)`,
+            color: tarjetas[indice].tipo === "Black" ? "white" : "black"
+        }}
+        >
             <section className={styles.seccionTarjetas}>
                 <button onClick={anterior}>{"<"}</button>
-
-                <div className={styles.tarjeta}>
-                    <h3>{tarjetas[indice].tipo} Card</h3>
-                    <p><b>Número:</b> {tarjetas[indice].numero}</p>
-                    <p><b>Exp:</b> {tarjetas[indice].exp}</p>
-                    <p><b>Titular:</b> {tarjetas[indice].titular}</p>
-                    <p><b>Saldo:</b> {tarjetas[indice].saldo} {tarjetas[indice].moneda}</p>
-                </div>
+                    <div 
+                    key={tarjetas[indice].card_id}
+                    className={styles.tarjeta}
+                    style={{
+                        background: `linear-gradient(135deg, ${coloresTarjeta[tarjetas[indice].tipo]}80, ${coloresTarjeta[tarjetas[indice].tipo]})`,
+                        color: tarjetas[indice].tipo === "Black" ? "white" : "black"
+                    }}
+                    >
+                        <h3>{tarjetas[indice].tipo} Card</h3>
+                        <p><b>Número:</b> {tarjetas[indice].numero}</p>
+                        <p><b>Exp:</b> {tarjetas[indice].exp}</p>
+                        <p><b>Titular:</b> {tarjetas[indice].titular}</p>
+                        <p><b>Saldo:</b> {tarjetas[indice].saldo} {tarjetas[indice].moneda}</p>
+                    </div>
 
                 <button onClick={siguiente}>{">"}</button>
             </section>
