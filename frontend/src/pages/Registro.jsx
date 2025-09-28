@@ -23,7 +23,7 @@ function Registro() {
   const [isLoading, setIsLoading] = useState(false);
   const [errors, setErrors] = useState({});
 
-  // Cargar datos iniciales al montar el componente
+
   useEffect(() => {
     initializeSampleData();
   }, []);

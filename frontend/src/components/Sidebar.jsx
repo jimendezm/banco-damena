@@ -17,9 +17,9 @@ import '../styles/Sidebar.css';
 
 function Sidebar({ currentSection, onSectionChange, isOpen }) {
   const menuItems = [
-    { id: 'dashboard', label: 'Dashboard', icon: <FiPieChart />, path: '/dashboard' },
+    { id: 'dashboard', label: 'Dashboard', icon: <FiPieChart />, path: '/dashboard:id' },
     { id: 'cuentas', label: 'Mis Cuentas', icon: <FiHome />, path: '/cuentas' },
-    { id: 'tarjetas', label: 'Tarjetas', icon: <FiCreditCard />, path: '/tarjetas' },
+    { id: 'tarjetas', label: 'Tarjetas', icon: <FiCreditCard />, path: '/Tarjetas:id' },
     { id: 'transferencias', label: 'Transferencias', icon: <FiRepeat />, path: '/transferencias' },
     { id: 'pagos', label: 'Pagos', icon: <FiDollarSign />, path: '/pagos' },
     { id: 'prestamos', label: 'Préstamos', icon: <FiTrendingUp />, path: '/prestamos' },

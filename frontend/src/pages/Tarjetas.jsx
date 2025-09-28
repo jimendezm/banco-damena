@@ -1,70 +1,140 @@
-import clientes from "../assets/informacion/informacionUsuarios.json";
 import { useState, useEffect } from "react";
 import styles from "../styles/Tarjetas.module.css";
 import { useParams, useNavigate } from "react-router-dom";
-import logoDamenaSinFondoClaro from '../assets/logoDamenaSinFondoClaro.png'
-import logoDamenaSinFondoOscuro from '../assets/logoDamenaSinFondo.png'
+import logoDamenaSinFondoClaro from '../assets/logoDamenaSinFondoClaro.png';
+import logoDamenaSinFondoOscuro from '../assets/logoDamenaSinFondo.png';
+import { initializeSampleData, enviarTarjetas } from '../services/userService';
+
+// Modal para Consultar PIN
+function ModalConsultarPIN({ tarjeta, onClose }) {
+    const [paso, setPaso] = useState(1);
+    const [codigo, setCodigo] = useState("");
+    const [tiempoRestante, setTiempoRestante] = useState(10);
+
+    useEffect(() => {
+        if (paso === 2) {
+            setTiempoRestante(10);
+            const intervalo = setInterval(() => {
+                setTiempoRestante((prev) => {
+                    if (prev <= 1) {
+                        clearInterval(intervalo);
+                        onClose();
+                        return 0;
+                    }
+                    return prev - 1;
+                });
+            }, 1000);
+
+            return () => clearInterval(intervalo);
+        }
+    }, [paso, onClose]);
+
+    return (
+        <div className={styles.overlay}>
+            <div className={styles.modalPin}>
+                {paso === 1 && (
+                    <>
+                        <h3>Verificación de identidad</h3>
+                        <p>Ingresa el código enviado a tu correo o SMS:</p>
+                        <input
+                            type="text"
+                            value={codigo}
+                            onChange={(e) => setCodigo(e.target.value)}
+                            className={styles.inputCodigo}
+                            placeholder="Código de verificación"
+                        />
+                        <button
+                            className={styles.botonContinuar}
+                            onClick={() => {
+                                if (codigo.trim() !== "") {
+                                    setPaso(2);
+                                } else {
+                                    alert("Debes ingresar el código");
+                                }
+                            }}
+                        >
+                            Continuar
+                        </button>
+                        <button className={styles.botonCancelar} onClick={onClose}>
+                            Cancelar
+                        </button>
+                    </>
+                )}
+
+                {paso === 2 && (
+                    <>
+                        <h3>Datos sensibles</h3>
+                        <p><b>Tarjeta:</b> {tarjeta.tipo} - ****{tarjeta.numero.slice(-4)}</p>
+                        <p><b>CVV:</b> {tarjeta.cvv}</p>
+                        <p><b>PIN:</b> {tarjeta.pin}</p>
+                        <p style={{ color: "red" }}>
+                            Esta información desaparecerá en {tiempoRestante} segundos
+                        </p>
+                        <button className={styles.botonCerrar} onClick={onClose}>
+                            Cerrar ahora
+                        </button>
+                    </>
+                )}
+            </div>
+        </div>
+    );
+}
 
 function Tarjetas() {
     const { idUsuario } = useParams();
     const navigate = useNavigate();
 
-    const cliente = clientes.find((c) => c.customer_id === idUsuario);
-
+    const [tarjetas, setTarjetas] = useState([]);
     const [indice, setIndice] = useState(0);
     const [mostrarResumen, setMostrarResumen] = useState(false);
+    const [mostrarConsultarPIN, setMostrarConsultarPIN] = useState(false);
     const [indiceFiltro, setIndiceFiltro] = useState(0);
-    const [textoDescripcion, setTextoDescripcion] =  useState("");
+    const [textoDescripcion, setTextoDescripcion] = useState("");
+    const [filtroAplicado, setFiltroAplicado] = useState(0); // filtro activo al hacer click
+    const [textoFiltrado, setTextoFiltrado] = useState(""); // texto al filtrar
 
-    useEffect(() => {
-        if (!cliente) {
-            alert("Cliente no encontrado. Volviendo al login.");
-            navigate("/", { replace: true });
-        }
-    }, [cliente, navigate]);
-
-    if (!cliente) return null;
-
-    const tarjetas = cliente?.tarjetas ?? [];
-
-    const siguiente = () => {
-        if (tarjetas.length === 0) return;
-        setIndice((prev) => (prev + 1) % tarjetas.length);
-    };
-
-    const anterior = () => {
-        if (tarjetas.length === 0) return;
-        setIndice((prev) => (prev - 1 + tarjetas.length) % tarjetas.length);
-    };
-
+    const elementosFiltro = ["Ninguno", "Pago", "Compra"];
     const coloresTarjeta = {
         Gold: "#FFD700",
         Platinum: "#E5E4E2",
         Black: "#1C1C1C"
     };
-    const cambiarElementoFiltro = () => {
-        if (indiceFiltro === 2){
-            setIndiceFiltro(0);
-        }else{
-            setIndiceFiltro((prev) => (prev + 1));
+
+    useEffect(() => {
+        initializeSampleData();
+        const tarjetasDelUsuario = enviarTarjetas(Number(idUsuario));
+
+        if (tarjetasDelUsuario) {
+            setTarjetas(tarjetasDelUsuario);
+        } else {
+            alert("Usuario no encontrado. Volviendo al login.");
+            navigate("/", { replace: true });
         }
-    };
-    
-    const elementosFiltro = ["Ninguno", "Pago", "Compra"];
+    }, [idUsuario, navigate]);
+
+    if (tarjetas.length === 0) return null;
 
     const tarjetaActual = tarjetas[indice];
+    if (!tarjetaActual) return null;
+
     const logo = tarjetaActual.tipo === "Black"
         ? logoDamenaSinFondoOscuro
         : logoDamenaSinFondoClaro;
 
-    
+    const siguiente = () => setIndice((prev) => (prev + 1) % tarjetas.length);
+    const anterior = () => setIndice((prev) => (prev - 1 + tarjetas.length) % tarjetas.length);
+
+    const aplicarFiltro = () => {
+        setFiltroAplicado(indiceFiltro);
+        setTextoFiltrado(textoDescripcion);
+    };
+
     const movimientosFiltrados = tarjetaActual.movimientos?.filter(m => {
-        const cumpleTipo = elementosFiltro[indiceFiltro] === "Ninguno"
-            || m.tipo.toUpperCase() === elementosFiltro[indiceFiltro].toUpperCase();
-        const cumpleTexto = m.descripcion.toLowerCase().includes(textoDescripcion.toLowerCase());
+        const cumpleTipo = elementosFiltro[filtroAplicado] === "Ninguno"
+            || m.tipo.toUpperCase() === elementosFiltro[filtroAplicado].toUpperCase();
+        const cumpleTexto = m.descripcion.toLowerCase().includes(textoFiltrado.toLowerCase());
         return cumpleTipo && cumpleTexto;
     }) ?? [];
-
 
     return (
         <div className={styles.contenedorSeccion}
@@ -100,36 +170,68 @@ function Tarjetas() {
                 <div className={styles.overlay}>
                     <div className={styles.resumenCuenta}>
                         <h3>Resumen de la tarjeta</h3>
-                        <input type="text"
-                        className={styles.filtroDescripcion}
-                        placeholder="Busca un movimiento por su descripcion..."
-                        value={textoDescripcion}
-                        onChange={(e) => setTextoDescripcion(e.target.value)}
+                        <input
+                            type="text"
+                            className={styles.filtroDescripcion}
+                            placeholder="Busca un movimiento por su descripcion..."
+                            value={textoDescripcion}
+                            onChange={(e) => setTextoDescripcion(e.target.value)}
                         />
-                        <button
-                            className={styles.botonFiltro}
-                            onClick={cambiarElementoFiltro}
-                        >Filtrar por: {elementosFiltro[indiceFiltro]}</button>
+
+                        <select
+                            className={styles.selectFiltro}
+                            value={elementosFiltro[indiceFiltro]}
+                            onChange={(e) => setIndiceFiltro(elementosFiltro.indexOf(e.target.value))}
+                        >
+                            {elementosFiltro.map((el, idx) => (
+                                <option key={idx} value={el}>{el}</option>
+                            ))}
+                        </select>
+
+                        {/* Botón para aplicar filtro */}
+                        <button className={styles.botonFiltro} onClick={aplicarFiltro}>
+                            Filtrar
+                        </button>
+
                         <p style={{ color: "Black" }}><b>Últimos movimientos:</b></p>
-                        {movimientosFiltrados.map(m => (
-                            <p style={{ color: "Black" }} key={m.id}>
-                                {m.fecha} - {m.tipo} - {m.descripcion}
-                            </p>
-                        ))}
+                        {movimientosFiltrados.length > 0 ? (
+                            movimientosFiltrados.map(m => (
+                                <p style={{ color: "Black" }} key={m.id}>
+                                    {m.fecha} - {m.tipo} - {m.descripcion}
+                                </p>
+                            ))
+                        ) : (
+                            <p style={{ color: "Black" }}>No hay movimientos que coincidan</p>
+                        )}
 
                         <button
-                        className={styles.botonDatosTarjeta}
+                            className={styles.botonDatosTarjeta}
+                            onClick={() => setMostrarConsultarPIN(true)}
                         >
-                            Mostrar Datos de la tarjeta
+                            Consultar PIN
                         </button>
-                        <button 
+
+                        <button
                             className={styles.cerrarResumen}
-                            onClick={() => {setMostrarResumen(false);setIndiceFiltro(0);}}
+                            onClick={() => {
+                                setMostrarResumen(false);
+                                setIndiceFiltro(0);
+                                setFiltroAplicado(0);
+                                setTextoDescripcion("");
+                                setTextoFiltrado("");
+                            }}
                         >
                             Cerrar
                         </button>
                     </div>
                 </div>
+            )}
+
+            {mostrarConsultarPIN && (
+                <ModalConsultarPIN
+                    tarjeta={tarjetaActual}
+                    onClose={() => setMostrarConsultarPIN(false)}
+                />
             )}
         </div>
     );
