@@ -9,8 +9,8 @@ import Login from './pages/Login'
 import Restablecer from './pages/Restablecer'
 import Recuperacion from './pages/Recuperacion'
 import Tarjetas from './pages/Tarjetas'
-/*import Dashboard from './pages/Dashboard'*/
-/*import Cuentas from './pages/Cuentas';*/
+import Dashboard from './pages/Dashboard'
+import Cuentas from './pages/Cuentas';
 
 function App() {
   const [count, setCount] = useState(0)
@@ -23,6 +23,8 @@ function App() {
         <Route path='/restablecer' element = {<Restablecer/>} />
         <Route path='/recuperacion' element = {<Recuperacion/>} />
         <Route path="/Tarjetas/:idUsuario" element={<Tarjetas />} />
+        <Route path="/Dashboard/:idUsuario" element={<Dashboard />} />
+        <Route path="/Cuentas/:idUsuario" element={<Cuentas />} />
       </Routes>
     </BrowserRouter>
       

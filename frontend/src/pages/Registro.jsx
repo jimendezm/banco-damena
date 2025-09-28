@@ -100,7 +100,7 @@ function Registro() {
       const result = createUser(form);
       
       if (result.success) {
-        setMensaje("Registro exitoso ✅. Redirigiendo al dashboard...");
+        setMensaje("Registro exitoso! Redirigiendo al dashboard...");
         
         // Guardar usuario en sessionStorage
         sessionStorage.setItem('currentUser', JSON.stringify(result.user));
