@@ -2,6 +2,8 @@ import clientes from "../assets/informacion/informacionUsuarios.json";
 import { useState, useEffect } from "react";
 import styles from "../styles/Tarjetas.module.css";
 import { useParams, useNavigate } from "react-router-dom";
+import logoDamenaSinFondoClaro from '../assets/logoDamenaSinFondoClaro.png'
+import logoDamenaSinFondoOscuro from '../assets/logoDamenaSinFondo.png'
 
 function Tarjetas() {
     const { idUsuario } = useParams();
@@ -37,6 +39,10 @@ function Tarjetas() {
         Platinum: "#E5E4E2",
         Black: "#1C1C1C"
     };
+    const tarjetaActual = tarjetas[indice];
+    const logo = tarjetaActual.tipo === "Black"
+        ? logoDamenaSinFondoOscuro
+        : logoDamenaSinFondoClaro;
 
     return (
         <div className={styles.contenedorSeccion}
@@ -45,6 +51,7 @@ function Tarjetas() {
             color: tarjetas[indice].tipo === "Black" ? "white" : "black"
         }}
         >
+            <h2 className = {styles.tituloSeccion}>Tus tarjetas</h2>
             <section className={styles.seccionTarjetas}>
                 <button onClick={anterior}>{"<"}</button>
                     <div 
@@ -55,6 +62,7 @@ function Tarjetas() {
                         color: tarjetas[indice].tipo === "Black" ? "white" : "black"
                     }}
                     >
+                        <img className={styles.logoDamena} src={logo} alt="logo de damena sin fondo en su version oscura" />
                         <h3>{tarjetas[indice].tipo} Card</h3>
                         <p><b>Número:</b> {tarjetas[indice].numero}</p>
                         <p><b>Exp:</b> {tarjetas[indice].exp}</p>
