@@ -1,7 +1,10 @@
 import { useState } from "react";
 import styles from './Restablecer.module.css'
 import logo from '../assets/Damena-logo-original.png'
+import { useNavigate } from "react-router-dom";
+
 function Restablecer(){
+    const navigate = useNavigate();
     const [contrasenia, setContrasenia] = useState("");
     const [copiaContra, setCopiaContra] = useState("");
     const [mostrar, setMostrar] = useState(false);
@@ -9,7 +12,7 @@ function Restablecer(){
     const handleValidarContra = () =>{
         if(/^(?=.*[a-z])(?=.*[A-Z])(?=.*\d).{8,}$/.test(contrasenia) && copiaContra === contrasenia){
             window.alert("Redirigiendo");
-            navigate("/restablecer");
+            navigate("/");
         }else{
             window.alert("Porfavor cree una contrasenia con 8 caracteres de longitud, almenos una minuscula y una mayuscula, y almenos un digito. Ademas las contrasenias deben ser iguales")
         }

@@ -1,0 +1,144 @@
+{
+    "customer_id": "CUST001",
+    "nombreUsuario": "juanperez",
+    "contrasenia": "MiPass123",
+    "cuentas": [
+        {
+            "account_id": "CR01-1001-2001-000000000001",
+            "alias": "Ahorros Principal",
+            "tipo": "Ahorro",
+            "moneda": "CRC",
+            "saldo": 1523400.50,
+            "propietario": "CUST001",
+            "movimientos": [
+                {
+                    "id": "MOV001",
+                    "account_id": "CR01-1001-2001-000000000001",
+                    "fecha": "2025-09-25T10:00:00Z",
+                    "tipo": "CREDITO",
+                    "descripcion": "Depósito nómina",
+                    "moneda": "CRC",
+                    "saldo": 1523400.50
+                },
+                {
+                    "id": "MOV002",
+                    "account_id": "CR01-1001-2001-000000000001",
+                    "fecha": "2025-09-26T15:30:00Z",
+                    "tipo": "DEBITO",
+                    "descripcion": "Pago servicios",
+                    "moneda": "CRC",
+                    "saldo": 1500000.00
+                }
+            ]
+        },
+        {
+            "account_id": "CR01-1001-2002-000000000002",
+            "alias": "Cuenta Corriente",
+            "tipo": "Corriente",
+            "moneda": "USD",
+            "saldo": 5000.75,
+            "propietario": "CUST001",
+            "movimientos": [
+                {
+                    "id": "MOV003",
+                    "account_id": "CR01-1001-2002-000000000002",
+                    "fecha": "2025-09-24T09:00:00Z",
+                    "tipo": "CREDITO",
+                    "descripcion": "Depósito ahorro",
+                    "moneda": "USD",
+                    "saldo": 5000.75
+                }
+            ]
+        },
+        {
+            "account_id": "CR01-1001-2003-000000000003",
+            "alias": "Ahorro Vacaciones",
+            "tipo": "Ahorro",
+            "moneda": "CRC",
+            "saldo": 800000.00,
+            "propietario": "CUST001",
+            "movimientos": [
+                {
+                    "id": "MOV004",
+                    "account_id": "CR01-1001-2003-000000000003",
+                    "fecha": "2025-09-20T12:00:00Z",
+                    "tipo": "CREDITO",
+                    "descripcion": "Depósito manual",
+                    "moneda": "CRC",
+                    "saldo": 800000.00
+                }
+            ]
+        }
+    ],
+    "tarjetas": [
+        {
+            "card_id": "CARD001",
+            "tipo": "Gold",
+            "numero": "1234 **** **** 5678",
+            "exp": "12/26",
+            "pin": "1234",
+            "cvv": "123",
+            "titular": "Juan Perez",
+            "moneda": "USD",
+            "limite": 5000.00,
+            "saldo": 1200.50,
+            "movimientos": [
+                {
+                    "id": "TRX001",
+                    "card_id": "CARD001",
+                    "fecha": "2025-09-21T14:00:00Z",
+                    "tipo": "COMPRA",
+                    "descripcion": "Pago supermercado",
+                    "moneda": "USD",
+                    "saldo": 200.50
+                }
+            ]
+        },
+        {
+            "card_id": "CARD002",
+            "tipo": "Platinum",
+            "numero": "2345 **** **** 6789",
+            "exp": "05/27",
+            "pin": "4321",
+            "cvv": "456",
+            "titular": "Juan Perez",
+            "moneda": "CRC",
+            "limite": 10000.00,
+            "saldo": 2500.00,
+            "movimientos": [
+                {
+                    "id": "TRX002",
+                    "card_id": "CARD002",
+                    "fecha": "2025-09-22T16:00:00Z",
+                    "tipo": "COMPRA",
+                    "descripcion": "Pago servicios",
+                    "moneda": "CRC",
+                    "saldo": 2500.00
+                }
+            ]
+        },
+        {
+            "card_id": "CARD003",
+            "tipo": "Black",
+            "numero": "3456 **** **** 7890",
+            "exp": "11/28",
+            "pin": "5678",
+            "cvv": "789",
+            "titular": "Juan Perez",
+            "moneda": "USD",
+            "limite": 20000.00,
+            "saldo": 15000.00,
+            "movimientos": [
+                {
+                    "id": "TRX003",
+                    "card_id": "CARD003",
+                    "fecha": "2025-09-23T18:30:00Z",
+                    "tipo": "PAGO",
+                    "descripcion": "Pago tarjeta",
+                    "moneda": "USD",
+                    "saldo": 15000.00
+                }
+            ]
+        }
+    ]
+}
