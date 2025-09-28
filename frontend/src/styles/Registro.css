@@ -222,6 +222,18 @@
   color: #198A5B;
 }
 
+.input-error {
+  border-color: #E74C3C !important;
+  background: #FDEDEC !important;
+}
+
+.error-text {
+  color: #E74C3C;
+  font-size: 0.8rem;
+  margin-top: 0.25rem;
+  display: block;
+}
+
 /* Media Queries */
 @media (max-width: 480px) {
   .registro-container {
