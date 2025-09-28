@@ -1,4 +1,4 @@
-/*import { useState, useEffect } from 'react';
+import { useState, useEffect } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 import {FiUser} from 'react-icons/fi';
 import Sidebar from './Sidebar';
@@ -98,5 +98,4 @@ function getSectionSubtitle(section) {
   };
   return subtitles[section] || 'Banca en línea segura';
 }
-*/
-export default Layout; 
+export default Layout;
