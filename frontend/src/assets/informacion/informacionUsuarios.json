@@ -115,6 +115,24 @@
                         "descripcion": "Pago servicios",
                         "moneda": "CRC",
                         "saldo": 2500.00
+                    },
+                    {
+                        "id": "TRX003",
+                        "card_id": "CARD002",
+                        "fecha": "2025-09-22T16:00:00Z",
+                        "tipo": "PAGO",
+                        "descripcion": "Deposito Intereses",
+                        "moneda": "CRC",
+                        "saldo": 2500.00
+                    },
+                    {
+                        "id": "TRX009",
+                        "card_id": "CARD002",
+                        "fecha": "2025-09-22T16:00:00Z",
+                        "tipo": "COMPRA",
+                        "descripcion": "Pago servicios",
+                        "moneda": "CRC",
+                        "saldo": 2500.00
                     }
                 ]
             },
@@ -131,7 +149,25 @@
                 "saldo": 15000.00,
                 "movimientos": [
                     {
-                        "id": "TRX003",
+                        "id": "TRX004",
+                        "card_id": "CARD003",
+                        "fecha": "2025-09-23T18:30:00Z",
+                        "tipo": "PAGO",
+                        "descripcion": "Pago tarjeta",
+                        "moneda": "USD",
+                        "saldo": 15000.00
+                    },
+                    {
+                        "id": "TRX005",
+                        "card_id": "CARD003",
+                        "fecha": "2025-09-23T18:30:00Z",
+                        "tipo": "PAGO",
+                        "descripcion": "Pago tarjeta",
+                        "moneda": "USD",
+                        "saldo": 15000.00
+                    },
+                    {
+                        "id": "TRX006",
                         "card_id": "CARD003",
                         "fecha": "2025-09-23T18:30:00Z",
                         "tipo": "PAGO",
