@@ -9,6 +9,7 @@ function Restablecer(){
     const handleValidarContra = () =>{
         if(/^(?=.*[a-z])(?=.*[A-Z])(?=.*\d).{8,}$/.test(contrasenia) && copiaContra === contrasenia){
             window.alert("Redirigiendo");
+            navigate("/restablecer");
         }else{
             window.alert("Porfavor cree una contrasenia con 8 caracteres de longitud, almenos una minuscula y una mayuscula, y almenos un digito. Ademas las contrasenias deben ser iguales")
         }
