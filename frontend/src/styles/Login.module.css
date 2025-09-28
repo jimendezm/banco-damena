@@ -15,179 +15,254 @@
 .contenedorPaginaLogin {
   display: flex;
   flex-direction: column;
-  background-color: white;
+  background: linear-gradient(135deg, #E9FBF4, #C3F4DF);
   width: 100%;
-  height: 100%;
+  min-height: 100vh;
   align-items: center;
+  justify-content: center;
+  font-family: 'Poppins', sans-serif;
+  padding: 1rem;
 }
+
 .contenedorSeccionLogin {
   display: flex;
   flex-direction: column;
   background-color: white;
   width: 100%;
-  height: 100%;
+  max-width: 500px;
   align-items: center;
-}
-.contenedorCredenciales {
-  background-color: #16774f;
-  display: grid;
-  width: 70%;
-  grid-template-columns: repeat(2, 1fr);
+  border-radius: 16px;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
   padding: 2rem;
-  row-gap: 1rem;
-  border-radius: 1rem;
-  margin-top: 0rem;
-  margin-left: 2rem;
-  margin-right: 2rem;
-  margin-bottom: 2rem;
-  box-shadow: 0px 1px 2px rgb(4, 66, 13);
+  position: relative;
+  overflow: hidden;
 }
+
+.contenedorSeccionLogin::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 4px;
+  background: linear-gradient(90deg, #20B175, #25CB86);
+}
+
+.contenedorCredenciales {
+  background: #F8F9FA;
+  display: grid;
+  width: 100%;
+  grid-template-columns: 1fr 2fr;
+  padding: 1.5rem;
+  row-gap: 1rem;
+  border-radius: 12px;
+  margin: 1.5rem 0;
+  border: 2px solid #E9FBF4;
+}
+
 .botonIniciarSesion {
-  border: 1px solid black;
-  background-color: white;
-  color: black;
+  background: linear-gradient(135deg, #20B175, #25CB86);
+  color: white;
+  font-weight: 600;
+  border: none;
   display: flex;
   grid-column: span 2;
-  border-radius: 7px;
-  height: 2rem;
-  width: 10rem;
+  border-radius: 10px;
+  height: 3rem;
+  width: 100%;
   margin-top: 1rem;
   justify-content: center;
-  justify-items: center;
-  justify-self: center;
   align-items: center;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  font-size: 1rem;
 }
+
+.botonIniciarSesion:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 20px rgba(37, 203, 134, 0.3);
+}
+
+.botonIniciarSesion:active {
+  transform: translateY(0);
+}
+
 .logoDamenaLogin {
   width: 9rem;
   height: 5rem;
-  margin-top: 1rem;
+  margin-bottom: 1rem;
 }
+
 .divisionAyuda {
   display: flex;
-  position: absolute;
-  bottom: 0px;
-  background-color: #0b3c28;
-  grid-column: span 3;
+  text-decoration-color: #434e8d;
   align-items: center;
   justify-content: center;
   gap: 1rem;
-  margin-top: 5rem;
-  border-radius: 3px;
-  height: 7%;
+  margin-top: 1.5rem;
+  border-radius: 8px;
+  height: 3rem;
   width: 100%;
 }
-.inputPassword {
-  background-color: white;
-  align-self: self-end;
+
+.divisionAyuda a {
+  color: rgb(126, 119, 235);
+  text-decoration: none;
+  font-weight: 500;
+  transition: color 0.3s ease;
 }
-.botonIniciarSesion:hover {
-  border-color: white;
-  background-color: rgb(5, 46, 5);
-  color: white;
+
+.divisionAyuda a:hover {
+  color: #25CB86;
 }
-.inputUsuario {
+
+.inputPassword, .inputUsuario {
   background-color: white;
-  align-self: self-end;
+  border: 2px solid #E0E0E0;
+  border-radius: 8px;
+  padding: 0.75rem;
+  font-size: 1rem;
+  transition: all 0.3s ease;
+  font-family: inherit;
+  width: 100%;
+  box-sizing: border-box;
+}
+
+.inputPassword:focus, .inputUsuario:focus {
+  outline: none;
+  border-color: #25CB86;
+  box-shadow: 0 0 0 3px rgba(37, 203, 134, 0.1);
+  background: #FFF;
 }
 
 .labelSeccionLogin {
-  color: black;
-  grid-column: 1/2;
-  font-family: "Gill Sans", "Gill Sans MT", Calibri, "Trebuchet MS", sans-serif;
-  justify-self: center;
+  color: #0B3C28;
+  font-family: "Poppins", sans-serif;
+  font-weight: 500;
+  font-size: 0.95rem;
+  display: flex;
+  align-items: center;
 }
 
+.tituloSeccionLogin {
+  color: #126341;
+  font-size: 1.75rem;
+  font-weight: 600;
+  margin: 0.5rem 0;
+  text-align: center;
+}
+
+.textoSeccionLogin {
+  color: #666;
+  text-align: center;
+  font-size: 0.9rem;
+  line-height: 1.5;
+  margin: 1rem 0 0 0;
+}
+
+.registroLink {
+  text-align: center;
+  margin: 1rem 0;
+  width: 100%;
+}
+
+.registroLink p {
+  color: #666;
+  font-size: 0.9rem;
+  margin: 0;
+}
+
+.registroLink a {
+  color: #20B175;
+  text-decoration: none;
+  font-weight: 600;
+  transition: color 0.3s ease;
+}
+
+.registroLink a:hover {
+  color: #198A5B;
+  text-decoration: underline;
+}
+
+.demoAccounts {
+  background: #F8F9FA;
+  border: 1px solid #E9FBF4;
+  border-radius: 8px;
+  padding: 1rem;
+  margin: 1rem 0;
+  width: 100%;
+  text-align: center;
+}
+
+.demoAccounts h4 {
+  color: #126341;
+  margin: 0 0 0.75rem 0;
+  font-size: 1rem;
+  font-weight: 600;
+}
+
+.demoAccounts p {
+  color: #666;
+  font-size: 0.85rem;
+  margin: 0.5rem 0;
+  line-height: 1.4;
+}
+
+.demoAccounts strong {
+  color: #126341;
+}
+
+/* Media Queries para tablets y desktop */
 @media (min-width: 768px) {
   .contenedorSeccionLogin {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    background-color: white;
-    width: 100%;
-    height: 50%;
-    place-items: center;
-    align-items: stretch;
+    padding: 2.5rem;
   }
+  
   .contenedorCredenciales {
-    grid-column-start: 1;
-    grid-row-start: 2;
-    width: 100%;
-    margin-top: 0rem;
-    margin-left: 8rem;
-    margin-right: 0rem;
-    margin-bottom: 0rem;
-    align-self: start;
-    justify-items: start;
-    max-width: 30rem;
+    padding: 2rem;
   }
+  
   .logoDamenaLogin {
-    width: 9rem;
-    height: 5rem;
-    margin-top: 1rem;
-    grid-column-start: 1;
-    grid-row-start: 1;
-    align-self: center;
-    margin-left: 8rem;
-    margin-bottom: 5rem;
+    width: 11rem;
+    height: 6rem;
+    margin-bottom: 1.5rem;
   }
-  .botonIniciarSesion {
-    border: 1px solid black;
-    background-color: white;
-    color: black;
-    display: flex;
-    grid-column: span 2;
-    border-radius: 7px;
-    height: 2rem;
-    margin-top: 1rem;
-    justify-self: center;
-  }
-  .divisionAyuda {
-    display: flex;
-    position: absolute;
-    bottom: 0px;
-    background-color: #0b3c28;
-    align-items: center;
-    justify-content: center;
-    gap: 1rem;
-    border-radius: 3px;
-    height: 10%;
-    width: 100%;
-  }
+  
   .tituloSeccionLogin {
-    color: black;
-    font-size: 30px;
-    text-shadow: 0px 1px 2px black;
-    font-family: "Gill Sans", "Gill Sans MT", Calibri, "Trebuchet MS",
-      sans-serif;
-    grid-column-start: 1;
-    grid-row-start: 1;
-    margin-top: 10rem;
-    margin-left: 9rem;
+    font-size: 2rem;
   }
-  .textoSeccionLogin {
-    color: black;
-    grid-row-start: 2;
-    grid-column-start: 2;
-    grid-row-end: 3;
-    text-align: justify;
-    margin-top: 5rem;
-    margin-left: 8rem;
-    margin-right: 1rem;
-    max-width: 70%;
+}
+
+@media (max-width: 480px) {
+  .contenedorPaginaLogin {
+    padding: 0.5rem;
   }
-  .inputUsuario {
-    width: 100%;
-    color: black;
-    grid-column-start: 2;
-    background-color: white;
-    font-family: "Gill Sans", "Gill Sans MT", Calibri, "Trebuchet MS",
-      sans-serif;
-    align-self: self-end;
+  
+  .contenedorSeccionLogin {
+    padding: 1.5rem;
   }
-  .inputPassword {
-    width: 100%;
-    color: black;
-    grid-column-start: 2;
-    font-family: "Gill Sans", "Gill Sans MT", Calibri, "Trebuchet MS",
-      sans-serif;
+  
+  .contenedorCredenciales {
+    grid-template-columns: 1fr;
+    gap: 0.5rem;
   }
+  
+  .labelSeccionLogin {
+    grid-column: 1;
+  }
+  
+  .inputPassword, .inputUsuario {
+    grid-column: 1;
+  }
+  
+  .botonIniciarSesion {
+    grid-column: 1;
+  }
+}
+
+/* Accesibilidad */
+button:focus-visible,
+input:focus-visible {
+  outline: 2px solid #126341;
+  outline-offset: 2px;
 }
