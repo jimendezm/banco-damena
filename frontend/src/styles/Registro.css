@@ -1,0 +1,263 @@
+/* Registro.css con clases semánticas */
+
+.registro-container {
+  background: linear-gradient(135deg, #E9FBF4, #C3F4DF);
+  font-family: 'Poppins', sans-serif;
+  margin: 0;
+  padding: 1rem;
+  min-height: 100vh;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  line-height: 1.6;
+}
+
+.registro-card {
+  background: #fff;
+  padding: 2rem;
+  border-radius: 16px;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+  width: 100%;
+  max-width: 480px;
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+  position: relative;
+  overflow: hidden;
+}
+
+.registro-card::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 4px;
+  background: linear-gradient(90deg, #20B175, #25CB86);
+}
+
+.registro-header {
+  text-align: center;
+  margin-bottom: 0.5rem;
+}
+
+.registro-title {
+  color: #126341;
+  margin: 0 0 0.5rem 0;
+  font-size: 1.75rem;
+  font-weight: 600;
+}
+
+.registro-subtitle {
+  color: #666;
+  font-size: 0.9rem;
+  margin: 0;
+}
+
+.registro-form {
+  display: flex;
+  flex-direction: column;
+  gap: 1.25rem;
+}
+
+.form-group {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.form-label {
+  font-weight: 500;
+  color: #0B3C28;
+  font-size: 0.9rem;
+}
+
+.form-input,
+.form-select {
+  padding: 0.75rem;
+  border: 2px solid #E0E0E0;
+  border-radius: 8px;
+  outline: none;
+  transition: all 0.3s ease;
+  font-size: 1rem;
+  font-family: inherit;
+  background: #F9F9F9;
+}
+
+.form-input:focus,
+.form-select:focus {
+  border-color: #25CB86;
+  box-shadow: 0 0 0 3px rgba(37, 203, 134, 0.1);
+  background: #FFF;
+}
+
+.form-input:invalid:not(:focus):not(:placeholder-shown) {
+  border-color: #E74C3C;
+  background: #FDEDEC;
+}
+
+.terminos-group {
+  flex-direction: row;
+  align-items: flex-start;
+  gap: 0.75rem;
+  padding: 1rem;
+  background: #F8F9FA;
+  border-radius: 8px;
+  margin: 0.5rem 0;
+}
+
+.terminos-checkbox {
+  margin-top: 0.2rem;
+  transform: scale(1.1);
+}
+
+.terminos-label {
+  font-weight: normal;
+  font-size: 0.85rem;
+  line-height: 1.4;
+  margin: 0;
+}
+
+.terminos-link {
+  color: #20B175;
+  text-decoration: underline;
+  background: none;
+  border: none;
+  cursor: pointer;
+  font-size: inherit;
+  padding: 0;
+}
+
+.terminos-link:hover {
+  color: #198A5B;
+}
+
+.submit-button {
+  background: linear-gradient(135deg, #20B175, #25CB86);
+  color: white;
+  font-weight: 600;
+  border: none;
+  padding: 1rem;
+  border-radius: 10px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  font-size: 1rem;
+  margin-top: 0.5rem;
+  position: relative;
+}
+
+.submit-button:hover:not(:disabled) {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 20px rgba(37, 203, 134, 0.3);
+}
+
+.submit-button:active:not(:disabled) {
+  transform: translateY(0);
+}
+
+.submit-button:disabled {
+  background: #CCCCCC;
+  cursor: not-allowed;
+  transform: none;
+  box-shadow: none;
+}
+
+.submit-button.loading::after {
+  content: '';
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 20px;
+  height: 20px;
+  margin: -10px 0 0 -10px;
+  border: 2px solid transparent;
+  border-top: 2px solid #FFF;
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+
+.mensaje {
+  text-align: center;
+  padding: 0.75rem;
+  border-radius: 8px;
+  font-weight: 500;
+  margin: 0.5rem 0;
+}
+
+.mensaje-success {
+  background: #D5F4E6;
+  color: #126341;
+  border: 1px solid #25CB86;
+}
+
+.mensaje-error {
+  background: #FDEDEC;
+  color: #E74C3C;
+  border: 1px solid #E74C3C;
+}
+
+.login-link {
+  text-align: center;
+  margin-top: 1rem;
+  color: #666;
+  font-size: 0.9rem;
+}
+
+.login-link-button {
+  color: #20B175;
+  text-decoration: underline;
+  background: none;
+  border: none;
+  cursor: pointer;
+  font-size: inherit;
+  padding: 0;
+}
+
+.login-link-button:hover {
+  color: #198A5B;
+}
+
+/* Media Queries */
+@media (max-width: 480px) {
+  .registro-container {
+    padding: 0.5rem;
+  }
+  
+  .registro-card {
+    padding: 1.5rem;
+  }
+  
+  .registro-title {
+    font-size: 1.5rem;
+  }
+}
+
+@media (min-width: 768px) {
+  .registro-card {
+    padding: 2.5rem;
+  }
+}
+
+/* Accesibilidad */
+button:focus-visible,
+input:focus-visible,
+select:focus-visible {
+  outline: 2px solid #126341;
+  outline-offset: 2px;
+}
+
+/* Select con flecha personalizada */
+.form-select {
+  cursor: pointer;
+  appearance: none;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' fill='%230B3C28' viewBox='0 0 16 16'%3E%3Cpath d='M7.247 11.14 2.451 5.658C1.885 5.013 2.345 4 3.204 4h9.592a1 1 0 0 1 .753 1.659l-4.796 5.48a1 1 0 0 1-1.506 0z'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 12px center;
+  background-size: 12px;
+  padding-right: 2.5rem;
+}
