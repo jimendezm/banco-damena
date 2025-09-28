@@ -8,6 +8,7 @@ import Registro from '../src/pages/Registro'
 import Login from './pages/Login'
 import Restablecer from './pages/Restablecer'
 import Recuperacion from './pages/Recuperacion'
+import Dashboard from './pages/Dashboard'
 
 function App() {
   const [count, setCount] = useState(0)
@@ -19,6 +20,7 @@ function App() {
         <Route path='/' element = {<Login/>} />
         <Route path='/restablecer' element = {<Restablecer/>} />
         <Route path='/recuperacion' element = {<Recuperacion/>} />
+        <Route path='/dashboard' element = {<Dashboard/>} />
       </Routes>
     </BrowserRouter>
       
