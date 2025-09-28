@@ -1,3 +1,4 @@
+// services/userService.js
 // Simulamos una base de datos simple leyendo/escribiendo en localStorage
 // En un proyecto real, esto sería una API backend
 
@@ -56,8 +57,33 @@ export const createUser = (userData) => {
     username: userData.username.toLowerCase(),
     correo: userData.correo.toLowerCase(),
     fechaRegistro: new Date().toISOString(),
-    cuentas: [],
-    tarjetas: []
+    cuentas: [
+      {
+        account_id: `CR01-0123-0456-${Date.now().toString().slice(-12)}`,
+        alias: "Cuenta Principal",
+        tipo: "Ahorro",
+        moneda: "CRC",
+        saldo: 500000.00
+      },
+      {
+        account_id: `CR01-0789-0123-${(Date.now() + 1).toString().slice(-12)}`,
+        alias: "Ahorro Navideño",
+        tipo: "Ahorro", 
+        moneda: "CRC",
+        saldo: 750000.00
+      }
+    ],
+    tarjetas: [
+      {
+        tipo: "Gold",
+        numero: "1234********1234",
+        exp: "12/25",
+        titular: userData.nombre,
+        moneda: "CRC",
+        limite: 500000,
+        saldo: 125000
+      }
+    ]
   };
 
   usersData.users.push(newUser);
@@ -77,7 +103,7 @@ export const initializeSampleData = () => {
           tipoId: "nacional",
           numId: "123456789",
           username: "demo",
-          nombre: "Usuario Demo",
+          nombre: "María Rodríguez López",
           nacimiento: "1990-01-01",
           correo: "demo@banco.com",
           telefono: "+506 8888 8888",
@@ -90,6 +116,34 @@ export const initializeSampleData = () => {
               tipo: "Ahorro",
               moneda: "CRC",
               saldo: 1523400.50
+            },
+            {
+              account_id: "CR01-0123-0456-000000000002", 
+              alias: "Cuenta de Ahorros",
+              tipo: "Ahorro",
+              moneda: "CRC",
+              saldo: 750000.00
+            },
+            {
+              account_id: "CR01-0789-0123-000000000003",
+              alias: "Cuenta Corriente",
+              tipo: "Corriente",
+              moneda: "CRC",
+              saldo: 250000.00
+            },
+            {
+              account_id: "CR01-0456-0789-000000000004",
+              alias: "Ahorro USD",
+              tipo: "Ahorro",
+              moneda: "USD",
+              saldo: 5000.00
+            },
+            {
+              account_id: "CR01-0890-0345-000000000005",
+              alias: "Fondo Emergencia",
+              tipo: "Ahorro",
+              moneda: "CRC", 
+              saldo: 1000000.00
             }
           ],
           tarjetas: [
@@ -97,15 +151,99 @@ export const initializeSampleData = () => {
               tipo: "Gold",
               numero: "1234********1234",
               exp: "12/25",
-              titular: "Usuario Demo",
+              titular: "María Rodríguez López",
               moneda: "CRC",
               limite: 500000,
               saldo: 125000
+            },
+            {
+              tipo: "Platinum",
+              numero: "5678********5678", 
+              exp: "06/26",
+              titular: "María Rodríguez López",
+              moneda: "USD",
+              limite: 10000,
+              saldo: 2500.00
+            },
+            {
+              tipo: "Black",
+              numero: "9012********9012",
+              exp: "03/27", 
+              titular: "María Rodríguez López",
+              moneda: "CRC",
+              limite: 2000000,
+              saldo: 750000.00
+            }
+          ]
+        },
+        {
+          id: 2,
+          tipoId: "nacional", 
+          numId: "987654321",
+          username: "cliente",
+          nombre: "Carlos Méndez Solís",
+          nacimiento: "1985-05-15",
+          correo: "cliente@banco.com",
+          telefono: "+506 7777 7777",
+          password: "Cliente123",
+          fechaRegistro: "2024-01-02T14:30:00Z",
+          cuentas: [
+            {
+              account_id: "CR01-0567-0890-000000000006",
+              alias: "Cuenta Personal",
+              tipo: "Corriente",
+              moneda: "CRC",
+              saldo: 850000.75
+            },
+            {
+              account_id: "CR01-0678-0901-000000000007",
+              alias: "Ahorro Viajes", 
+              tipo: "Ahorro",
+              moneda: "USD",
+              saldo: 3000.50
+            }
+          ],
+          tarjetas: [
+            {
+              tipo: "Gold",
+              numero: "3456********3456",
+              exp: "09/25",
+              titular: "Carlos Méndez Solís",
+              moneda: "CRC",
+              limite: 750000,
+              saldo: 150000.00
             }
           ]
         }
       ]
     };
     saveUsers(sampleUsers);
+    console.log('Datos de ejemplo inicializados con múltiples cuentas');
   }
+};
+
+// Obtener usuario por username (para login)
+export const getUserByUsername = (username) => {
+  const usersData = getUsers();
+  return usersData.users.find(user => user.username === username.toLowerCase());
+};
+
+// Obtener usuario por ID
+export const getUserById = (id) => {
+  const usersData = getUsers();
+  return usersData.users.find(user => user.id === id);
+};
+
+// Actualizar usuario
+export const updateUser = (userId, updatedData) => {
+  const usersData = getUsers();
+  const userIndex = usersData.users.findIndex(user => user.id === userId);
+  
+  if (userIndex !== -1) {
+    usersData.users[userIndex] = { ...usersData.users[userIndex], ...updatedData };
+    const success = saveUsers(usersData);
+    return { success, user: usersData.users[userIndex] };
+  }
+  
+  return { success: false, error: 'Usuario no encontrado' };
 };
