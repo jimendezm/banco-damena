@@ -1,25 +1,47 @@
-/*import { useState, useEffect } from 'react';
-import { useLocation, useNavigate } from 'react-router-dom';
-import {FiUser} from 'react-icons/fi';
+import { useState, useEffect } from 'react';
+import { useLocation, useNavigate, useParams } from 'react-router-dom'; 
+import { FiUser } from 'react-icons/fi';
 import Sidebar from './Sidebar';
+import { getUsers } from '../services/userService'; 
 import '../styles/Layout.css';
 
 function Layout({ children }) {
   const [currentUser, setCurrentUser] = useState(null);
   const location = useLocation();
   const navigate = useNavigate();
+  const { idUsuario } = useParams();
 
   useEffect(() => {
-    const userData = sessionStorage.getItem('currentUser');
-    if (userData) {
-      setCurrentUser(JSON.parse(userData));
+    if (idUsuario) {
+      // Buscar usuario por ID
+      const usersData = getUsers();
+      const user = usersData.users.find(u => u.id === parseInt(idUsuario));
+      if (user) {
+        setCurrentUser(user);
+        sessionStorage.setItem('currentUser', JSON.stringify(user));
+      } else {
+        // Usar datos demo si no encuentra el usuario
+        const demoUser = usersData.users.find(u => u.username === 'demo');
+        setCurrentUser(demoUser);
+      }
+    } else {
+      // Si no hay ID en la URL, usar sessionStorage
+      const userData = sessionStorage.getItem('currentUser');
+      if (userData) {
+        setCurrentUser(JSON.parse(userData));
+      } else {
+        const usersData = getUsers();
+        const demoUser = usersData.users.find(u => u.username === 'demo');
+        setCurrentUser(demoUser);
+      }
     }
-  }, []);
+  }, [idUsuario, location]);
 
   const getCurrentSection = () => {
     const path = location.pathname;
-    if (path === '/') return 'dashboard';
-    return path.replace('/', '');
+    // Extraer la sección base (remover ID si existe)
+    const section = path.split('/')[1];
+    return section || 'dashboard';
   };
 
   const currentSection = getCurrentSection();
@@ -32,10 +54,16 @@ function Layout({ children }) {
       }
       return;
     }
-    navigate(`/${section}`);
+    
+    // Navegar con ID si está disponible
+    if (currentUser && currentUser.id && currentUser.id !== 1) { // 1 es el ID del usuario demo
+      navigate(`/${section}/${currentUser.id}`);
+    } else {
+      navigate(`/${section}`);
+    }
   };
 
-  const userDisplayName = currentUser?.nombre || 'Usuario Demo';
+  const userDisplayName = currentUser?.nombre || '';
 
   return (
     <div className="layout-container">
@@ -52,10 +80,12 @@ function Layout({ children }) {
             <p>{getSectionSubtitle(currentSection)}</p>
           </div>
           <div className="header-user">
-            <FiUser className="user-avatar" ></FiUser>
+            <FiUser className="user-avatar" />
             <div className="user-info">
               <span className="user-name">{userDisplayName}</span>
-              <span className="user-role">{currentUser ? '' : 'Modo Demo'}</span>
+              <span className="user-role">
+                {currentUser && currentUser.id !== 1 ? `` : 'Modo Demo'}
+              </span>
             </div>
           </div>
         </header>
@@ -67,7 +97,6 @@ function Layout({ children }) {
     </div>
   );
 }
-
 // Función helper para títulos de sección
 function getSectionTitle(section) {
   const titles = {
@@ -98,5 +127,4 @@ function getSectionSubtitle(section) {
   };
   return subtitles[section] || 'Banca en línea segura';
 }
-*/
 export default Layout; 

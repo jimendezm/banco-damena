@@ -1,4 +1,4 @@
-/*
+
 import { 
   FiPieChart, 
   FiCreditCard, 
@@ -76,5 +76,5 @@ function Sidebar({ currentSection, onSectionChange, isOpen }) {
     </>
   );
 }
-*/
+
 export default Sidebar; 

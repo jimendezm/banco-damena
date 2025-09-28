@@ -12,12 +12,14 @@ import {
   FiCalendar,
   FiList
 } from 'react-icons/fi';
+import { useParams } from 'react-router-dom';
 import Layout from '../components/Layout';
 import { initializeSampleData, getUsers } from '../services/userService';
 import '../styles/Cuentas.css';
 
 function Cuentas() {
   const [cuentas, setCuentas] = useState([]);
+  const { idUsuario } = useParams();
   const [cuentaSeleccionada, setCuentaSeleccionada] = useState(null);
   const [movimientos, setMovimientos] = useState([]);
   const [filtroTipo, setFiltroTipo] = useState('todos');
@@ -25,61 +27,33 @@ function Cuentas() {
   const [cargando, setCargando] = useState(false);
 
   useEffect(() => {
-    // Inicializar datos de ejemplo
-    initializeSampleData();
+    let userData;
     
-    // Cargar cuentas del usuario demo
-    const usersData = getUsers();
-    const demoUser = usersData.users.find(user => user.username === 'demo');
-    
-    if (demoUser && demoUser.cuentas && demoUser.cuentas.length > 0) {
-      setCuentas(demoUser.cuentas);
-      setCuentaSeleccionada(demoUser.cuentas[0]);
-      cargarMovimientos(demoUser.cuentas[0].account_id);
+    if (idUsuario) {
+      // Buscar usuario por ID
+      const usersData = getUsers();
+      userData = usersData.users.find(u => u.id === parseInt(idUsuario));
     } else {
-      // Datos de demostración por defecto si no hay usuario demo
-      const cuentasDemo = [
-        {
-          account_id: "CR01-0123-0456-000000000001",
-          alias: "Cuenta Principal",
-          tipo: "Ahorro",
-          moneda: "CRC",
-          saldo: 1523400.50
-        },
-        {
-          account_id: "CR01-0123-0456-000000000002", 
-          alias: "Cuenta de Ahorros",
-          tipo: "Ahorro",
-          moneda: "CRC",
-          saldo: 750000.00
-        },
-        {
-          account_id: "CR01-0789-0123-000000000003",
-          alias: "Cuenta Corriente",
-          tipo: "Corriente",
-          moneda: "CRC",
-          saldo: 250000.00
-        },
-        {
-          account_id: "CR01-0456-0789-000000000004",
-          alias: "Ahorro USD",
-          tipo: "Ahorro",
-          moneda: "USD",
-          saldo: 5000.00
-        },
-        {
-          account_id: "CR01-0890-0345-000000000005",
-          alias: "Fondo Emergencia",
-          tipo: "Ahorro",
-          moneda: "CRC", 
-          saldo: 1000000.00
-        }
-      ];
-      setCuentas(cuentasDemo);
-      setCuentaSeleccionada(cuentasDemo[0]);
-      cargarMovimientos(cuentasDemo[0].account_id);
+      // Usar datos de sessionStorage o demo
+      const storedUser = sessionStorage.getItem('currentUser');
+      userData = storedUser ? JSON.parse(storedUser) : null;
     }
-  }, []);
+
+    if (!userData) {
+      // Cargar usuario demo
+      const usersData = getUsers();
+      userData = usersData.users.find(u => u.username === 'demo');
+    }
+
+    if (userData && userData.cuentas) {
+      setCuentas(userData.cuentas);
+      if (userData.cuentas.length > 0) {
+        setCuentaSeleccionada(userData.cuentas[0]);
+        cargarMovimientos(userData.cuentas[0].account_id);
+      }
+    }
+  }, [idUsuario]);
+
 
   const cargarMovimientos = async (accountId) => {
     setCargando(true);

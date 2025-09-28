@@ -105,10 +105,10 @@ function Registro() {
         // Guardar usuario en sessionStorage
         sessionStorage.setItem('currentUser', JSON.stringify(result.user));
         
-        // REDIRECCIÓN AL DASHBOARD después de 2 segundos
+        // REDIRECCIÓN AL DASHBOARD CON ID después de 2 segundos
         setTimeout(() => {
           setIsLoading(false);
-          navigate('/dashboard'); // ← Aquí se redirige al dashboard
+          navigate(`/dashboard/${result.user.id}`); // ← Cambiado aquí
         }, 2000);
       } else {
         setMensaje(result.error || "Error en el registro. Intenta nuevamente.");
@@ -119,7 +119,7 @@ function Registro() {
       setIsLoading(false);
     }
   };
-
+  
   const handleLoginRedirect = () => {
     navigate('/login');
   };
