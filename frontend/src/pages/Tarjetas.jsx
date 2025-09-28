@@ -5,6 +5,81 @@ import logoDamenaSinFondoClaro from '../assets/logoDamenaSinFondoClaro.png';
 import logoDamenaSinFondoOscuro from '../assets/logoDamenaSinFondo.png';
 import { initializeSampleData, enviarTarjetas } from '../services/userService';
 
+// Modal para Consultar PIN
+function ModalConsultarPIN({ tarjeta, onClose }) {
+    const [paso, setPaso] = useState(1);
+    const [codigo, setCodigo] = useState("");
+    const [tiempoRestante, setTiempoRestante] = useState(10);
+
+    useEffect(() => {
+        if (paso === 2) {
+            setTiempoRestante(10);
+            const intervalo = setInterval(() => {
+                setTiempoRestante((prev) => {
+                    if (prev <= 1) {
+                        clearInterval(intervalo);
+                        onClose();
+                        return 0;
+                    }
+                    return prev - 1;
+                });
+            }, 1000);
+
+            return () => clearInterval(intervalo);
+        }
+    }, [paso, onClose]);
+
+    return (
+        <div className={styles.overlay}>
+            <div className={styles.modalPin}>
+                {paso === 1 && (
+                    <>
+                        <h3>Verificación de identidad</h3>
+                        <p>Ingresa el código enviado a tu correo o SMS:</p>
+                        <input
+                            type="text"
+                            value={codigo}
+                            onChange={(e) => setCodigo(e.target.value)}
+                            className={styles.inputCodigo}
+                            placeholder="Código de verificación"
+                        />
+                        <button
+                            className={styles.botonContinuar}
+                            onClick={() => {
+                                if (codigo.trim() !== "") {
+                                    setPaso(2);
+                                } else {
+                                    alert("Debes ingresar el código");
+                                }
+                            }}
+                        >
+                            Continuar
+                        </button>
+                        <button className={styles.botonCancelar} onClick={onClose}>
+                            Cancelar
+                        </button>
+                    </>
+                )}
+
+                {paso === 2 && (
+                    <>
+                        <h3>Datos sensibles</h3>
+                        <p><b>Tarjeta:</b> {tarjeta.tipo} - ****{tarjeta.numero.slice(-4)}</p>
+                        <p><b>CVV:</b> {tarjeta.cvv}</p>
+                        <p><b>PIN:</b> {tarjeta.pin}</p>
+                        <p style={{ color: "red" }}>
+                            Esta información desaparecerá en {tiempoRestante} segundos
+                        </p>
+                        <button className={styles.botonCerrar} onClick={onClose}>
+                            Cerrar ahora
+                        </button>
+                    </>
+                )}
+            </div>
+        </div>
+    );
+}
+
 function Tarjetas() {
     const { idUsuario } = useParams();
     const navigate = useNavigate();
@@ -12,12 +87,11 @@ function Tarjetas() {
     const [tarjetas, setTarjetas] = useState([]);
     const [indice, setIndice] = useState(0);
     const [mostrarResumen, setMostrarResumen] = useState(false);
+    const [mostrarConsultarPIN, setMostrarConsultarPIN] = useState(false);
     const [indiceFiltro, setIndiceFiltro] = useState(0);
     const [textoDescripcion, setTextoDescripcion] = useState("");
-
-    const [mostrarModalPIN, setMostrarModalPIN] = useState(false);
-    const [pasoPIN, setPasoPIN] = useState(1);
-    const [codigo, setCodigo] = useState("");
+    const [filtroAplicado, setFiltroAplicado] = useState(0); // filtro activo al hacer click
+    const [textoFiltrado, setTextoFiltrado] = useState(""); // texto al filtrar
 
     const elementosFiltro = ["Ninguno", "Pago", "Compra"];
     const coloresTarjeta = {
@@ -30,7 +104,6 @@ function Tarjetas() {
         initializeSampleData();
         const tarjetasDelUsuario = enviarTarjetas(Number(idUsuario));
 
-        
         if (tarjetasDelUsuario) {
             setTarjetas(tarjetasDelUsuario);
         } else {
@@ -51,29 +124,17 @@ function Tarjetas() {
     const siguiente = () => setIndice((prev) => (prev + 1) % tarjetas.length);
     const anterior = () => setIndice((prev) => (prev - 1 + tarjetas.length) % tarjetas.length);
 
-    const cambiarElementoFiltro = () => {
-        setIndiceFiltro((prev) => (prev + 1) % elementosFiltro.length);
+    const aplicarFiltro = () => {
+        setFiltroAplicado(indiceFiltro);
+        setTextoFiltrado(textoDescripcion);
     };
 
     const movimientosFiltrados = tarjetaActual.movimientos?.filter(m => {
-        const cumpleTipo = elementosFiltro[indiceFiltro] === "Ninguno"
-            || m.tipo.toUpperCase() === elementosFiltro[indiceFiltro].toUpperCase();
-        const cumpleTexto = m.descripcion.toLowerCase().includes(textoDescripcion.toLowerCase());
+        const cumpleTipo = elementosFiltro[filtroAplicado] === "Ninguno"
+            || m.tipo.toUpperCase() === elementosFiltro[filtroAplicado].toUpperCase();
+        const cumpleTexto = m.descripcion.toLowerCase().includes(textoFiltrado.toLowerCase());
         return cumpleTipo && cumpleTexto;
     }) ?? [];
-
-    const verificarCodigo = () => {
-        if (codigo === "1234") {
-            setPasoPIN(2);
-            setTimeout(() => {
-                setMostrarModalPIN(false);
-                setPasoPIN(1);
-                setCodigo("");
-            }, 10000);
-        } else {
-            alert("Código incorrecto");
-        }
-    };
 
     return (
         <div className={styles.contenedorSeccion}
@@ -116,11 +177,20 @@ function Tarjetas() {
                             value={textoDescripcion}
                             onChange={(e) => setTextoDescripcion(e.target.value)}
                         />
-                        <button
-                            className={styles.botonFiltro}
-                            onClick={cambiarElementoFiltro}
+
+                        <select
+                            className={styles.selectFiltro}
+                            value={elementosFiltro[indiceFiltro]}
+                            onChange={(e) => setIndiceFiltro(elementosFiltro.indexOf(e.target.value))}
                         >
-                            Filtrar por: {elementosFiltro[indiceFiltro]}
+                            {elementosFiltro.map((el, idx) => (
+                                <option key={idx} value={el}>{el}</option>
+                            ))}
+                        </select>
+
+                        {/* Botón para aplicar filtro */}
+                        <button className={styles.botonFiltro} onClick={aplicarFiltro}>
+                            Filtrar
                         </button>
 
                         <p style={{ color: "Black" }}><b>Últimos movimientos:</b></p>
@@ -134,50 +204,34 @@ function Tarjetas() {
                             <p style={{ color: "Black" }}>No hay movimientos que coincidan</p>
                         )}
 
-                        <button 
+                        <button
                             className={styles.botonDatosTarjeta}
-                            onClick={() => setMostrarModalPIN(true)}
-                        >Mostrar Datos de la tarjeta
+                            onClick={() => setMostrarConsultarPIN(true)}
+                        >
+                            Consultar PIN
                         </button>
+
                         <button
                             className={styles.cerrarResumen}
-                            onClick={() => { setMostrarResumen(false); setIndiceFiltro(0); setTextoDescripcion(""); }}
+                            onClick={() => {
+                                setMostrarResumen(false);
+                                setIndiceFiltro(0);
+                                setFiltroAplicado(0);
+                                setTextoDescripcion("");
+                                setTextoFiltrado("");
+                            }}
                         >
                             Cerrar
                         </button>
                     </div>
                 </div>
             )}
-            {mostrarModalPIN && (
-                <div className={styles.overlay}>
-                    <div className={styles.resumenCuenta}>
-                        {pasoPIN === 1 && (
-                            <>
-                                <h3>Verificación de identidad</h3>
-                                <p>Ingrese el código enviado por correo/SMS:</p>
-                                <input
-                                    type="text"
-                                    value={codigo}
-                                    onChange={(e) => setCodigo(e.target.value)}
-                                    className={styles.filtroDescripcion}
-                                />
-                                <button onClick={verificarCodigo}>Verificar</button>
-                                <button onClick={() => setMostrarModalPIN(false)}>Cancelar</button>
-                            </>
-                        )}
 
-                        {pasoPIN === 2 && (
-                            <>
-                                <h3>Datos de la tarjeta</h3>
-                                <p><b>Tipo:</b> {tarjetaActual.tipo}</p>
-                                <p><b>Número:</b> **** **** **** {tarjetaActual.numero.slice(-4)}</p>
-                                <p><b>CVV:</b> 123</p> {/* Hardcodeado por ahora */}
-                                <p><b>PIN:</b> 4321</p> {/* Hardcodeado por ahora */}
-                                <p>(Esta ventana se cerrará automáticamente en 10s)</p>
-                            </>
-                        )}
-                    </div>
-                </div>
+            {mostrarConsultarPIN && (
+                <ModalConsultarPIN
+                    tarjeta={tarjetaActual}
+                    onClose={() => setMostrarConsultarPIN(false)}
+                />
             )}
         </div>
     );

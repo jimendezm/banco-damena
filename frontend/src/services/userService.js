@@ -175,6 +175,8 @@ export const initializeSampleData = () => {
               exp: "12/25",
               titular: "María Rodríguez López",
               moneda: "CRC",
+              pin: 1234,
+              cvv: 777,
               limite: 500000,
               saldo: 125000,
               movimientos: [
@@ -204,6 +206,8 @@ export const initializeSampleData = () => {
               exp: "06/26",
               titular: "María Rodríguez López",
               moneda: "USD",
+              pin: 1234,
+              cvv: 777,
               limite: 10000,
               saldo: 2500.00,
               movimientos: [
@@ -233,6 +237,8 @@ export const initializeSampleData = () => {
               exp: "03/27", 
               titular: "María Rodríguez López",
               moneda: "CRC",
+              pin: 1234,
+              cvv: 777,
               limite: 2000000,
               saldo: 750000.00,
               movimientos: [
@@ -292,6 +298,8 @@ export const initializeSampleData = () => {
               exp: "09/25",
               titular: "Carlos Méndez Solís",
               moneda: "CRC",
+              pin: 1234,
+              cvv: 777,
               limite: 750000,
               saldo: 150000.00,
               movimientos: [
