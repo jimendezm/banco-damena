@@ -11,6 +11,7 @@ import Recuperacion from './pages/Recuperacion'
 import Tarjetas from './pages/Tarjetas'
 import Dashboard from './pages/Dashboard'
 import Cuentas from './pages/Cuentas';
+import Transferencias from './pages/Transferencias';
 
 function App() {
   const [count, setCount] = useState(0)
@@ -25,6 +26,7 @@ function App() {
         <Route path="/Tarjetas/:idUsuario" element={<Tarjetas />} />
         <Route path="/Dashboard/:idUsuario" element={<Dashboard />} />
         <Route path="/Cuentas/:idUsuario" element={<Cuentas />} />
+        <Route path="/Transferencias/:idUsuario" element={<Transferencias />} />
       </Routes>
     </BrowserRouter>
       

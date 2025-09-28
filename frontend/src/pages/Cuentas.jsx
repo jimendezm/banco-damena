@@ -191,18 +191,10 @@ function Cuentas() {
                   className={`cuenta-item ${cuentaSeleccionada?.account_id === cuenta.account_id ? 'selected' : ''}`}
                   onClick={() => handleSeleccionarCuenta(cuenta)}
                 >
-                  <div className="cuenta-icon">
-                    <FiDollarSign />
-                  </div>
                   <div className="cuenta-info">
                     <h4>{cuenta.alias}</h4>
                     <p className="cuenta-number">{cuenta.account_id}</p>
                     <p className="cuenta-type">{cuenta.tipo} - {cuenta.moneda}</p>
-                  </div>
-                  <div className="cuenta-saldo">
-                    <span className="saldo-amount">
-                      {formatearMoneda(cuenta.saldo, cuenta.moneda)}
-                    </span>
                   </div>
                 </div>
               ))}
