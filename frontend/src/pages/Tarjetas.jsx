@@ -1,70 +1,62 @@
-import clientes from "../assets/informacion/informacionUsuarios.json";
 import { useState, useEffect } from "react";
 import styles from "../styles/Tarjetas.module.css";
 import { useParams, useNavigate } from "react-router-dom";
-import logoDamenaSinFondoClaro from '../assets/logoDamenaSinFondoClaro.png'
-import logoDamenaSinFondoOscuro from '../assets/logoDamenaSinFondo.png'
+import logoDamenaSinFondoClaro from '../assets/logoDamenaSinFondoClaro.png';
+import logoDamenaSinFondoOscuro from '../assets/logoDamenaSinFondo.png';
+import { initializeSampleData, enviarTarjetas } from '../services/userService';
 
 function Tarjetas() {
     const { idUsuario } = useParams();
     const navigate = useNavigate();
 
-    const cliente = clientes.find((c) => c.customer_id === idUsuario);
-
+    const [tarjetas, setTarjetas] = useState([]);
     const [indice, setIndice] = useState(0);
     const [mostrarResumen, setMostrarResumen] = useState(false);
     const [indiceFiltro, setIndiceFiltro] = useState(0);
-    const [textoDescripcion, setTextoDescripcion] =  useState("");
+    const [textoDescripcion, setTextoDescripcion] = useState("");
 
-    useEffect(() => {
-        if (!cliente) {
-            alert("Cliente no encontrado. Volviendo al login.");
-            navigate("/", { replace: true });
-        }
-    }, [cliente, navigate]);
-
-    if (!cliente) return null;
-
-    const tarjetas = cliente?.tarjetas ?? [];
-
-    const siguiente = () => {
-        if (tarjetas.length === 0) return;
-        setIndice((prev) => (prev + 1) % tarjetas.length);
-    };
-
-    const anterior = () => {
-        if (tarjetas.length === 0) return;
-        setIndice((prev) => (prev - 1 + tarjetas.length) % tarjetas.length);
-    };
-
+    const elementosFiltro = ["Ninguno", "Pago", "Compra"];
     const coloresTarjeta = {
         Gold: "#FFD700",
         Platinum: "#E5E4E2",
         Black: "#1C1C1C"
     };
-    const cambiarElementoFiltro = () => {
-        if (indiceFiltro === 2){
-            setIndiceFiltro(0);
-        }else{
-            setIndiceFiltro((prev) => (prev + 1));
+
+    useEffect(() => {
+        initializeSampleData();
+        const tarjetasDelUsuario = enviarTarjetas(Number(idUsuario));
+
+        
+        if (tarjetasDelUsuario) {
+            setTarjetas(tarjetasDelUsuario);
+        } else {
+            alert("Usuario no encontrado. Volviendo al login.");
+            navigate("/", { replace: true });
         }
-    };
-    
-    const elementosFiltro = ["Ninguno", "Pago", "Compra"];
+    }, [idUsuario, navigate]);
+
+    if (tarjetas.length === 0) return null;
 
     const tarjetaActual = tarjetas[indice];
+    if (!tarjetaActual) return null;
+
     const logo = tarjetaActual.tipo === "Black"
         ? logoDamenaSinFondoOscuro
         : logoDamenaSinFondoClaro;
 
-    
+    const siguiente = () => setIndice((prev) => (prev + 1) % tarjetas.length);
+    const anterior = () => setIndice((prev) => (prev - 1 + tarjetas.length) % tarjetas.length);
+
+    const cambiarElementoFiltro = () => {
+        setIndiceFiltro((prev) => (prev + 1) % elementosFiltro.length);
+    };
+
     const movimientosFiltrados = tarjetaActual.movimientos?.filter(m => {
         const cumpleTipo = elementosFiltro[indiceFiltro] === "Ninguno"
             || m.tipo.toUpperCase() === elementosFiltro[indiceFiltro].toUpperCase();
         const cumpleTexto = m.descripcion.toLowerCase().includes(textoDescripcion.toLowerCase());
         return cumpleTipo && cumpleTexto;
     }) ?? [];
-
 
     return (
         <div className={styles.contenedorSeccion}
@@ -100,31 +92,37 @@ function Tarjetas() {
                 <div className={styles.overlay}>
                     <div className={styles.resumenCuenta}>
                         <h3>Resumen de la tarjeta</h3>
-                        <input type="text"
-                        className={styles.filtroDescripcion}
-                        placeholder="Busca un movimiento por su descripcion..."
-                        value={textoDescripcion}
-                        onChange={(e) => setTextoDescripcion(e.target.value)}
+                        <input
+                            type="text"
+                            className={styles.filtroDescripcion}
+                            placeholder="Busca un movimiento por su descripcion..."
+                            value={textoDescripcion}
+                            onChange={(e) => setTextoDescripcion(e.target.value)}
                         />
                         <button
                             className={styles.botonFiltro}
                             onClick={cambiarElementoFiltro}
-                        >Filtrar por: {elementosFiltro[indiceFiltro]}</button>
-                        <p style={{ color: "Black" }}><b>Últimos movimientos:</b></p>
-                        {movimientosFiltrados.map(m => (
-                            <p style={{ color: "Black" }} key={m.id}>
-                                {m.fecha} - {m.tipo} - {m.descripcion}
-                            </p>
-                        ))}
-
-                        <button
-                        className={styles.botonDatosTarjeta}
                         >
+                            Filtrar por: {elementosFiltro[indiceFiltro]}
+                        </button>
+
+                        <p style={{ color: "Black" }}><b>Últimos movimientos:</b></p>
+                        {movimientosFiltrados.length > 0 ? (
+                            movimientosFiltrados.map(m => (
+                                <p style={{ color: "Black" }} key={m.id}>
+                                    {m.fecha} - {m.tipo} - {m.descripcion}
+                                </p>
+                            ))
+                        ) : (
+                            <p style={{ color: "Black" }}>No hay movimientos que coincidan</p>
+                        )}
+
+                        <button className={styles.botonDatosTarjeta}>
                             Mostrar Datos de la tarjeta
                         </button>
-                        <button 
+                        <button
                             className={styles.cerrarResumen}
-                            onClick={() => {setMostrarResumen(false);setIndiceFiltro(0);}}
+                            onClick={() => { setMostrarResumen(false); setIndiceFiltro(0); setTextoDescripcion(""); }}
                         >
                             Cerrar
                         </button>

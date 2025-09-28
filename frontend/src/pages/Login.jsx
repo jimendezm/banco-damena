@@ -1,29 +1,29 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import logo from '../assets/Damena-logo-original.png'
 import styles from '../styles/Login.module.css';
 import { Link } from "react-router-dom";
-import clientes from "../assets/informacion/informacionUsuarios.json"; 
 import { useNavigate } from "react-router-dom";
+import { initializeSampleData, verificarCredenciales} from '../services/userService';
+
 
 function Login(){
     const navigate = useNavigate();
     const [usuario, setUsuario] = useState("");
     const [contrasenia, setContrasenia] = useState("");
+    useEffect(() => {
+        initializeSampleData();
+    }, []);
 
 
     const handleLogin = (e) => {
         e.preventDefault();
-        const clienteValido = clientes.find(
-            (c) => c.nombreUsuario === usuario && c.contrasenia === contrasenia
-        );
-        if(clienteValido){
-            const id = encodeURIComponent(clienteValido.customer_id);
-            console.log("Navegando a Tarjetas con id:", clienteValido.customer_id, "encoded:", id);
-            navigate(`/Tarjetas/${id}`)
+        const idUsuario = verificarCredenciales(usuario, contrasenia)
+        if( idUsuario != null){
+            navigate(`Dashboard/${idUsuario}`);
         } else{
             alert("Usuario o contrasenia incorrectos");
         }
-    }
+    };
 
     return(
         <div className={styles.contenedorPaginaLogin}>

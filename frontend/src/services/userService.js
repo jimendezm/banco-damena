@@ -37,6 +37,28 @@ export const emailExists = (email) => {
   const usersData = getUsers();
   return usersData.users.some(user => user.correo === email.toLowerCase());
 };
+export const verificarCredenciales = (username, password) => {
+  const usersData = getUsers();
+  const user = usersData.users.find(
+    user => user.username === username && user.password === password
+  );
+  return user ? user.id : null;
+};
+export const enviarTarjetas = (userId) => {
+  const usersData = getUsers();
+  console.log("enviarTarjetas -> usersData:", usersData);
+
+  // buscar user con comparación flexible (string/number)
+  const user = usersData.users.find(u => String(u.id) === String(userId));
+  console.log("enviarTarjetas -> buscado userId:", userId, "resultado:", user);
+
+  if (!user) {
+    return null;
+  }
+
+  console.log("enviarTarjetas -> tarjetas completas:", JSON.stringify(user.tarjetas, null, 2));
+  return user.tarjetas;
+};
 
 // Crear nuevo usuario
 export const createUser = (userData) => {
@@ -50,7 +72,6 @@ export const createUser = (userData) => {
   if (emailExists(userData.correo)) {
     return { success: false, error: 'El correo electrónico ya está registrado' };
   }
-
   const newUser = {
     id: Date.now(), // ID simple basado en timestamp
     ...userData,
@@ -81,7 +102,8 @@ export const createUser = (userData) => {
         titular: userData.nombre,
         moneda: "CRC",
         limite: 500000,
-        saldo: 125000
+        saldo: 125000,
+        movimientos: []
       }
     ]
   };
@@ -107,7 +129,7 @@ export const initializeSampleData = () => {
           nacimiento: "1990-01-01",
           correo: "demo@banco.com",
           telefono: "+506 8888 8888",
-          password: "Demo1234", // En un caso real esto estaría hasheado
+          password: "Demo1234",
           fechaRegistro: "2024-01-01T10:00:00Z",
           cuentas: [
             {
@@ -154,7 +176,27 @@ export const initializeSampleData = () => {
               titular: "María Rodríguez López",
               moneda: "CRC",
               limite: 500000,
-              saldo: 125000
+              saldo: 125000,
+              movimientos: [
+                    {
+                        id: "MOV001",
+                        account_id: "CR01-1001-2001-000000000001",
+                        fecha: "2025-09-25T10:00:00Z",
+                        tipo: "Pago",
+                        descripcion: "Depósito nómina",
+                        moneda: "CRC",
+                        saldo: 1523400.50
+                    },
+                    {
+                        id: "MOV002",
+                        account_id: "CR01-1001-2001-000000000001",
+                        fecha: "2025-09-26T15:30:00Z",
+                        tipo: "Compra",
+                        descripcion: "Pago servicios",
+                        moneda: "CRC",
+                        saldo: 1500000.00
+                    }
+                ]
             },
             {
               tipo: "Platinum",
@@ -163,7 +205,27 @@ export const initializeSampleData = () => {
               titular: "María Rodríguez López",
               moneda: "USD",
               limite: 10000,
-              saldo: 2500.00
+              saldo: 2500.00,
+              movimientos: [
+                    {
+                        id: "MOV003",
+                        account_id: "CR01-1001-2001-000000000001",
+                        fecha: "2025-09-25T10:00:00Z",
+                        tipo: "Pago",
+                        descripcion: "Depósito nómina",
+                        moneda: "CRC",
+                        saldo: 1523400.50
+                    },
+                    {
+                        id: "MOV004",
+                        account_id: "CR01-1001-2001-000000000001",
+                        fecha: "2025-09-26T15:30:00Z",
+                        tipo: "Compra",
+                        descripcion: "Pago servicios",
+                        moneda: "CRC",
+                        saldo: 1500000.00
+                    }
+                ]
             },
             {
               tipo: "Black",
@@ -172,7 +234,27 @@ export const initializeSampleData = () => {
               titular: "María Rodríguez López",
               moneda: "CRC",
               limite: 2000000,
-              saldo: 750000.00
+              saldo: 750000.00,
+              movimientos: [
+                    {
+                        id: "MOV005",
+                        account_id: "CR01-1001-2001-000000000001",
+                        fecha: "2025-09-25T10:00:00Z",
+                        tipo: "Pago",
+                        descripcion: "Depósito nómina",
+                        moneda: "CRC",
+                        saldo: 1523400.50
+                    },
+                    {
+                        id: "MOV006",
+                        account_id: "CR01-1001-2001-000000000001",
+                        fecha: "2025-09-26T15:30:00Z",
+                        tipo: "Compra",
+                        descripcion: "Pago servicios",
+                        moneda: "CRC",
+                        saldo: 1500000.00
+                    }
+                ]
             }
           ]
         },
@@ -211,7 +293,27 @@ export const initializeSampleData = () => {
               titular: "Carlos Méndez Solís",
               moneda: "CRC",
               limite: 750000,
-              saldo: 150000.00
+              saldo: 150000.00,
+              movimientos: [
+                    {
+                        id: "MOV007",
+                        account_id: "CR01-1001-2001-000000000001",
+                        fecha: "2025-09-25T10:00:00Z",
+                        tipo: "Pago",
+                        descripcion: "Depósito nómina",
+                        moneda: "CRC",
+                        saldo: 1523400.50
+                    },
+                    {
+                        id: "MOV008",
+                        account_id: "CR01-1001-2001-000000000001",
+                        fecha: "2025-09-26T15:30:00Z",
+                        tipo: "Compra",
+                        descripcion: "Pago servicios",
+                        moneda: "CRC",
+                        saldo: 1500000.00
+                    }
+                ]
             }
           ]
         }
