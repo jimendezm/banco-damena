@@ -1,5 +1,5 @@
 import { useState } from "react";
-import styles from './Recuperacion.module.css'
+import styles from '../styles/Recuperacion.module.css'
 import logo from '../assets/Damena-logo-original.png'
 import { useNavigate } from "react-router-dom";
 

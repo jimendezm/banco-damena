@@ -1,10 +1,12 @@
 import { useState } from "react";
 import logo from '../assets/Damena-logo-original.png'
-import styles from './Login.module.css';
+import styles from '../styles/Login.module.css';
 import { Link } from "react-router-dom";
 import clientes from "../assets/informacion/informacionUsuarios.json"; 
+import { useNavigate } from "react-router-dom";
 
 function Login(){
+    const navigate = useNavigate();
     const [usuario, setUsuario] = useState("");
     const [contrasenia, setContrasenia] = useState("");
 
@@ -14,9 +16,10 @@ function Login(){
         const clienteValido = clientes.find(
             (c) => c.nombreUsuario === usuario && c.contrasenia === contrasenia
         );
-        console.log("aqui");
         if(clienteValido){
-            window.alert("Bienvenido");
+            const id = encodeURIComponent(clienteValido.customer_id);
+            console.log("Navegando a Tarjetas con id:", clienteValido.customer_id, "encoded:", id);
+            navigate(`/Tarjetas/${id}`)
         } else{
             alert("Usuario o contrasenia incorrectos");
         }
