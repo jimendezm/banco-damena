@@ -15,6 +15,10 @@ function Tarjetas() {
     const [indiceFiltro, setIndiceFiltro] = useState(0);
     const [textoDescripcion, setTextoDescripcion] = useState("");
 
+    const [mostrarModalPIN, setMostrarModalPIN] = useState(false);
+    const [pasoPIN, setPasoPIN] = useState(1);
+    const [codigo, setCodigo] = useState("");
+
     const elementosFiltro = ["Ninguno", "Pago", "Compra"];
     const coloresTarjeta = {
         Gold: "#FFD700",
@@ -57,6 +61,19 @@ function Tarjetas() {
         const cumpleTexto = m.descripcion.toLowerCase().includes(textoDescripcion.toLowerCase());
         return cumpleTipo && cumpleTexto;
     }) ?? [];
+
+    const verificarCodigo = () => {
+        if (codigo === "1234") {
+            setPasoPIN(2);
+            setTimeout(() => {
+                setMostrarModalPIN(false);
+                setPasoPIN(1);
+                setCodigo("");
+            }, 10000);
+        } else {
+            alert("Código incorrecto");
+        }
+    };
 
     return (
         <div className={styles.contenedorSeccion}
@@ -117,8 +134,10 @@ function Tarjetas() {
                             <p style={{ color: "Black" }}>No hay movimientos que coincidan</p>
                         )}
 
-                        <button className={styles.botonDatosTarjeta}>
-                            Mostrar Datos de la tarjeta
+                        <button 
+                            className={styles.botonDatosTarjeta}
+                            onClick={() => setMostrarModalPIN(true)}
+                        >Mostrar Datos de la tarjeta
                         </button>
                         <button
                             className={styles.cerrarResumen}
@@ -126,6 +145,37 @@ function Tarjetas() {
                         >
                             Cerrar
                         </button>
+                    </div>
+                </div>
+            )}
+            {mostrarModalPIN && (
+                <div className={styles.overlay}>
+                    <div className={styles.resumenCuenta}>
+                        {pasoPIN === 1 && (
+                            <>
+                                <h3>Verificación de identidad</h3>
+                                <p>Ingrese el código enviado por correo/SMS:</p>
+                                <input
+                                    type="text"
+                                    value={codigo}
+                                    onChange={(e) => setCodigo(e.target.value)}
+                                    className={styles.filtroDescripcion}
+                                />
+                                <button onClick={verificarCodigo}>Verificar</button>
+                                <button onClick={() => setMostrarModalPIN(false)}>Cancelar</button>
+                            </>
+                        )}
+
+                        {pasoPIN === 2 && (
+                            <>
+                                <h3>Datos de la tarjeta</h3>
+                                <p><b>Tipo:</b> {tarjetaActual.tipo}</p>
+                                <p><b>Número:</b> **** **** **** {tarjetaActual.numero.slice(-4)}</p>
+                                <p><b>CVV:</b> 123</p> {/* Hardcodeado por ahora */}
+                                <p><b>PIN:</b> 4321</p> {/* Hardcodeado por ahora */}
+                                <p>(Esta ventana se cerrará automáticamente en 10s)</p>
+                            </>
+                        )}
                     </div>
                 </div>
             )}
