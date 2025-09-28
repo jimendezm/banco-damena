@@ -13,8 +13,19 @@
     align-items: center;
     gap: 1rem;
 }
+.tituloSeccion{
+    position: absolute;  
+    top: 10px;
+    left: 20px;
+    font-size: 1.2rem;
+    font-weight: bold;
+    color: inherit;
+}
 
-
+.logoDamena{
+    width: 9rem;
+    align-self:flex-end;
+}
 .seccionTarjetas button {
     background: #0077ff;
     color: white;
