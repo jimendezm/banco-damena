@@ -1,6 +1,7 @@
 import { useState } from "react";
 import logo from '../assets/Damena-logo-original.png'
 import styles from './Login.module.css';
+import { Link } from "react-router-dom";
 
 function Login(){
     return(
@@ -16,8 +17,8 @@ function Login(){
                     <button className={styles.botonIniciarSesion}>Iniciar sesión</button>
                 </form>
                 <p className={styles.textoSeccionLogin}>En banco Damena sabemos que una de las cosas más importantes para ti es tu seguridad. Por eso, contamos con los más altos estándares en este ámbito y con profesionales especializados. Porque nosotros cuidamos lo tuyo.</p>
-                <div className={styles.divisionAyuda} id='divisionAyuda'>
-                    <a href="">Olvidé mi contraseña</a>  <a href="">Ayuda</a>
+                <div className={styles.divisionAyuda}>
+                    <Link to={'/recuperacion'}>Olvide mi contraseña</Link>
                 </div>
             </section>
         </div>
