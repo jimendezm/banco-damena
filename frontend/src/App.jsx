@@ -11,7 +11,7 @@ import Recuperacion from './pages/Recuperacion'
 
 function App() {
   const [count, setCount] = useState(0)
-
+  
   return (
     <BrowserRouter>
       <Routes>
@@ -21,7 +21,6 @@ function App() {
       </Routes>
     </BrowserRouter>
       
-
   )
 }
 
