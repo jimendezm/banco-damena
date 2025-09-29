@@ -57,6 +57,7 @@ function Login(){
                 <p className={styles.textoSeccionLogin}>En banco Damena sabemos que una de las cosas más importantes para ti es tu seguridad. Por eso, contamos con los más altos estándares en este ámbito y con profesionales especializados. Porque nosotros cuidamos lo tuyo.</p>
                 <div className={styles.divisionAyuda}>
                     <Link to={'/recuperacion'}>Olvidé mi contraseña</Link>
+                    <Link to={'/registro'}>¡Registrate!</Link>
                 </div>
             </section>
         </div>

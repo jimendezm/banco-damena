@@ -121,7 +121,7 @@ function Registro() {
   };
   
   const handleLoginRedirect = () => {
-    navigate('/login');
+    navigate('/');
   };
 
 
