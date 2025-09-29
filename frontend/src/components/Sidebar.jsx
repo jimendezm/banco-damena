@@ -1,4 +1,3 @@
-
 import { 
   FiPieChart, 
   FiCreditCard, 
@@ -17,20 +16,19 @@ import '../styles/Sidebar.css';
 
 function Sidebar({ currentSection, onSectionChange, isOpen }) {
   const menuItems = [
-    { id: 'dashboard', label: 'Dashboard', icon: <FiPieChart />, path: '/dashboard:id' },
-    { id: 'cuentas', label: 'Mis Cuentas', icon: <FiHome />, path: '/cuentas' },
-    { id: 'tarjetas', label: 'Tarjetas', icon: <FiCreditCard />, path: '/Tarjetas:id' },
-    { id: 'transferencias', label: 'Transferencias', icon: <FiRepeat />, path: '/transferencias' },
-    { id: 'pagos', label: 'Pagos', icon: <FiDollarSign />, path: '/pagos' },
-    { id: 'prestamos', label: 'Préstamos', icon: <FiTrendingUp />, path: '/prestamos' },
-    { id: 'seguros', label: 'Seguros', icon: <FiShield />, path: '/seguros' },
-    { id: 'perfil', label: 'Mi Perfil', icon: <FiUser />, path: '/perfil' },
-    { id: 'ayuda', label: 'Ayuda', icon: <FiHelpCircle />, path: '/ayuda' },
-    { id: 'cerrar-sesion', label: 'Cerrar Sesión', icon: <FiLogOut />, path: '/login' }
+    { id: 'dashboard', label: 'Dashboard', icon: <FiPieChart /> },
+    { id: 'cuentas', label: 'Mis Cuentas', icon: <FiHome /> },
+    { id: 'tarjetas', label: 'Tarjetas', icon: <FiCreditCard /> },
+    { id: 'transferencias', label: 'Transferencias', icon: <FiRepeat /> },
   ];
 
   const handleItemClick = (itemId) => {
     onSectionChange(itemId);
+  };
+
+  const handleCerrarSesion = () => {
+      sessionStorage.removeItem('currentUser');
+      window.location.href = '/';
   };
 
   return (
@@ -70,6 +68,16 @@ function Sidebar({ currentSection, onSectionChange, isOpen }) {
             <FiShield className="security-icon" />
             <span>Sitio Seguro</span>
           </div>
+          
+          {/* Botón de Cerrar Sesión separado */}
+          <button 
+            className="logout-button"
+            onClick={handleCerrarSesion}
+          >
+            <FiLogOut className="logout-icon" />
+            <span>Cerrar Sesión</span>
+          </button>
+          
           <p className="sidebar-version">v1.0.0</p>
         </div>
       </aside>
@@ -77,4 +85,4 @@ function Sidebar({ currentSection, onSectionChange, isOpen }) {
   );
 }
 
-export default Sidebar; 
+export default Sidebar;

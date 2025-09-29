@@ -4,6 +4,7 @@ import { useParams, useNavigate } from "react-router-dom";
 import logoDamenaSinFondoClaro from '../assets/logoDamenaSinFondoClaro.png';
 import logoDamenaSinFondoOscuro from '../assets/logoDamenaSinFondo.png';
 import { initializeSampleData, enviarTarjetas } from '../services/userService';
+import Layout from '../components/Layout';
 
 // Modal para Consultar PIN
 function ModalConsultarPIN({ tarjeta, onClose }) {
@@ -137,6 +138,7 @@ function Tarjetas() {
     }) ?? [];
 
     return (
+        <Layout>
         <div className={styles.contenedorSeccion}
             style={{
                 background: `linear-gradient(145deg, ${coloresTarjeta[tarjetaActual.tipo]}80, white)`,
@@ -234,6 +236,7 @@ function Tarjetas() {
                 />
             )}
         </div>
+        </Layout>
     );
 }
 
