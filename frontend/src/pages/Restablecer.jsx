@@ -5,51 +5,86 @@ import { useNavigate } from "react-router-dom";
 
 function Restablecer(){
     const navigate = useNavigate();
+
     const [contrasenia, setContrasenia] = useState("");
     const [copiaContra, setCopiaContra] = useState("");
     const [mostrar, setMostrar] = useState(false);
 
+    // errores visuales
+    const [errorContrasenia, setErrorContrasenia] = useState("");
+    const [errorConfirmacion, setErrorConfirmacion] = useState("");
+
     const handleValidarContra = () =>{
-        if(/^(?=.*[a-z])(?=.*[A-Z])(?=.*\d).{8,}$/.test(contrasenia) && copiaContra === contrasenia){
-            window.alert("Redirigiendo");
-            navigate("/");
-        }else{
-            window.alert("Porfavor cree una contrasenia con 8 caracteres de longitud, almenos una minuscula y una mayuscula, y almenos un digito. Ademas las contrasenias deben ser iguales")
+        let valido = true;
+
+        if(!/^(?=.*[a-z])(?=.*[A-Z])(?=.*\d).{8,}$/.test(contrasenia)){
+            setErrorContrasenia("Debe tener 8 caracteres, mayúscula, minúscula y un dígito.");
+            valido = false;
+        } else {
+            setErrorContrasenia("");
         }
-    }
+
+        if(copiaContra !== contrasenia){
+            setErrorConfirmacion("Las contraseñas no coinciden.");
+            valido = false;
+        } else {
+            setErrorConfirmacion("");
+        }
+
+        if(valido){
+            navigate("/");
+        }
+    };
 
     return(
-        <div className={styles.contenedorPaginaRestablecer} id="contenedorPaginaRestablecer">
-            <img className= {styles.logoDamena} src={logo} alt="Logo de banco damena en su versión clara" />
-            <h2 className= {styles.tituloRestablecer}>Confirme su contraseña</h2>
-            <section className={styles.contenedorRestablecerContraseña} id="contenedorRestablecerContraseña">
-                <label className={styles.labelContraseña} htmlFor="" id="labelContraseña">Agregue aquí su nueva contraseña</label>
+        <div className={styles.fondo}>
+            <div className={styles.card}>
+
+                <img className={styles.logoDamena} src={logo} />
+
+                <h2 className={styles.tituloRestablecer}>Restablecer contraseña</h2>
+
+                <label className={styles.label}>Nueva contraseña</label>
                 <input 
-                className={styles.inputContraseña} 
-                type={mostrar ? "text" : "password"}
-                value={contrasenia}
-                onChange={(e) => setContrasenia(e.target.value)}
+                    className={styles.input}
+                    type={mostrar ? "text" : "password"}
+                    value={contrasenia}
+                    onChange={(e) => { 
+                        setContrasenia(e.target.value);
+                        setErrorContrasenia("");
+                    }}
                 />
-                <label className={styles.labelConfirmarContraseña} htmlFor="" id="labelConfirmarContraseña">Porfavor confirme su contraseñas</label>
-                
+
+                {errorContrasenia && <p className={styles.error}>{errorContrasenia}</p>}
+
+                <label className={styles.label}>Confirmar contraseña</label>
                 <input 
-                className={styles.inputConfirmarContraseña} 
-                type={mostrar ? "text" : "password"}
-                value={copiaContra}
-                onChange={(e) => setCopiaContra(e.target.value)}
+                    className={styles.input}
+                    type={mostrar ? "text" : "password"}
+                    value={copiaContra}
+                    onChange={(e) => { 
+                        setCopiaContra(e.target.value);
+                        setErrorConfirmacion("");
+                    }}
                 />
-                
+
+                {errorConfirmacion && <p className={styles.error}>{errorConfirmacion}</p>}
+
                 <button 
-                className={styles.botonMostrarContraseña}
-                onClick={() => setMostrar(!mostrar)}
-                
-                >Mostrar Contrseñas</button>
-                
+                    className={styles.btnSecundario}
+                    onClick={() => setMostrar(!mostrar)}
+                >
+                    {mostrar ? "Ocultar" : "Mostrar"}
+                </button>
+
                 <button 
-                className={styles.botonConfirmarContraseña}
-                onClick={handleValidarContra}
-                >Confirmar contrseña</button>
-            </section>
+                    className={styles.btnPrimario}
+                    onClick={handleValidarContra}
+                >
+                    Confirmar
+                </button>
+
+            </div>
         </div>
     );
 }

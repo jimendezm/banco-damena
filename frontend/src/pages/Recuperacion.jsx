@@ -5,53 +5,93 @@ import { useNavigate } from "react-router-dom";
 
 function Recuperacion(){
     const navigate = useNavigate();
+
     const [email, setEmail] = useState("");
+    const [codigo, setCodigo] = useState("");
+    const [codigoEnviado, setCodigoEnviado] = useState(false);
 
-    const [codigo,setCodigo] = useState("")
+    // Estados de error
+    const [errorEmail, setErrorEmail] = useState("");
+    const [errorCodigo, setErrorCodigo] = useState("");
 
-    const[codigoEnviado, setCodigoEnviado] = useState(false);
-
-    const handleEnviarCodigo = () => {
-        setCodigoEnviado(true);
-    };
-
-    const  handleValidarCodigo = () => {
-        if(/^\d{6}$/.test(codigo)){
-            window.alert("codigo correctto");
-            navigate("/restablecer");
-        } else {
-            window.alert("El codigo debe de tener 6 digitos")
-        }
-    };
     const validarEmail = (correo) => {
         const regex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
         return regex.test(correo);
     };
 
+    const handleEnviarCodigo = () => {
+        if (!validarEmail(email)) {
+            setErrorEmail("Ingrese un correo válido.");
+            return;
+        }
+        setErrorEmail("");
+        setCodigoEnviado(true);
+    };
+
+    const handleValidarCodigo = () => {
+        if (!/^\d{6}$/.test(codigo)) {
+            setErrorCodigo("El código debe tener 6 dígitos.");
+            return;
+        }
+
+        setErrorCodigo("");
+        navigate("/restablecer");
+    };
+
     return(
-        <div className={styles.contenedor} id="contenedor">
-            
-            <img className={styles.logoDamena}  src={logo} alt="" />
-            
-            <h2 className={styles.tituloRecuperacion}>Recuperacion contraseña</h2>
-            
-            <section className={styles.seccionRecuperacion} id="seccionRecuperacion">
+        <div className={styles.fondo}>
+            <div className={styles.card}>
                 
-                <label className={styles.labelCorreo} htmlFor="" id="labelCorreo">Introduzca su correo electrónico</label>
+                <img className={styles.logo} src={logo} alt="" />
 
-                <input className={styles.inputEmailUsuario}  type="email" value={email} onChange={(e) => setEmail(e.target.value)}/>
+                <h2 className={styles.titulo}>Recuperación de contraseña</h2>
 
-                <button className={styles.botonEnviarCodigo} onClick={handleEnviarCodigo} disabled = {!validarEmail(email) || codigoEnviado} id="botonEnviarCodigo">Enviar codigo</button>
-                
-                <label className={styles.labelRecuperacion} htmlFor="" id="labelRecuperacion">Ingrese el codigo de recuperacion</label>
-                
-                <input className={styles.inputCodigo} disabled = {!codigoEnviado} value={codigo} onChange={(e) => setCodigo(e.target.value)} id="textoCodigo" type="number" />
-                
-                <button  className={styles.botonValidacion} onClick={handleValidarCodigo} disabled = {!codigoEnviado} id="botonValidacion">Validar codigo</button>
-            
-            </section>
-        
+                <label className={styles.label}>Correo electrónico</label>
+                <input 
+                    className={styles.input}
+                    type="email"
+                    value={email}
+                    onChange={(e) => { 
+                        setEmail(e.target.value);
+                        setErrorEmail("");
+                    }}
+                />
+
+                {errorEmail && <p className={styles.error}>{errorEmail}</p>}
+
+                <button 
+                    className={styles.btnPrimario}
+                    onClick={handleEnviarCodigo}
+                    disabled={!email}
+                >
+                    Enviar código
+                </button>
+
+                <label className={styles.label}>Código de verificación</label>
+                <input 
+                    className={styles.input}
+                    type="number"
+                    disabled={!codigoEnviado}
+                    value={codigo}
+                    onChange={(e) => { 
+                        setCodigo(e.target.value);
+                        setErrorCodigo("");
+                    }}
+                />
+
+                {errorCodigo && <p className={styles.error}>{errorCodigo}</p>}
+
+                <button 
+                    className={styles.btnSecundario}
+                    onClick={handleValidarCodigo}
+                    disabled={!codigoEnviado}
+                >
+                    Validar código
+                </button>
+
+            </div>
         </div>
     );
 }
+
 export default Recuperacion;
