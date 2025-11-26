@@ -1,0 +1,242 @@
+/* ==== CONTENEDOR GENERAL ==== */
+.registroContainer {
+  background: linear-gradient(135deg, #E9FBF4, #C3F4DF);
+  min-height: 100vh;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: 1.5rem;
+  font-family: 'Poppins', sans-serif;
+}
+
+/* ==== CARD PRINCIPAL ==== */
+.registroCard {
+  width: 100%;
+  max-width: 480px;
+  background: white;
+  border-radius: 18px;
+  padding: 2.5rem 2rem;
+  box-shadow: 0 12px 32px rgba(0,0,0,0.15);
+  position: relative;
+  overflow: hidden;
+  animation: fadeIn 0.3s ease-out;
+}
+
+/* Línea decorativa */
+.registroCard::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  height: 4px;
+  width: 100%;
+  background: linear-gradient(90deg, #16774f, #25CB86);
+}
+
+/* ==== HEADER ==== */
+.registroHeader {
+  text-align: center;
+  margin-bottom: 1.5rem;
+}
+
+.registroTitle {
+  color: #126341;
+  font-size: 1.9rem;
+  font-weight: 600;
+  margin-bottom: 0.3rem;
+}
+
+.registroSubtitle {
+  color: #666;
+  font-size: 0.9rem;
+}
+
+/* ==== FORMULARIO ==== */
+.registroForm {
+  display: flex;
+  flex-direction: column;
+  gap: 1.3rem;
+}
+
+.formGroup {
+  display: flex;
+  flex-direction: column;
+  gap: 0.4rem;
+}
+
+/* Etiquetas */
+.formLabel {
+  color: #0B3C28;
+  font-size: 0.92rem;
+  font-weight: 500;
+}
+
+/* Inputs */
+.formInput,
+.formSelect {
+  border: 2px solid #DCE1E6;
+  background: #F9F9F9;
+  border-radius: 10px;
+  padding: 0.75rem 0.9rem;
+  font-size: 1rem;
+  transition: all 0.25s ease;
+}
+
+.formInput:focus,
+.formSelect:focus {
+  background: #FFFFFF;
+  border-color: #25CB86;
+  box-shadow: 0 0 0 3px rgba(37,203,134,0.2);
+  outline: none;
+}
+
+/* Estilo error */
+.inputError {
+  border-color: #E74C3C !important;
+  background: #FDEDEC !important;
+}
+
+.errorText {
+  font-size: 0.8rem;
+  color: #E74C3C;
+  margin-top: -0.2rem;
+}
+
+/* Date */
+input[type="date"] {
+  cursor: pointer;
+}
+
+/* Select con flecha custom */
+.formSelect {
+  cursor: pointer;
+  appearance: none;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' fill='%230B3C28' viewBox='0 0 16 16'%3E%3Cpath d='M7.247 11.14 2.451 5.658C1.885 5.013 2.345 4 3.204 4h9.592a1 1 0 0 1 .753 1.659l-4.796 5.48a1 1 0 0 1-1.506 0z'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 12px center;
+  background-size: 14px;
+  padding-right: 2.5rem;
+}
+
+/* ==== TÉRMINOS ==== */
+.terminosGroup {
+  background: #F4F6F8;
+  border-radius: 10px;
+  padding: 1rem;
+  display: flex;
+  align-items: flex-start;
+  gap: 0.8rem;
+}
+
+.terminosCheckbox {
+  transform: scale(1.15);
+  margin-top: 0.2rem;
+}
+
+.terminosLabel {
+  font-size: 0.88rem;
+  color: #444;
+}
+
+.terminosLink {
+  color: #16774f;
+  text-decoration: underline;
+  border: none;
+  padding: 0;
+  cursor: pointer;
+  background: transparent;
+}
+
+.terminosLink:hover {
+  color: #25CB86;
+}
+
+/* ==== BOTÓN ENVIAR ==== */
+.submitButton {
+  background: linear-gradient(135deg, #16774f, #25CB86);
+  color: white;
+  padding: 0.9rem;
+  font-size: 1.05rem;
+  border-radius: 12px;
+  border: none;
+  cursor: pointer;
+  font-weight: 600;
+  transition: all 0.25s ease;
+  position: relative;
+}
+
+.submitButton:hover:not(:disabled) {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 24px rgba(0,0,0,0.15);
+}
+
+.submitButton:disabled {
+  background: #B8C1C8;
+  cursor: not-allowed;
+}
+
+/* Spinner */
+.loading::after {
+  content: '';
+  position: absolute;
+  width: 22px;
+  height: 22px;
+  border-radius: 50%;
+  border: 3px solid transparent;
+  border-top: 3px solid white;
+  animation: spin 1s linear infinite;
+  top: calc(50% - 11px);
+  left: calc(50% - 11px);
+}
+
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}
+
+/* ==== MENSAJES ==== */
+.mensaje {
+  margin-top: 1rem;
+  padding: 0.9rem;
+  border-radius: 10px;
+  text-align: center;
+  font-size: 0.95rem;
+  font-weight: 500;
+}
+
+.mensajeSuccess {
+  background: #DFF7EB;
+  border: 1px solid #25CB86;
+  color: #126341;
+}
+
+.mensajeError {
+  background: #FDEDEC;
+  border: 1px solid #E74C3C;
+  color: #E74C3C;
+}
+
+/* ==== LINK A LOGIN ==== */
+.loginLink {
+  margin-top: 1.2rem;
+  text-align: center;
+  color: #555;
+  font-size: 0.9rem;
+}
+
+.loginLinkButton {
+  color: #16774f;
+  text-decoration: underline;
+  background: none;
+  border: none;
+  cursor: pointer;
+}
+
+.loginLinkButton:hover {
+  color: #25CB86;
+}
+
+/* Animación */
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(10px);}
+  to { opacity: 1; transform: translateY(0);}
+}
