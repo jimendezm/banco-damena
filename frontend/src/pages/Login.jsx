@@ -4,29 +4,18 @@ import styles from '../styles/Login.module.css';
 import { Link } from "react-router-dom";
 import { useNavigate } from "react-router-dom";
 import { initializeSampleData, verificarCredenciales} from '../services/userService';
+import { IniciarSesion } from "../../ConnectionAPI/inicioSesion";
 
 function Login(){
     const navigate = useNavigate();
     const [usuario, setUsuario] = useState("");
     const [contrasenia, setContrasenia] = useState("");
-    useEffect(() => {
-        initializeSampleData();
-    }, []);
-
-    const handleLogin = (e) => {
+    const handleLogin = async (e) => {
         e.preventDefault();
-        const idUsuario = verificarCredenciales(usuario, contrasenia)
-        if( idUsuario != null){
-            // Guardar usuario en sessionStorage
-            const usersData = JSON.parse(localStorage.getItem('bank_users') || '{"users":[]}');
-            const user = usersData.users.find(u => u.id === idUsuario);
-            if (user) {
-                sessionStorage.setItem('currentUser', JSON.stringify(user));
-            }
-            navigate(`/dashboard/${idUsuario}`);
-        } else{
-            alert("Usuario o contraseña incorrectos");
-        }
+
+        const dataLogin = await IniciarSesion(usuario, contrasenia);
+        console.log(dataLogin);
+        alert("Alerta el resultado de la operacione es " + dataLogin.message);
     };
 
     return(
