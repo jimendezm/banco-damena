@@ -2,7 +2,7 @@ import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import styles from '../styles/Registro.module.css';
 import { initializeSampleData, createUser, usernameExists, emailExists } from '../services/userService';
-
+import { RegistrarUsuario } from "../../ConnectionAPI/apiFunciones";
 function Registro() {
   const navigate = useNavigate();
 
@@ -96,23 +96,23 @@ function Registro() {
     }
 
     try {
-      const result = createUser(form);
-
-      if (result.success) {
+      const  result = await RegistrarUsuario(form.tipoId, form.numId, form.nombre, "", form.correo, form.telefono, form.username, form.password, "Cliente");
+      console.log(result.message)
+      if (result.status == "success") {
         setMensaje("Registro exitoso! Redirigiendo…");
-        sessionStorage.setItem('currentUser', JSON.stringify(result.user));
 
         setTimeout(() => {
           setIsLoading(false);
-          navigate(`/dashboard/${result.user.id}`);
+          navigate('/');
         }, 1500);
 
       } else {
-        setMensaje(result.error || "Error en el registro.");
+        setMensaje("Error en el registro. Verifique sus datos y cambie su usuario y correo por uno no registrado");
         setIsLoading(false);
       }
 
     } catch (error) {
+      console.log(error)
       setMensaje("Error en el registro.");
       setIsLoading(false);
     }
@@ -137,7 +137,7 @@ function Registro() {
             <label className={styles.formLabel}>Tipo de identificación *</label>
             <select name="tipoId" value={form.tipoId} onChange={handleChange} className={styles.formSelect}>
               <option value="">Seleccione</option>
-              <option value="nacional">Nacional</option>
+              <option value="Cédula Nacional">Nacional</option>
               <option value="dimex">DIMEX</option>
               <option value="pasaporte">Pasaporte</option>
             </select>

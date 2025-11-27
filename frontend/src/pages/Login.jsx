@@ -4,7 +4,7 @@ import styles from '../styles/Login.module.css';
 import { Link } from "react-router-dom";
 import { useNavigate } from "react-router-dom";
 import { initializeSampleData, verificarCredenciales} from '../services/userService';
-import { IniciarSesion } from "../../ConnectionAPI/inicioSesion";
+import { IniciarSesion } from "../../ConnectionAPI/apiFunciones";
 
 function Login(){
     const navigate = useNavigate();
@@ -14,8 +14,11 @@ function Login(){
         e.preventDefault();
 
         const dataLogin = await IniciarSesion(usuario, contrasenia);
-        console.log(dataLogin);
-        alert("Alerta el resultado de la operacione es " + dataLogin.message);
+        if(dataLogin.status == "success"){
+            alert("Inicio de sesion exitoso")
+        }else{
+            alert("Respuesta del servidor: "+ dataLogin.message)
+        }
     };
 
     return(
