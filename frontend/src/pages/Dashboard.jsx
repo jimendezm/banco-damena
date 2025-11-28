@@ -6,6 +6,7 @@ import { ValidateTime } from "../scripts/ValidateTime";
 import { ObtenerDatosUsuario } from "../../ConnectionAPI/apiFunciones";
 import Sidebar from "../components/Sidebar";
 import PaginaPrincipal from "./PaginaPrincipal";
+import Tarjetas from "./Tarjetas";
 
 function Dashboard() {
   const navigate = useNavigate();
@@ -54,10 +55,11 @@ useEffect(() => {
     
     <section className="contenedorDashboard">
       <nav>
+        
         <ul>
           <li><button onClick={() => setPaginaSeleccionada(<PaginaPrincipal />)} >Página Principal</button></li>
           <li><button onClick={() => setPaginaSeleccionada(<PaginaPrincipal />)}>Cuentas</button></li>
-          <li><button onClick={() => setPaginaSeleccionada(<PaginaPrincipal />)}>Tarjetas</button></li>
+          <li><button onClick={() => setPaginaSeleccionada(<Tarjetas />)}>Tarjetas</button></li>
           <li><button onClick={() => setPaginaSeleccionada(<PaginaPrincipal />)}>Transferencias</button></li>
         </ul>
       </nav>
