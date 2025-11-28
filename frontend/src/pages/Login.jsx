@@ -7,6 +7,12 @@ import { initializeSampleData, verificarCredenciales} from '../services/userServ
 import { IniciarSesion } from "../../ConnectionAPI/apiFunciones";
 
 function Login(){
+    useEffect(() => {
+        localStorage.removeItem("token");
+        localStorage.removeItem("userId");
+        localStorage.removeItem("loginTime");
+        localStorage.removeItem("identificaion");
+    }, []);
     const navigate = useNavigate();
     const [usuario, setUsuario] = useState("");
     const [contrasenia, setContrasenia] = useState("");
@@ -16,11 +22,12 @@ function Login(){
         const dataLogin = await IniciarSesion(usuario, contrasenia);
         console.log("Esto es una prueba")
         if(dataLogin.status == "success"){
-            var date = new Date();
             localStorage.setItem("token", dataLogin.token);
             localStorage.setItem("userId", dataLogin.id);
-            localStorage.setItem("time", date)
-            navigate("/Dashboard")
+            localStorage.setItem("loginTime", Date.now().toString());
+            localStorage.setItem("identificacion", dataLogin.identificacion);
+            console.log("Token almacenado en localStorage:", dataLogin.token, "  identificacion: ", dataLogin.identificacion);
+            navigate("/Dashboard");
         }else{
             alert("Respuesta del servidor: "+ dataLogin.message)
         }

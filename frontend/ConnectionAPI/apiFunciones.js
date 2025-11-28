@@ -20,7 +20,8 @@ export async function IniciarSesion(username_or_email, password){
             message: data.message,
             token: data?.data?.token || null,
             expiresIn: data?.data?.expiresIn || null,
-            id: data?.data?.id || null
+            id: data?.data?.id || null,
+            identificacion: data?.data?.identificacion || null
 
         }
     }catch(error){
@@ -60,6 +61,31 @@ export async function RegistrarUsuario(tipo_identificacion, identificacion, nomb
 
     }catch(error){
         console.error("Error en RegistrarUsuario: ", error);
+        return { success: false, message: "No se pudo conectar con el servidor." };
+    }
+}
+
+export async function ObtenerDatosUsuario(userId, token){
+    try{
+        const response = await fetch(`https://bdproyectoweb-3.onrender.com/api/v1/users/${userId}`, {
+            method: "GET",
+            headers: {
+                "Content-Type": "application/json",
+                "x-api-key": API_KEY,
+                "Authorization": `Bearer ${token}`
+            }
+        });
+        const data = await response.json();
+        console.log("Respuesta de ObtenerDatosUsuario:", data.nombre);
+        return {
+            success: response.ok,
+            status: data.status,
+            message: data.message,
+            userData: data || null,
+        }
+        
+    }catch(error){
+        console.error("Error en ObtenerDatosUsuario: ", error);
         return { success: false, message: "No se pudo conectar con el servidor." };
     }
 }

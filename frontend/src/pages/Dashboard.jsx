@@ -3,53 +3,68 @@ import { useNavigate } from "react-router-dom";
 import Layout from "../components/Layout";
 import "../styles/Dashboard.css";
 import { ValidateTime } from "../scripts/ValidateTime";
+import { ObtenerDatosUsuario } from "../../ConnectionAPI/apiFunciones";
+import Sidebar from "../components/Sidebar";
+import PaginaPrincipal from "./PaginaPrincipal";
 
 function Dashboard() {
   const navigate = useNavigate();
   const [userData, setUserData] = useState(null);
   const [token, setToken] = useState(null);
+  const [PaginaSeleccionada, setPaginaSeleccionada] = useState(<PaginaPrincipal />);
 
-  // Revisar autenticación
 useEffect(() => {
-    const token = localStorage.getItem("token");
+    const localToken = localStorage.getItem("token");
     const userId = localStorage.getItem("userId");
     const loginTime = localStorage.getItem("loginTime");
-
-    // Si falta algo → redirigir al login
-    if ((!token || !userId || !loginTime) && !ValidateTime) {
+    const identificacion = localStorage.getItem("identificacion");
+    setToken(localToken);
+    // Si falta cualquier dato del login → fuera
+    if (localToken == "" || userId == "" || loginTime == "" || identificacion == "") {
         navigate("/");
+        return;
+    }
+}, []);
+useEffect(() => {
+
+    if (!ValidateTime()) {
+        navigate("/");
+        return;
+    }
+
+    const interval = setInterval(() => {
+        console.log("Validando tiempo de sesión...");
+        if (!ValidateTime()) {
+            navigate("/");
+        }
+    }, 60 * 1000); // 1 min
+
+    // Limpiar interval cuando se desmonta el Dashboard
+    return () => clearInterval(interval);
+
+}, []);
+useEffect(() => {
+    if (!ValidateTime()) {
+        navigate("/");
+        return;
     }
 }, []);
 
-  if (!userData) {
-    return (
-      <Layout>
-        <div className="dashboard-page">
-          <p>Cargando información...</p>
-        </div>
-      </Layout>
-    );
-  }
-
   return (
-    <Layout>
-      <div className="dashboard-page">
-        <div className="welcome-section">
-          <h1>¡Bienvenido, {userData.nombre}!</h1>
-          <p className="welcome-subtitle">Tu banca digital Damena</p>
-        </div>
-
-        {/* Aquí pondrás cuentas, tarjetas, todo dinámico */}
-        <div className="user-info-section">
-          <div className="info-card">
-            <h3>Tu información</h3>
-            <p><strong>Usuario:</strong> {userData.usuario}</p>
-            <p><strong>Correo:</strong> {userData.correo}</p>
-            <p><strong>ID:</strong> {userData.user_id}</p>
-          </div>
-        </div>
-      </div>
-    </Layout>
+    
+    <section className="contenedorDashboard">
+      <nav>
+        <ul>
+          <li><button onClick={() => setPaginaSeleccionada(<PaginaPrincipal />)} >Página Principal</button></li>
+          <li><button onClick={() => setPaginaSeleccionada(<PaginaPrincipal />)}>Cuentas</button></li>
+          <li><button onClick={() => setPaginaSeleccionada(<PaginaPrincipal />)}>Tarjetas</button></li>
+          <li><button onClick={() => setPaginaSeleccionada(<PaginaPrincipal />)}>Transferencias</button></li>
+        </ul>
+      </nav>
+      <section className="contenedorDinamico">
+        {PaginaSeleccionada}
+      </section>
+    </section>
   );
 }
 
