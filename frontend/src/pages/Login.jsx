@@ -14,8 +14,13 @@ function Login(){
         e.preventDefault();
 
         const dataLogin = await IniciarSesion(usuario, contrasenia);
+        console.log("Esto es una prueba")
         if(dataLogin.status == "success"){
-            alert("Inicio de sesion exitoso")
+            var date = new Date();
+            localStorage.setItem("token", dataLogin.token);
+            localStorage.setItem("userId", dataLogin.id);
+            localStorage.setItem("time", date)
+            navigate("/Dashboard")
         }else{
             alert("Respuesta del servidor: "+ dataLogin.message)
         }

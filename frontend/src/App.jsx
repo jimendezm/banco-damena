@@ -24,7 +24,7 @@ function App() {
         <Route path='/restablecer' element = {<Restablecer/>} />
         <Route path='/recuperacion' element = {<Recuperacion/>} />
         <Route path="/Tarjetas/:idUsuario" element={<Tarjetas />} />
-        <Route path="/Dashboard/:idUsuario" element={<Dashboard />} />
+        <Route path="/Dashboard" element={<Dashboard />} />
         <Route path="/Cuentas/:idUsuario" element={<Cuentas />} />
         <Route path="/Transferencias/:idUsuario" element={<Transferencias />} />
       </Routes>
