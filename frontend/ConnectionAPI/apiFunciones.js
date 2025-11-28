@@ -89,3 +89,27 @@ export async function ObtenerDatosUsuario(userId, token){
         return { success: false, message: "No se pudo conectar con el servidor." };
     }
 }
+export async function ObtenerTarjetasUsuario(userId, token){
+    try{
+        const response = await fetch(`https://bdproyectoweb-3.onrender.com/api/v1/cards`, {
+            method: "GET",
+            headers: {
+                "Content-Type": "application/json",
+                "x-api-key": API_KEY,
+                "Authorization": `Bearer ${token}`
+            }
+        });
+        const data = await response.json();
+        console.log("Respuesta tarjetas:", data);
+        return {
+            success: response.ok,
+            status: data.status,
+            message: data.message,
+            tarjetas: data || null,
+        }
+        
+    }catch(error){
+        console.error("Error en ObtenerTarjetasUsuario: ", error);
+        return { success: false, message: "No se pudo conectar con el servidor." };
+    }
+}

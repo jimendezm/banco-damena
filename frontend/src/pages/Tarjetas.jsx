@@ -5,6 +5,7 @@ import logoDamenaSinFondoClaro from '../assets/logoDamenaSinFondoClaro.png';
 import logoDamenaSinFondoOscuro from '../assets/logoDamenaSinFondo.png';
 import { initializeSampleData, enviarTarjetas } from '../services/userService';
 import Layout from '../components/Layout';
+import { ObtenerTarjetasUsuario } from "../../ConnectionAPI/apiFunciones";
 
 // Modal para Consultar PIN
 function ModalConsultarPIN({ tarjeta, onClose }) {
@@ -102,16 +103,16 @@ function Tarjetas() {
     };
 
     useEffect(() => {
-        initializeSampleData();
-        const tarjetasDelUsuario = enviarTarjetas(Number(idUsuario));
+        const token = localStorage.getItem("token");
+        const identificacion = localStorage.getItem("identificacion");
+        const fetchData = async () => {
+            const result = await ObtenerTarjetasUsuario(identificacion, token);
 
-        if (tarjetasDelUsuario) {
-            setTarjetas(tarjetasDelUsuario);
-        } else {
-            alert("Usuario no encontrado. Volviendo al login.");
-            navigate("/", { replace: true });
-        }
-    }, [idUsuario, navigate]);
+            console.log("Datos del usuario obtenidos:", result);
+        };
+        fetchData();
+        
+    }, []);
 
     if (tarjetas.length === 0) return null;
 
