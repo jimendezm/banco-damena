@@ -1,131 +1,81 @@
-// components/UnifiedLayout.jsx
 import { useState, useEffect } from 'react';
-import { useLocation, useNavigate } from 'react-router-dom';
-import { FiUser, FiMenu } from 'react-icons/fi';
+import { useNavigate, useLocation } from 'react-router-dom';
 import Sidebar from './Sidebar';
 import '../styles/Layout.css';
-import { ValidateTime } from '../scripts/ValidateTime';
 
-import PaginaPrincipal from '../pages/PaginaPrincipal';
-import Cuentas from '../pages/Cuentas';
-import Tarjetas from '../pages/Tarjetas';
-import Transferencias from '../pages/Transferencias';
-
-function UnifiedLayout() {
+function Layout({ children }) {
   const [sidebarOpen, setSidebarOpen] = useState(false);
-  const [currentSection, setCurrentSection] = useState('pagina-principal');
-  const location = useLocation();
   const navigate = useNavigate();
-
-  // Validación de autenticación
-  useEffect(() => {
-    const localToken = localStorage.getItem("token");
-    const userId = localStorage.getItem("userId");
-    const loginTime = localStorage.getItem("loginTime");
-    const identificacion = localStorage.getItem("identificacion");
-    
-    if (!localToken || !userId || !loginTime || !identificacion) {
-        navigate("/");
-        return;
-    }
-
-    if (!ValidateTime()) {
-        navigate("/");
-        return;
-    }
-
-    const interval = setInterval(() => {
-        if (!ValidateTime()) {
-            navigate("/");
-        }
-    }, 60 * 1000);
-
-    return () => clearInterval(interval);
-  }, [navigate]);
+  const location = useLocation();
 
   const toggleSidebar = () => {
     setSidebarOpen(!sidebarOpen);
   };
 
-  const handleSectionChange = (section) => {
-    setCurrentSection(section);
+  const closeSidebar = () => {
+    setSidebarOpen(false);
+  };
+
+  // Cerrar sidebar al cambiar de ruta en móviles
+  useEffect(() => {
     if (window.innerWidth <= 1024) {
       setSidebarOpen(false);
     }
-  };
-
-  const renderContent = () => {
-    switch (currentSection) {
-      case 'pagina-principal':
-        return <PaginaPrincipal />;
-      case 'cuentas':
-        return <Cuentas />;
-      case 'tarjetas':
-        return <Tarjetas />;
-      case 'transferencias':
-        return <Transferencias />;
-      default:
-        return <PaginaPrincipal />;
-    }
-  };
-
-  const userDisplayName = localStorage.getItem("userName") || "Usuario";
+  }, [location.pathname]);
 
   return (
     <div className="layout-container">
       <Sidebar 
-        currentSection={currentSection} 
-        onSectionChange={handleSectionChange}
-        isOpen={sidebarOpen}
-        onToggle={toggleSidebar}
+        isOpen={sidebarOpen} 
+        onClose={closeSidebar} 
       />
       
+      {sidebarOpen && (
+        <div 
+          className="sidebar-overlay"
+          onClick={closeSidebar}
+        />
+      )}
+
       <main className={`layout-main ${sidebarOpen ? 'layout-main-expanded' : ''}`}>
         <header className="layout-header">
           <div className="header-left">
-            <button className="sidebar-toggle" onClick={toggleSidebar}>
-              <FiMenu className="menu-icon" />
+            <button 
+              className="sidebar-toggle"
+              onClick={toggleSidebar}
+            >
+              <span className="menu-icon">☰</span>
             </button>
             <div className="header-info">
-              <h2>{getSectionTitle(currentSection)}</h2>
-              <p>{getSectionSubtitle(currentSection)}</p>
+              <h2>Banco Damena</h2>
+              <p>Cuidamos lo tuyo</p>
             </div>
           </div>
+          
           <div className="header-user">
-            <FiUser className="user-avatar" />
+            <span className="user-avatar">
+              <UserIcon />
+            </span>
             <div className="user-info">
-              <span className="user-name">{userDisplayName}</span>
-              <span className="user-role">Modo Demo</span>
+              <span className="user-name">Usuario</span>
+              <span className="user-role">Cliente</span>
             </div>
           </div>
         </header>
-        
+
         <div className="layout-content">
-          {renderContent()}
+          {children}
         </div>
       </main>
     </div>
   );
 }
 
-function getSectionTitle(section) {
-  const titles = {
-    'pagina-principal': 'Página Principal',
-    'cuentas': 'Mis Cuentas',
-    'tarjetas': 'Tarjetas de Crédito',
-    'transferencias': 'Transferencias'
-  };
-  return titles[section] || 'Mi Banco';
-}
+// SVG Icon para Usuario
+const UserIcon = () => (
+  <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
+    <path d="M12 12C14.21 12 16 10.21 16 8C16 5.79 14.21 4 12 4C9.79 4 8 5.79 8 8C8 10.21 9.79 12 12 12ZM12 14C9.33 14 4 15.34 4 18V20H20V18C20 15.34 14.67 14 12 14Z"/>
+  </svg>
+);
 
-function getSectionSubtitle(section) {
-  const subtitles = {
-    'pagina-principal': 'Resumen general de tu actividad bancaria',
-    'cuentas': 'Gestiona tus cuentas bancarias',
-    'tarjetas': 'Administra tus tarjetas de crédito',
-    'transferencias': 'Realiza transferencias entre cuentas'
-  };
-  return subtitles[section] || 'Banca en línea segura';
-}
-
-export default UnifiedLayout;
+export default Layout;

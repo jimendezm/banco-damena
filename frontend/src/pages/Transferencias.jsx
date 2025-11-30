@@ -1,18 +1,5 @@
 import { useState, useEffect } from 'react';
 import { useParams } from 'react-router-dom';
-import { 
-  FiRepeat, 
-  FiArrowRight, 
-  FiUser, 
-  FiUsers,
-  FiDollarSign,
-  FiFileText,
-  FiCheck,
-  FiDownload,
-  FiShare2,
-  FiHome,
-  FiSearch
-} from 'react-icons/fi';
 import Layout from '../components/Layout';
 import { getUsers } from '../services/userService';
 import '../styles/Transferencias.css';
@@ -47,35 +34,21 @@ function Transferencias() {
       account_id: "CR01-5566-7788-000000000011", 
       nombre: "José Alberto Pérez Mora",
       alias: "Ahorro Familiar"
-    },
-    {
-      account_id: "CR01-9900-1122-000000000012",
-      nombre: "Laura Cristina Chaves Solís",
-      alias: "Cuenta Corriente"
-    },
-    {
-      account_id: "CR01-3344-5566-000000000013",
-      nombre: "Roberto Carlos Méndez López", 
-      alias: "Fondo Emergencia"
     }
   ];
 
   useEffect(() => {
-    // Cargar usuario basado en el ID de la URL
     let userData;
     
     if (idUsuario) {
-      // Buscar usuario por ID
       const usersData = getUsers();
       userData = usersData.users.find(u => u.id === parseInt(idUsuario));
     } else {
-      // Usar datos de sessionStorage o demo
       const storedUser = sessionStorage.getItem('currentUser');
       userData = storedUser ? JSON.parse(storedUser) : null;
     }
 
     if (!userData) {
-      // Cargar usuario demo
       const usersData = getUsers();
       userData = usersData.users.find(u => u.username === 'demo');
     }
@@ -84,7 +57,6 @@ function Transferencias() {
       setCurrentUser(userData);
       if (userData.cuentas) {
         setCuentasPropias(userData.cuentas);
-        // Establecer primera cuenta como origen por defecto
         if (userData.cuentas.length > 0) {
           setFormData(prev => ({
             ...prev,
@@ -114,7 +86,6 @@ function Transferencias() {
       [field]: value
     }));
 
-    // Si cambia la cuenta origen, actualizar moneda
     if (field === 'cuentaOrigen') {
       const cuentaSeleccionada = cuentasPropias.find(c => c.account_id === value);
       if (cuentaSeleccionada) {
@@ -131,13 +102,11 @@ function Transferencias() {
     if (!formData.cuentaDestino) return false;
     if (!formData.monto || parseFloat(formData.monto) <= 0) return false;
     
-    // Validar que no sea la misma cuenta
     if (formData.cuentaOrigen === formData.cuentaDestino) {
       alert('No puedes transferir a la misma cuenta');
       return false;
     }
 
-    // Validar saldo suficiente
     const cuentaOrigen = cuentasPropias.find(c => c.account_id === formData.cuentaOrigen);
     if (cuentaOrigen && parseFloat(formData.monto) > cuentaOrigen.saldo) {
       alert('Saldo insuficiente para realizar la transferencia');
@@ -152,7 +121,6 @@ function Transferencias() {
 
     setValidandoCuenta(true);
     
-    // Simular validación de cuenta
     setTimeout(() => {
       let cuentaValida = null;
       
@@ -186,23 +154,20 @@ function Transferencias() {
       monto: parseFloat(formData.monto),
       moneda: formData.moneda,
       descripcion: formData.descripcion,
-      fecha: new Date().toISOString(),
-      usuario: currentUser // ← Agregar información del usuario
+      fecha: new Date().toISOString()
     });
 
     setPasoActual(2);
   };
 
   const handleConfirmar = () => {
-    // Simular procesamiento de transferencia
     setTimeout(() => {
       const comprobante = {
         id: `TXN-${Date.now()}`,
         ...confirmacionData,
         fechaProcesamiento: new Date().toISOString(),
         estado: 'COMPLETADA',
-        referencia: `REF-${Math.random().toString(36).substr(2, 9).toUpperCase()}`,
-        usuarioId: currentUser?.id // ← Agregar ID del usuario
+        referencia: `REF-${Math.random().toString(36).substr(2, 9).toUpperCase()}`
       };
       
       setComprobanteData(comprobante);
@@ -225,17 +190,12 @@ function Transferencias() {
   };
 
   const descargarComprobante = () => {
-    // Simular descarga de comprobante
     const comprobanteTexto = `
       COMPROBANTE DE TRANSFERENCIA - BANCO DAMENA
       ===========================================
       Referencia: ${comprobanteData.referencia}
       Fecha: ${new Date(comprobanteData.fechaProcesamiento).toLocaleString('es-CR')}
       Estado: ${comprobanteData.estado}
-      
-      CLIENTE ORIGEN:
-      Nombre: ${currentUser?.nombre || 'Usuario Demo'}
-      ${currentUser?.id ? `ID: ${currentUser.id}` : 'Modo: Demostración'}
       
       CUENTA ORIGEN:
       Número: ${comprobanteData.cuentaOrigen.account_id}
@@ -245,18 +205,13 @@ function Transferencias() {
       CUENTA DESTINO:
       Número: ${comprobanteData.cuentaDestino.account_id}
       ${comprobanteData.tipo === 'terceros' ? `Titular: ${comprobanteData.cuentaDestino.nombre}` : `Alias: ${comprobanteData.cuentaDestino.alias}`}
-      ${comprobanteData.tipo === 'terceros' ? `Alias: ${comprobanteData.cuentaDestino.alias}` : ''}
       
-      DETALLES DE LA TRANSFERENCIA:
+      DETALLES:
       Monto: ${formatearMoneda(comprobanteData.monto, comprobanteData.moneda)}
       Tipo: ${comprobanteData.tipo === 'propias' ? 'Entre Mis Cuentas' : 'A Terceros'}
       Descripción: ${comprobanteData.descripcion || 'Sin descripción'}
       
       ¡Transferencia realizada con éxito!
-      
-      ---
-      Banco Damena - Banca en Línea
-      Sistema desarrollado para IC8057 - TEC
     `;
     
     const blob = new Blob([comprobanteTexto], { type: 'text/plain' });
@@ -297,16 +252,13 @@ function Transferencias() {
       );
 
   return (
-    <Layout>
       <div className="transferencias-container">
         <div className="transferencias-header">
-          <h1><FiRepeat className="header-icon" /> Transferencias</h1>
+          <h1>
+            <TransferIcon className="header-icon" /> 
+            Transferencias
+          </h1>
           <p>Realiza transferencias entre tus cuentas o hacia otros clientes</p>
-          {currentUser && currentUser.id && (
-            <div className="user-id-notice">
-              Usuario: {currentUser.nombre} (ID: {currentUser.id})
-            </div>
-          )}
         </div>
 
         {/* Indicador de pasos */}
@@ -335,7 +287,7 @@ function Transferencias() {
                   className={`tipo-btn ${tipoTransferencia === 'propias' ? 'activo' : ''}`}
                   onClick={() => handleTipoTransferenciaChange('propias')}
                 >
-                  <FiUser className="tipo-icon" />
+                  <UserIcon className="tipo-icon" />
                   <span>Entre Mis Cuentas</span>
                   <p>Transferir entre tus propias cuentas</p>
                 </button>
@@ -343,7 +295,7 @@ function Transferencias() {
                   className={`tipo-btn ${tipoTransferencia === 'terceros' ? 'activo' : ''}`}
                   onClick={() => handleTipoTransferenciaChange('terceros')}
                 >
-                  <FiUsers className="tipo-icon" />
+                  <UsersIcon className="tipo-icon" />
                   <span>A Terceros</span>
                   <p>Transferir a otros clientes del banco</p>
                 </button>
@@ -353,7 +305,7 @@ function Transferencias() {
             <div className="form-container">
               <div className="form-group">
                 <label className="form-label">
-                  <FiHome className="label-icon" />
+                  <HomeIcon className="label-icon" />
                   Cuenta de Origen *
                 </label>
                 <select
@@ -372,7 +324,7 @@ function Transferencias() {
 
               <div className="form-group">
                 <label className="form-label">
-                  <FiArrowRight className="label-icon" />
+                  <ArrowRightIcon className="label-icon" />
                   Cuenta de Destino *
                 </label>
                 
@@ -392,7 +344,7 @@ function Transferencias() {
                 ) : (
                   <>
                     <div className="search-box">
-                      <FiSearch className="search-icon" />
+                      <SearchIcon className="search-icon" />
                       <input
                         type="text"
                         placeholder="Buscar por número de cuenta, nombre o alias..."
@@ -427,7 +379,7 @@ function Transferencias() {
 
                     {cuentaDestinoValida && !validandoCuenta && (
                       <div className="cuenta-validada">
-                        <FiCheck className="check-icon" />
+                        <CheckIcon className="check-icon" />
                         Cuenta válida: {cuentaDestinoValida.nombre}
                       </div>
                     )}
@@ -438,7 +390,7 @@ function Transferencias() {
               <div className="form-row">
                 <div className="form-group">
                   <label className="form-label">
-                    <FiDollarSign className="label-icon" />
+                    <DollarIcon className="label-icon" />
                     Monto *
                   </label>
                   <input
@@ -469,7 +421,7 @@ function Transferencias() {
 
               <div className="form-group">
                 <label className="form-label">
-                  <FiFileText className="label-icon" />
+                  <FileIcon className="label-icon" />
                   Descripción (Opcional)
                 </label>
                 <textarea
@@ -489,7 +441,7 @@ function Transferencias() {
                 disabled={!validarFormulario()}
                 className="continuar-btn"
               >
-                Continuar <FiArrowRight className="btn-icon" />
+                Continuar <ArrowRightIcon className="btn-icon" />
               </button>
             </div>
           </div>
@@ -499,7 +451,7 @@ function Transferencias() {
         {pasoActual === 2 && confirmacionData && (
           <div className="confirmacion-container">
             <div className="confirmacion-header">
-              <FiCheck className="confirmacion-icon" />
+              <CheckIcon className="confirmacion-icon" />
               <h2>Confirma los datos de tu transferencia</h2>
               <p>Revisa cuidadosamente la información antes de confirmar</p>
             </div>
@@ -521,29 +473,11 @@ function Transferencias() {
                     </span>
                   </div>
                   <div className="dato-item">
-                    <span className="dato-label">Moneda:</span>
-                    <span className="dato-valor">{confirmacionData.moneda}</span>
-                  </div>
-                  <div className="dato-item">
                     <span className="dato-label">Descripción:</span>
                     <span className="dato-valor">
                       {confirmacionData.descripcion || 'Sin descripción'}
                     </span>
                   </div>
-                  <div className="dato-item">
-                    <span className="dato-label">Fecha:</span>
-                    <span className="dato-valor">
-                      {formatearFecha(confirmacionData.fecha)}
-                    </span>
-                  </div>
-                  {currentUser && currentUser.id && (
-                    <div className="dato-item">
-                      <span className="dato-label">Usuario:</span>
-                      <span className="dato-valor">
-                        {currentUser.nombre} (ID: {currentUser.id})
-                      </span>
-                    </div>
-                  )}
                 </div>
               </div>
 
@@ -552,7 +486,6 @@ function Transferencias() {
                 <div className="cuenta-info">
                   <span className="cuenta-numero">{confirmacionData.cuentaOrigen.account_id}</span>
                   <span className="cuenta-alias">{confirmacionData.cuentaOrigen.alias}</span>
-                  <span className="cuenta-tipo">{confirmacionData.cuentaOrigen.tipo} - {confirmacionData.cuentaOrigen.moneda}</span>
                 </div>
               </div>
 
@@ -565,7 +498,6 @@ function Transferencias() {
                   ) : (
                     <span className="cuenta-nombre">{confirmacionData.cuentaDestino.nombre}</span>
                   )}
-                  <span className="cuenta-alias-destino">{confirmacionData.cuentaDestino.alias}</span>
                 </div>
               </div>
             </div>
@@ -591,7 +523,7 @@ function Transferencias() {
         {pasoActual === 3 && comprobanteData && (
           <div className="comprobante-container">
             <div className="comprobante-header">
-              <FiCheck className="success-icon" />
+              <CheckIcon className="success-icon" />
               <h2>¡Transferencia Exitosa!</h2>
               <p>Tu transferencia se ha procesado correctamente</p>
             </div>
@@ -620,14 +552,6 @@ function Transferencias() {
                       {formatearMoneda(comprobanteData.monto, comprobanteData.moneda)}
                     </span>
                   </div>
-                  {currentUser && currentUser.id && (
-                    <div className="comprobante-item">
-                      <span className="comprobante-label">Cliente:</span>
-                      <span className="comprobante-valor">
-                        {currentUser.nombre} (ID: {currentUser.id})
-                      </span>
-                    </div>
-                  )}
                 </div>
               </div>
             </div>
@@ -637,15 +561,8 @@ function Transferencias() {
                 onClick={descargarComprobante}
                 className="btn-download"
               >
-                <FiDownload className="btn-icon" />
+                <DownloadIcon className="btn-icon" />
                 Descargar Comprobante
-              </button>
-              <button
-                onClick={() => window.print()}
-                className="btn-secondary"
-              >
-                <FiShare2 className="btn-icon" />
-                Imprimir
               </button>
               <button
                 onClick={handleNuevaTransferencia}
@@ -657,8 +574,68 @@ function Transferencias() {
           </div>
         )}
       </div>
-    </Layout>
   );
 }
+
+// SVG Icons para Transferencias
+const TransferIcon = ({ className }) => (
+  <svg width="24" height="24" viewBox="0 0 24 24" fill="currentColor" className={className}>
+    <path d="M4 10V12H16L10.5 17.5L11.92 18.92L19.84 11L11.92 3.08L10.5 4.5L16 10H4Z"/>
+  </svg>
+);
+
+const UserIcon = ({ className }) => (
+  <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor" className={className}>
+    <path d="M12 12C14.21 12 16 10.21 16 8C16 5.79 14.21 4 12 4C9.79 4 8 5.79 8 8C8 10.21 9.79 12 12 12ZM12 14C9.33 14 4 15.34 4 18V20H20V18C20 15.34 14.67 14 12 14Z"/>
+  </svg>
+);
+
+const UsersIcon = ({ className }) => (
+  <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor" className={className}>
+    <path d="M16 4C16 2.89 16.89 2 18 2C19.11 2 20 2.89 20 4C20 5.11 19.11 6 18 6C16.89 6 16 5.11 16 4ZM8 4C8 2.89 8.89 2 10 2C11.11 2 12 2.89 12 4C12 5.11 11.11 6 10 6C8.89 6 8 5.11 8 4ZM8 14C8 12.89 8.89 12 10 12C11.11 12 12 12.89 12 14C12 15.11 11.11 16 10 16C8.89 16 8 15.11 8 14ZM16 14C16 12.89 16.89 12 18 12C19.11 12 20 12.89 20 14C20 15.11 19.11 16 18 16C16.89 16 16 15.11 16 14ZM6 8C4.89 8 4 8.89 4 10C4 11.11 4.89 12 6 12C7.11 12 8 11.11 8 10C8 8.89 7.11 8 6 8ZM6 16C4.89 16 4 16.89 4 18C4 19.11 4.89 20 6 20C7.11 20 8 19.11 8 18C8 16.89 7.11 16 6 16ZM16.5 8C15.4 8 14.5 8.9 14.5 10C14.5 11.1 15.4 12 16.5 12C17.6 12 18.5 11.1 18.5 10C18.5 8.9 17.6 8 16.5 8ZM14.5 16C14.5 14.9 15.4 14 16.5 14C17.6 14 18.5 14.9 18.5 16C18.5 17.1 17.6 18 16.5 18C15.4 18 14.5 17.1 14.5 16Z"/>
+  </svg>
+);
+
+const HomeIcon = ({ className }) => (
+  <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor" className={className}>
+    <path d="M10 20V14H14V20H19V12H22L12 3L2 12H5V20H10Z"/>
+  </svg>
+);
+
+const ArrowRightIcon = ({ className }) => (
+  <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor" className={className}>
+    <path d="M8.59 16.59L13.17 12L8.59 7.41L10 6L16 12L10 18L8.59 16.59Z"/>
+  </svg>
+);
+
+const SearchIcon = ({ className }) => (
+  <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor" className={className}>
+    <path d="M15.5 14H14.71L14.43 13.73C15.41 12.59 16 11.11 16 9.5C16 5.91 13.09 3 9.5 3C5.91 3 3 5.91 3 9.5C3 13.09 5.91 16 9.5 16C11.11 16 12.59 15.41 13.73 14.43L14 14.71V15.5L19 20.49L20.49 19L15.5 14ZM9.5 14C7.01 14 5 11.99 5 9.5C5 7.01 7.01 5 9.5 5C11.99 5 14 7.01 14 9.5C14 11.99 11.99 14 9.5 14Z"/>
+  </svg>
+);
+
+const DollarIcon = ({ className }) => (
+  <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor" className={className}>
+    <path d="M12 2C13.1 2 14 2.9 14 4C14 5.1 13.1 6 12 6C10.9 6 10 5.1 10 4C10 2.9 10.9 2 12 2ZM15.9 8.1C15.5 7.7 14.8 7.5 14.3 7.8L12.9 8.4C12.6 8.5 12.3 8.4 12.2 8.2C12 8 12.1 7.7 12.3 7.5L13.7 6.9C14.5 6.5 15.4 6.6 16.1 7.3C16.8 8 16.9 8.9 16.5 9.7L15.5 11.3C15.2 11.9 14.5 12.3 13.7 12.3H13V14H15V15H13V17H11V15H9V14H11V12.3H9.9C8.3 12.3 7 11 7 9.4C7 8.7 7.2 8 7.6 7.4L8.2 6.5C8.5 6 8.3 5.4 7.8 5.1C7.3 4.8 6.7 5 6.4 5.5L5.8 6.4C5.1 7.5 4.8 8.7 4.8 10C4.8 12.8 7 15 9.9 15H11V17H9V18H11V20H13V18H15V17H13V15H13.7C15.4 15 16.9 13.9 17.4 12.3L18.4 10.7C18.8 9.9 18.7 8.9 18.1 8.1Z"/>
+  </svg>
+);
+
+const FileIcon = ({ className }) => (
+  <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor" className={className}>
+    <path d="M14 2H6C4.9 2 4.01 2.9 4.01 4L4 20C4 21.1 4.89 22 5.99 22H18C19.1 22 20 21.1 20 20V8L14 2ZM18 20H6V4H13V9H18V20Z"/>
+  </svg>
+);
+
+const CheckIcon = ({ className }) => (
+  <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor" className={className}>
+    <path d="M9 16.17L4.83 12L3.41 13.41L9 19L21 7L19.59 5.59L9 16.17Z"/>
+  </svg>
+);
+
+const DownloadIcon = ({ className }) => (
+  <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor" className={className}>
+    <path d="M19 9H15V3H9V9H5L12 16L19 9ZM5 18V20H19V18H5Z"/>
+  </svg>
+);
 
 export default Transferencias;

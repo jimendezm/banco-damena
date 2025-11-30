@@ -34,7 +34,7 @@ function Login(){
             localStorage.setItem("loginTime", Date.now().toString());
             localStorage.setItem("identificacion", dataLogin.identificacion);
             console.log("Token almacenado en localStorage:", dataLogin.token, "  identificacion: ", dataLogin.identificacion);
-            navigate("/Dashboard");
+            navigate("/dashboard");
         }else{
             alert("Respuesta del servidor: "+ dataLogin.message)
         }

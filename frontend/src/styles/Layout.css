@@ -1,36 +1,43 @@
-/* styles/Layout.css */
 .layout-container {
   display: flex;
   min-height: 100vh;
   background: #f8fafc;
   font-family: 'Poppins', sans-serif;
+  overflow-x: hidden; 
+  width: 100%;
 }
 
 .layout-main {
   flex: 1;
-  margin-left: 0; /* Cambiado de 320px a 0 */
+  margin-left: 0;
   min-height: 100vh;
   display: flex;
   flex-direction: column;
   transition: margin-left 0.3s ease;
-  overflow-y: hidden;
+  width: 100%;
+  overflow-x: hidden; 
 }
 
-/* Para desktop */
 @media (min-width: 1025px) {
   .layout-main {
-    margin-left: 320px; /* Solo en desktop */
+    margin-left: 320px;
+    width: calc(100% - 320px);
+  }
+  
+  .sidebar-toggle {
+    display: none !important;
   }
 }
 
 .layout-main-expanded {
   margin-left: 0;
+  width: 100%;
 }
 
 .layout-header {
   background: white;
   padding: 1.5rem 2rem;
-  border-bottom: 1px solid #E9FBF4;
+  border-bottom: 1px solid #e2e8f0;
   display: flex;
   justify-content: space-between;
   align-items: center;
@@ -38,12 +45,15 @@
   position: sticky;
   top: 0;
   z-index: 100;
+  width: 100%;
+  box-sizing: border-box; 
 }
 
 .header-left {
   display: flex;
   align-items: center;
   gap: 1rem;
+  max-width: 100%;
 }
 
 .sidebar-toggle {
@@ -57,6 +67,7 @@
   transition: all 0.3s ease;
   align-items: center;
   justify-content: center;
+  flex-shrink: 0; 
 }
 
 .sidebar-toggle:hover {
@@ -66,6 +77,12 @@
 
 .menu-icon {
   font-size: 1.25rem;
+  font-weight: bold;
+}
+
+.header-info {
+  max-width: 100%;
+  overflow: hidden;
 }
 
 .header-info h2 {
@@ -73,12 +90,18 @@
   color: #126341;
   font-size: 1.5rem;
   font-weight: 600;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
 .header-info p {
   margin: 0.25rem 0 0 0;
   color: #666;
   font-size: 0.95rem;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
 .header-user {
@@ -92,6 +115,8 @@
   font-weight: 500;
   border: 1px solid #25CB86;
   transition: all 0.3s ease;
+  flex-shrink: 0;
+  max-width: 100%;
 }
 
 .header-user:hover {
@@ -100,37 +125,59 @@
 }
 
 .user-avatar {
-  font-size: 1.5rem;
+  width: 24px;
+  height: 24px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
 }
 
 .user-info {
   display: flex;
   flex-direction: column;
   align-items: flex-start;
+  max-width: 100%;
+  overflow: hidden;
 }
 
 .user-name {
   font-weight: 600;
   font-size: 0.95rem;
+  color: #126341;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  max-width: 100%;
 }
 
 .user-role {
   font-size: 0.8rem;
   opacity: 0.8;
   margin-top: 0.1rem;
+  color: #126341;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  max-width: 100%;
 }
 
 .layout-content {
   flex: 1;
   padding: 2rem;
   overflow-y: auto;
+  overflow-x: hidden; 
   background: #f8fafc;
+  width: 100%;
+  min-height: calc(100vh - 80px);
+  box-sizing: border-box; 
 }
 
 /* Responsive */
 @media (max-width: 1024px) {
   .layout-main {
     margin-left: 0;
+    width: 100%;
   }
   
   .sidebar-toggle {
@@ -154,6 +201,10 @@
   .layout-content {
     padding: 1.5rem;
   }
+  
+  .header-user {
+    padding: 0.5rem 1rem;
+  }
 }
 
 @media (max-width: 480px) {
@@ -171,5 +222,9 @@
   
   .layout-content {
     padding: 1rem;
+  }
+  
+  .user-info {
+    display: none;
   }
 }
