@@ -34,7 +34,6 @@
   border-radius: 16px;
   box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
   padding: 2rem;
-
   overflow: hidden;
 }
 
@@ -128,6 +127,7 @@
   font-family: inherit;
   width: 100%;
   box-sizing: border-box;
+  color: #000000;
 }
 
 .inputPassword:focus, .inputUsuario:focus {
@@ -274,9 +274,47 @@
   }
 }
 
-/* Accesibilidad */
 button:focus-visible,
 input:focus-visible {
   outline: 2px solid #126341;
   outline-offset: 2px;
+}
+
+.passwordContainer {
+  position: relative;
+  display: flex;
+  align-items: center;
+  width: 100%;
+}
+
+.passwordToggle {
+  position: absolute;
+  right: 12px;
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: 0;
+  width: 24px;
+  height: 24px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #666;
+  transition: color 0.3s ease;
+  border-radius: 4px;
+}
+
+.passwordToggle:hover {
+  color: #25CB86;
+  background-color: rgba(37, 203, 134, 0.1);
+}
+
+.passwordToggle:focus {
+  outline: 2px solid #126341;
+  outline-offset: 2px;
+}
+
+.inputPassword {
+  padding-right: 3rem !important;
+  width: 100%;
 }

@@ -4,30 +4,30 @@ import Layout from "../components/Layout";
 import "../styles/Dashboard.css";
 import { ValidateTime } from "../scripts/ValidateTime";
 import { ObtenerDatosUsuario } from "../../ConnectionAPI/apiFunciones";
-import Sidebar from "../components/Sidebar";
 import PaginaPrincipal from "./PaginaPrincipal";
+import Cuentas from "./Cuentas";
 import Tarjetas from "./Tarjetas";
+import Transferencias from "./Transferencias";
 
 function Dashboard() {
   const navigate = useNavigate();
   const [userData, setUserData] = useState(null);
   const [token, setToken] = useState(null);
-  const [PaginaSeleccionada, setPaginaSeleccionada] = useState(<PaginaPrincipal />);
 
-useEffect(() => {
+  useEffect(() => {
     const localToken = localStorage.getItem("token");
     const userId = localStorage.getItem("userId");
     const loginTime = localStorage.getItem("loginTime");
     const identificacion = localStorage.getItem("identificacion");
     setToken(localToken);
-    // Si falta cualquier dato del login → fuera
-    if (localToken == "" || userId == "" || loginTime == "" || identificacion == "") {
+    
+    if (!localToken || !userId || !loginTime || !identificacion) {
         navigate("/");
         return;
     }
-}, []);
-useEffect(() => {
+  }, []);
 
+  useEffect(() => {
     if (!ValidateTime()) {
         navigate("/");
         return;
@@ -38,35 +38,13 @@ useEffect(() => {
         if (!ValidateTime()) {
             navigate("/");
         }
-    }, 60 * 1000); // 1 min
+    }, 60 * 1000);
 
-    // Limpiar interval cuando se desmonta el Dashboard
     return () => clearInterval(interval);
-
-}, []);
-useEffect(() => {
-    if (!ValidateTime()) {
-        navigate("/");
-        return;
-    }
-}, []);
+  }, []);
 
   return (
-    
-    <section className="contenedorDashboard">
-      <nav>
-        
-        <ul>
-          <li><button onClick={() => setPaginaSeleccionada(<PaginaPrincipal />)} >Página Principal</button></li>
-          <li><button onClick={() => setPaginaSeleccionada(<PaginaPrincipal />)}>Cuentas</button></li>
-          <li><button onClick={() => setPaginaSeleccionada(<Tarjetas />)}>Tarjetas</button></li>
-          <li><button onClick={() => setPaginaSeleccionada(<PaginaPrincipal />)}>Transferencias</button></li>
-        </ul>
-      </nav>
-      <section className="contenedorDinamico">
-        {PaginaSeleccionada}
-      </section>
-    </section>
+    <Layout />
   );
 }
 

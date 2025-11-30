@@ -1,35 +1,24 @@
-import { useState } from 'react'
-import { BrowserRouter, Routes, Route } from "react-router-dom";
-import reactLogo from './assets/react.svg'
-import viteLogo from '/vite.svg'
+import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
 import './App.css'
-import '../src/pages/Registro'
-import Registro from '../src/pages/Registro'
+import Registro from './pages/Registro'
 import Login from './pages/Login'
 import Restablecer from './pages/Restablecer'
 import Recuperacion from './pages/Recuperacion'
-import Tarjetas from './pages/Tarjetas'
-import Dashboard from './pages/Dashboard'
-import Cuentas from './pages/Cuentas';
-import Transferencias from './pages/Transferencias';
+import UnifiedLayout from './components/Layout';
 
 function App() {
-  const [count, setCount] = useState(0)
-
   return (
     <BrowserRouter>
       <Routes>
-        <Route path='/registro' element = {<Registro/>} />
-        <Route path='/' element = {<Login/>} />
-        <Route path='/restablecer' element = {<Restablecer/>} />
-        <Route path='/recuperacion' element = {<Recuperacion/>} />
-        <Route path="/Tarjetas/:idUsuario" element={<Tarjetas />} />
-        <Route path="/Dashboard" element={<Dashboard />} />
-        <Route path="/Cuentas/:idUsuario" element={<Cuentas />} />
-        <Route path="/Transferencias/:idUsuario" element={<Transferencias />} />
+        <Route path='/registro' element={<Registro/>} />
+        <Route path='/login' element={<Login/>} />
+        <Route path='/restablecer' element={<Restablecer/>} />
+        <Route path='/recuperacion' element={<Recuperacion/>} />
+        <Route path='/' element={<Navigate to="/login" replace />} />
+        <Route path="/dashboard/*" element={<UnifiedLayout />} />
+        <Route path="*" element={<Navigate to="/dashboard" replace />} />
       </Routes>
     </BrowserRouter>
-      
   )
 }
 

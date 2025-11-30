@@ -1,0 +1,195 @@
+.alertOverlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(0, 0, 0, 0.6);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 1000;
+    animation: fadeIn 0.3s ease;
+}
+
+.alertContent {
+    background: white;
+    border-radius: 16px;
+    width: 90%;
+    max-width: 400px;
+    box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+    animation: slideIn 0.3s ease;
+    overflow: hidden;
+}
+
+.alertHeader {
+    display: flex;
+    align-items: center;
+    padding: 1.5rem;
+    gap: 0.75rem;
+}
+
+.alertHeader.error {
+    background: #FDEDEC;
+    border-bottom: 1px solid #E74C3C;
+}
+
+.alertHeader.success {
+    background: #DFF7EB;
+    border-bottom: 1px solid #25CB86;
+}
+
+.alertHeader.warning {
+    background: #FEF9E7;
+    border-bottom: 1px solid #F1C40F;
+}
+
+.alertIcon {
+    display: flex;
+    align-items: center;
+}
+
+.alertHeader.error .alertIcon {
+    color: #E74C3C;
+}
+
+.alertHeader.success .alertIcon {
+    color: #25CB86;
+}
+
+.alertHeader.warning .alertIcon {
+    color: #F39C12;
+}
+
+.alertTitle {
+    margin: 0;
+    font-size: 1.25rem;
+    font-weight: 600;
+    flex: 1;
+}
+
+.alertHeader.error .alertTitle {
+    color: #C0392B;
+}
+
+.alertHeader.success .alertTitle {
+    color: #126341;
+}
+
+.alertHeader.warning .alertTitle {
+    color: #E67E22;
+}
+
+.closeButton {
+    background: none;
+    border: none;
+    cursor: pointer;
+    padding: 0.25rem;
+    border-radius: 4px;
+    color: #666;
+    transition: all 0.3s ease;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.closeButton:hover {
+    background: rgba(0, 0, 0, 0.1);
+    color: #333;
+}
+
+.alertBody {
+    padding: 1.5rem;
+}
+
+.alertMessage {
+    margin: 0;
+    color: #4a5568;
+    line-height: 1.5;
+    font-size: 1rem;
+}
+
+.alertFooter {
+    padding: 0 1.5rem 1.5rem 1.5rem;
+    display: flex;
+    justify-content: flex-end;
+}
+
+.alertButton {
+    padding: 0.75rem 1.5rem;
+    border: none;
+    border-radius: 10px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    font-size: 1rem;
+}
+
+.alertButton:hover {
+    transform: translateY(-1px);
+}
+
+.errorButton {
+    background: #E74C3C;
+    color: white;
+}
+
+.errorButton:hover {
+    background: #C0392B;
+    box-shadow: 0 4px 12px rgba(231, 76, 60, 0.3);
+}
+
+.successButton {
+    background: #25CB86;
+    color: white;
+}
+
+.successButton:hover {
+    background: #20B175;
+    box-shadow: 0 4px 12px rgba(37, 203, 134, 0.3);
+}
+
+.warningButton {
+    background: #F39C12;
+    color: white;
+}
+
+.warningButton:hover {
+    background: #E67E22;
+    box-shadow: 0 4px 12px rgba(243, 156, 18, 0.3);
+}
+
+@keyframes fadeIn {
+    from { opacity: 0; }
+    to { opacity: 1; }
+}
+
+@keyframes slideIn {
+    from { 
+        opacity: 0;
+        transform: translateY(-20px) scale(0.95);
+    }
+    to { 
+        opacity: 1;
+        transform: translateY(0) scale(1);
+    }
+}
+
+@media (max-width: 480px) {
+    .alertContent {
+        width: 95%;
+        margin: 1rem;
+    }
+    
+    .alertHeader {
+        padding: 1.25rem;
+    }
+    
+    .alertBody {
+        padding: 1.25rem;
+    }
+    
+    .alertFooter {
+        padding: 0 1.25rem 1.25rem 1.25rem;
+    }
+}

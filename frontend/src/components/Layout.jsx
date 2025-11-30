@@ -1,130 +1,131 @@
+// components/UnifiedLayout.jsx
 import { useState, useEffect } from 'react';
-import { useLocation, useNavigate, useParams } from 'react-router-dom'; 
-import { FiUser } from 'react-icons/fi';
+import { useLocation, useNavigate } from 'react-router-dom';
+import { FiUser, FiMenu } from 'react-icons/fi';
 import Sidebar from './Sidebar';
-import { getUsers } from '../services/userService'; 
 import '../styles/Layout.css';
+import { ValidateTime } from '../scripts/ValidateTime';
 
-function Layout({ children }) {
-  const [currentUser, setCurrentUser] = useState(null);
+import PaginaPrincipal from '../pages/PaginaPrincipal';
+import Cuentas from '../pages/Cuentas';
+import Tarjetas from '../pages/Tarjetas';
+import Transferencias from '../pages/Transferencias';
+
+function UnifiedLayout() {
+  const [sidebarOpen, setSidebarOpen] = useState(false);
+  const [currentSection, setCurrentSection] = useState('pagina-principal');
   const location = useLocation();
   const navigate = useNavigate();
-  const { idUsuario } = useParams();
 
+  // Validación de autenticación
   useEffect(() => {
-    if (idUsuario) {
-      // Buscar usuario por ID
-      const usersData = getUsers();
-      const user = usersData.users.find(u => u.id === parseInt(idUsuario));
-      if (user) {
-        setCurrentUser(user);
-        sessionStorage.setItem('currentUser', JSON.stringify(user));
-      } else {
-        // Usar datos demo si no encuentra el usuario
-        const demoUser = usersData.users.find(u => u.username === 'demo');
-        setCurrentUser(demoUser);
-      }
-    } else {
-      // Si no hay ID en la URL, usar sessionStorage
-      const userData = sessionStorage.getItem('currentUser');
-      if (userData) {
-        setCurrentUser(JSON.parse(userData));
-      } else {
-        const usersData = getUsers();
-        const demoUser = usersData.users.find(u => u.username === 'demo');
-        setCurrentUser(demoUser);
-      }
+    const localToken = localStorage.getItem("token");
+    const userId = localStorage.getItem("userId");
+    const loginTime = localStorage.getItem("loginTime");
+    const identificacion = localStorage.getItem("identificacion");
+    
+    if (!localToken || !userId || !loginTime || !identificacion) {
+        navigate("/");
+        return;
     }
-  }, [idUsuario, location]);
 
-  const getCurrentSection = () => {
-    const path = location.pathname;
-    // Extraer la sección base (remover ID si existe)
-    const section = path.split('/')[1];
-    return section || 'dashboard';
+    if (!ValidateTime()) {
+        navigate("/");
+        return;
+    }
+
+    const interval = setInterval(() => {
+        if (!ValidateTime()) {
+            navigate("/");
+        }
+    }, 60 * 1000);
+
+    return () => clearInterval(interval);
+  }, [navigate]);
+
+  const toggleSidebar = () => {
+    setSidebarOpen(!sidebarOpen);
   };
-
-  const currentSection = getCurrentSection();
 
   const handleSectionChange = (section) => {
-    if (section === 'cerrar-sesion') {
-      if (window.confirm('¿Estás seguro de que quieres cerrar sesión?')) {
-        sessionStorage.removeItem('currentUser');
-        navigate('/login');
-      }
-      return;
-    }
-    
-    // Navegar con ID si está disponible
-    if (currentUser && currentUser.id && currentUser.id !== 1) { // 1 es el ID del usuario demo
-      navigate(`/${section}/${currentUser.id}`);
-    } else {
-      navigate(`/${section}`);
+    setCurrentSection(section);
+    if (window.innerWidth <= 1024) {
+      setSidebarOpen(false);
     }
   };
 
-  const userDisplayName = currentUser?.nombre || '';
+  const renderContent = () => {
+    switch (currentSection) {
+      case 'pagina-principal':
+        return <PaginaPrincipal />;
+      case 'cuentas':
+        return <Cuentas />;
+      case 'tarjetas':
+        return <Tarjetas />;
+      case 'transferencias':
+        return <Transferencias />;
+      default:
+        return <PaginaPrincipal />;
+    }
+  };
+
+  const userDisplayName = localStorage.getItem("userName") || "Usuario";
 
   return (
     <div className="layout-container">
       <Sidebar 
         currentSection={currentSection} 
         onSectionChange={handleSectionChange}
-        isOpen={true}
+        isOpen={sidebarOpen}
+        onToggle={toggleSidebar}
       />
       
-      <main className="layout-main">
+      <main className={`layout-main ${sidebarOpen ? 'layout-main-expanded' : ''}`}>
         <header className="layout-header">
-          <div className="header-info">
-            <h2>{getSectionTitle(currentSection)}</h2>
-            <p>{getSectionSubtitle(currentSection)}</p>
+          <div className="header-left">
+            <button className="sidebar-toggle" onClick={toggleSidebar}>
+              <FiMenu className="menu-icon" />
+            </button>
+            <div className="header-info">
+              <h2>{getSectionTitle(currentSection)}</h2>
+              <p>{getSectionSubtitle(currentSection)}</p>
+            </div>
           </div>
           <div className="header-user">
             <FiUser className="user-avatar" />
             <div className="user-info">
               <span className="user-name">{userDisplayName}</span>
-              <span className="user-role">
-                {currentUser && currentUser.id !== 1 ? `` : 'Modo Demo'}
-              </span>
+              <span className="user-role">Modo Demo</span>
             </div>
           </div>
         </header>
         
         <div className="layout-content">
-          {children}
+          {renderContent()}
         </div>
       </main>
     </div>
   );
 }
-// Función helper para títulos de sección
+
 function getSectionTitle(section) {
   const titles = {
-    'dashboard': 'Dashboard',
+    'pagina-principal': 'Página Principal',
     'cuentas': 'Mis Cuentas',
     'tarjetas': 'Tarjetas de Crédito',
-    'transferencias': 'Transferencias',
-    'pagos': 'Pagos y Servicios',
-    'prestamos': 'Préstamos',
-    'seguros': 'Seguros',
-    'perfil': 'Mi Perfil',
-    'ayuda': 'Ayuda y Soporte'
+    'transferencias': 'Transferencias'
   };
   return titles[section] || 'Mi Banco';
 }
 
 function getSectionSubtitle(section) {
   const subtitles = {
-    'dashboard': 'Resumen general de tu actividad bancaria',
+    'pagina-principal': 'Resumen general de tu actividad bancaria',
     'cuentas': 'Gestiona tus cuentas bancarias',
     'tarjetas': 'Administra tus tarjetas de crédito',
-    'transferencias': 'Realiza transferencias entre cuentas',
-    'pagos': 'Paga servicios y facturas',
-    'prestamos': 'Solicita y gestiona préstamos',
-    'seguros': 'Contrata y administra seguros',
-    'perfil': 'Gestiona tu información personal',
-    'ayuda': 'Encuentra ayuda y soporte técnico'
+    'transferencias': 'Realiza transferencias entre cuentas'
   };
   return subtitles[section] || 'Banca en línea segura';
 }
-export default Layout; 
+
+export default UnifiedLayout;

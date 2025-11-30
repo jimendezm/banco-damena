@@ -13,9 +13,16 @@ function Login(){
         localStorage.removeItem("loginTime");
         localStorage.removeItem("identificaion");
     }, []);
+    
     const navigate = useNavigate();
     const [usuario, setUsuario] = useState("");
     const [contrasenia, setContrasenia] = useState("");
+    const [mostrarContrasenia, setMostrarContrasenia] = useState(false);
+
+    const toggleMostrarContrasenia = () => {
+        setMostrarContrasenia(!mostrarContrasenia);
+    };
+
     const handleLogin = async (e) => {
         e.preventDefault();
 
@@ -47,11 +54,31 @@ function Login(){
                     onChange={(e) => setUsuario(e.target.value)}
                     />
                     <label className={styles.labelSeccionLogin} htmlFor="">Contraseña</label>
-                    <input className={styles.inputPassword} 
-                    type="password" 
-                    value={contrasenia}
-                    onChange={(e) => setContrasenia(e.target.value)}
-                    />
+                    <div className={styles.passwordContainer}>
+                        <input className={styles.inputPassword} 
+                        type={mostrarContrasenia ? "text" : "password"} 
+                        value={contrasenia}
+                        onChange={(e) => setContrasenia(e.target.value)}
+                        />
+                        <button 
+                            type="button"
+                            className={styles.passwordToggle}
+                            onClick={toggleMostrarContrasenia}
+                        >
+                            {mostrarContrasenia ? (
+                                <svg width="20" height="20" viewBox="0 0 24 24" fill="none">
+                                    <path d="M3 12C3 12 6.27273 5 12 5C17.7273 5 21 12 21 12C21 12 17.7273 19 12 19C6.27273 19 3 12 3 12Z" stroke="currentColor" strokeWidth="2"/>
+                                    <path d="M12 15C13.6569 15 15 13.6569 15 12C15 10.3431 13.6569 9 12 9C10.3431 9 9 10.3431 9 12C9 13.6569 10.3431 15 12 15Z" stroke="currentColor" strokeWidth="2"/>
+                                </svg>
+                            ) : (
+                                <svg width="20" height="20" viewBox="0 0 24 24" fill="none">
+                                    <path d="M3 12C3 12 6.27273 5 12 5C17.7273 5 21 12 21 12C21 12 17.7273 19 12 19C6.27273 19 3 12 3 12Z" stroke="currentColor" strokeWidth="2"/>
+                                    <path d="M12 15C13.6569 15 15 13.6569 15 12C15 10.3431 13.6569 9 12 9C10.3431 9 9 10.3431 9 12C9 13.6569 10.3431 15 12 15Z" stroke="currentColor" strokeWidth="2"/>
+                                    <path d="M4 4L20 20" stroke="currentColor" strokeWidth="2"/>
+                                </svg>
+                            )}
+                        </button>
+                    </div>
                     <button className={styles.botonIniciarSesion}
                     type="submit"
                     onClick={handleLogin}
