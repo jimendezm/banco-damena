@@ -1,243 +1,195 @@
 import { useState, useEffect } from "react";
 import styles from "../styles/Tarjetas.module.css";
-import { useParams, useNavigate } from "react-router-dom";
-import logoDamenaSinFondoClaro from '../assets/logoDamenaSinFondoClaro.png';
-import logoDamenaSinFondoOscuro from '../assets/logoDamenaSinFondo.png';
-import { initializeSampleData, enviarTarjetas } from '../services/userService';
-import Layout from '../components/Layout';
-import { ObtenerTarjetasUsuario } from "../../ConnectionAPI/apiFunciones";
+import Layout from "../components/Layout";
+import {
+    generateOTP,
+    ObtenerTarjetasUsuario,
 
-// Modal para Consultar PIN
-function ModalConsultarPIN({ tarjeta, onClose }) {
-    const [paso, setPaso] = useState(1);
-    const [codigo, setCodigo] = useState("");
-    const [tiempoRestante, setTiempoRestante] = useState(10);
+} from "../../ConnectionAPI/apiFunciones";
 
-    useEffect(() => {
-        if (paso === 2) {
-            setTiempoRestante(10);
-            const intervalo = setInterval(() => {
-                setTiempoRestante((prev) => {
-                    if (prev <= 1) {
-                        clearInterval(intervalo);
-                        onClose();
-                        return 0;
-                    }
-                    return prev - 1;
-                });
-            }, 1000);
-
-            return () => clearInterval(intervalo);
-        }
-    }, [paso, onClose]);
-
-    return (
-        <div className={styles.overlay}>
-            <div className={styles.modalPin}>
-                {paso === 1 && (
-                    <>
-                        <h3>Verificación de identidad</h3>
-                        <p>Ingresa el código enviado a tu correo o SMS:</p>
-                        <input
-                            type="text"
-                            value={codigo}
-                            onChange={(e) => setCodigo(e.target.value)}
-                            className={styles.inputCodigo}
-                            placeholder="Código de verificación"
-                        />
-                        <button
-                            className={styles.botonContinuar}
-                            onClick={() => {
-                                if (codigo.trim() !== "") {
-                                    setPaso(2);
-                                } else {
-                                    alert("Debes ingresar el código");
-                                }
-                            }}
-                        >
-                            Continuar
-                        </button>
-                        <button className={styles.botonCancelar} onClick={onClose}>
-                            Cancelar
-                        </button>
-                    </>
-                )}
-
-                {paso === 2 && (
-                    <>
-                        <h3>Datos sensibles</h3>
-                        <p><b>Tarjeta:</b> {tarjeta.tipo} - ****{tarjeta.numero.slice(-4)}</p>
-                        <p><b>CVV:</b> {tarjeta.cvv}</p>
-                        <p><b>PIN:</b> {tarjeta.pin}</p>
-                        <p style={{ color: "red" }}>
-                            Esta información desaparecerá en {tiempoRestante} segundos
-                        </p>
-                        <button className={styles.botonCerrar} onClick={onClose}>
-                            Cerrar ahora
-                        </button>
-                    </>
-                )}
-            </div>
-        </div>
-    );
-}
+import logoDamenaClaro from '../assets/logoDamenaSinFondoClaro.png';
+import logoDamenaOscuro from '../assets/logoDamenaSinFondo.png';
 
 function Tarjetas() {
-    const { idUsuario } = useParams();
-    const navigate = useNavigate();
 
     const [tarjetas, setTarjetas] = useState([]);
     const [indice, setIndice] = useState(0);
-    const [mostrarResumen, setMostrarResumen] = useState(false);
-    const [mostrarConsultarPIN, setMostrarConsultarPIN] = useState(false);
-    const [indiceFiltro, setIndiceFiltro] = useState(0);
-    const [textoDescripcion, setTextoDescripcion] = useState("");
-    const [filtroAplicado, setFiltroAplicado] = useState(0); // filtro activo al hacer click
-    const [textoFiltrado, setTextoFiltrado] = useState(""); // texto al filtrar
 
-    const elementosFiltro = ["Ninguno", "Pago", "Compra"];
-    const coloresTarjeta = {
-        Gold: "#FFD700",
-        Platinum: "#E5E4E2",
-        Black: "#1C1C1C"
-    };
+    // MODAL OTP
+    const [mostrarModalOTP, setMostrarModalOTP] = useState(false);
+    const [codigoOTP, setCodigoOTP] = useState("");
+    const [otpEnviado, setOtpEnviado] = useState(false);
 
+    // Obtener tarjetas
     useEffect(() => {
         const token = localStorage.getItem("token");
         const identificacion = localStorage.getItem("identificacion");
+
         const fetchData = async () => {
             const result = await ObtenerTarjetasUsuario(identificacion, token);
 
-            console.log("Datos del usuario obtenidos:", result);
+            if (result.success && Array.isArray(result.tarjetas)) {
+                setTarjetas(result.tarjetas);
+            } else {
+                console.error("Error al obtener tarjetas:", result);
+            }
         };
+
         fetchData();
-        
     }, []);
 
-    if (tarjetas.length === 0) return null;
+    // Swipe en móvil
+    useEffect(() => {
+        const areaSwipe = document.getElementById("zonaSwipe");
+        if (!areaSwipe) return;
 
-    const tarjetaActual = tarjetas[indice];
-    if (!tarjetaActual) return null;
+        let touchStartX = 0;
+        let touchEndX = 0;
 
-    const logo = tarjetaActual.tipo === "Black"
-        ? logoDamenaSinFondoOscuro
-        : logoDamenaSinFondoClaro;
+        const start = (e) => (touchStartX = e.changedTouches[0].screenX);
+        const end = (e) => {
+            touchEndX = e.changedTouches[0].screenX;
+            const diff = touchStartX - touchEndX;
+            if (Math.abs(diff) > 60) diff > 0 ? siguiente() : anterior();
+        };
+
+        areaSwipe.addEventListener("touchstart", start);
+        areaSwipe.addEventListener("touchend", end);
+
+        return () => {
+            areaSwipe.removeEventListener("touchstart", start);
+            areaSwipe.removeEventListener("touchend", end);
+        };
+    }, [tarjetas]);
+
+    if (tarjetas.length === 0) {
+        return (
+            <section className={styles.contenedorPagina}>
+                <section className={styles.contenedorPagina}>
+                    <p className={styles.cargando}>Cargando tarjetas...</p>
+                </section>
+            </section>
+        );
+    }
+
+    const tarjeta = tarjetas[indice];
+
+    const colores = {
+        Gold: "#FFD700",
+        Platinum: "#E5E4E2",
+        Black: "#1C1C1C",
+        Crédito: "#0077ff",
+        Débito: "#25CB86",
+    };
+
+    const logo =
+        tarjeta.tipo === "Black" ? logoDamenaOscuro : logoDamenaClaro;
 
     const siguiente = () => setIndice((prev) => (prev + 1) % tarjetas.length);
     const anterior = () => setIndice((prev) => (prev - 1 + tarjetas.length) % tarjetas.length);
 
-    const aplicarFiltro = () => {
-        setFiltroAplicado(indiceFiltro);
-        setTextoFiltrado(textoDescripcion);
+    // 🔐 Enviar OTP
+    const enviarOTP = async () => {
+        const token = localStorage.getItem("token");
+        const result = await generateOTP(tarjeta.id, token);
+
+        if (result.success) {
+            setOtpEnviado(true);
+            console.log("OTP generado:", result.otp); // Para pruebas
+        } else {
+            alert("Error al generar OTP: " + result.message);
+        }
     };
 
-    const movimientosFiltrados = tarjetaActual.movimientos?.filter(m => {
-        const cumpleTipo = elementosFiltro[filtroAplicado] === "Ninguno"
-            || m.tipo.toUpperCase() === elementosFiltro[filtroAplicado].toUpperCase();
-        const cumpleTexto = m.descripcion.toLowerCase().includes(textoFiltrado.toLowerCase());
-        return cumpleTipo && cumpleTexto;
-    }) ?? [];
+    // 🔐 Confirmar OTP
+    const confirmarOTP = async () => {
+        
+    };
 
     return (
-        <Layout>
-        <div className={styles.contenedorSeccion}
-            style={{
-                background: `linear-gradient(145deg, ${coloresTarjeta[tarjetaActual.tipo]}80, white)`,
-                color: tarjetaActual.tipo === "Black" ? "white" : "black"
-            }}
-        >
-            <h2 className={styles.tituloSeccion}>Tus tarjetas</h2>
+        <section className={styles.contenedorPagina}>
+            <section className={styles.contenedorPagina}>
+                <div className={styles.contenedorSeccion}>
+                    <h2 className={styles.tituloSeccion}>Tus Tarjetas</h2>
 
-            <section className={styles.seccionTarjetas}>
-                <button onClick={anterior}>{"<"}</button>
-                <div
-                    key={tarjetaActual.card_id}
-                    className={styles.tarjeta}
-                    style={{
-                        background: `linear-gradient(135deg, ${coloresTarjeta[tarjetaActual.tipo]}80, ${coloresTarjeta[tarjetaActual.tipo]})`,
-                        color: tarjetaActual.tipo === "Black" ? "white" : "black"
-                    }}
-                    onClick={() => setMostrarResumen(true)}
-                >
-                    <img className={styles.logoDamena} src={logo} alt="logo damena" />
-                    <h3>{tarjetaActual.tipo} Card</h3>
-                    <p><b>Número:</b> {tarjetaActual.numero}</p>
-                    <p><b>Exp:</b> {tarjetaActual.exp}</p>
-                    <p><b>Titular:</b> {tarjetaActual.titular}</p>
-                    <p><b>Saldo:</b> {tarjetaActual.saldo} {tarjetaActual.moneda}</p>
-                </div>
-                <button onClick={siguiente}>{">"}</button>
-            </section>
+                    <section id="zonaSwipe" className={styles.seccionTarjetas}>
+                        <button onClick={anterior} className={styles.btnNav}>{"<"}</button>
 
-            {mostrarResumen && (
-                <div className={styles.overlay}>
-                    <div className={styles.resumenCuenta}>
-                        <h3>Resumen de la tarjeta</h3>
-                        <input
-                            type="text"
-                            className={styles.filtroDescripcion}
-                            placeholder="Busca un movimiento por su descripcion..."
-                            value={textoDescripcion}
-                            onChange={(e) => setTextoDescripcion(e.target.value)}
-                        />
-
-                        <select
-                            className={styles.selectFiltro}
-                            value={elementosFiltro[indiceFiltro]}
-                            onChange={(e) => setIndiceFiltro(elementosFiltro.indexOf(e.target.value))}
-                        >
-                            {elementosFiltro.map((el, idx) => (
-                                <option key={idx} value={el}>{el}</option>
-                            ))}
-                        </select>
-
-                        {/* Botón para aplicar filtro */}
-                        <button className={styles.botonFiltro} onClick={aplicarFiltro}>
-                            Filtrar
-                        </button>
-
-                        <p style={{ color: "Black" }}><b>Últimos movimientos:</b></p>
-                        {movimientosFiltrados.length > 0 ? (
-                            movimientosFiltrados.map(m => (
-                                <p style={{ color: "Black" }} key={m.id}>
-                                    {m.fecha} - {m.tipo} - {m.descripcion}
-                                </p>
-                            ))
-                        ) : (
-                            <p style={{ color: "Black" }}>No hay movimientos que coincidan</p>
-                        )}
-
-                        <button
-                            className={styles.botonDatosTarjeta}
-                            onClick={() => setMostrarConsultarPIN(true)}
-                        >
-                            Consultar PIN
-                        </button>
-
-                        <button
-                            className={styles.cerrarResumen}
-                            onClick={() => {
-                                setMostrarResumen(false);
-                                setIndiceFiltro(0);
-                                setFiltroAplicado(0);
-                                setTextoDescripcion("");
-                                setTextoFiltrado("");
+                        {/* 👉 AHORA el modal abre al presionar la tarjeta */}
+                        <div
+                            className={styles.tarjeta}
+                            style={{
+                                background: `linear-gradient(135deg, ${colores[tarjeta.tipo]}80, ${colores[tarjeta.tipo]})`,
+                                color: tarjeta.tipo === "Black" ? "white" : "black",
                             }}
+                            onClick={() => setMostrarModalOTP(true)}
                         >
-                            Cerrar
-                        </button>
+                            <img className={styles.logoDamena} src={logo} />
+                            <h3>{tarjeta.tipo} Card</h3>
+                            <p><b>Número:</b> {tarjeta.numero_enmascarado}</p>
+                            <p><b>Expira:</b> {tarjeta.fecha_expiracion}</p>
+                            <p><b>Límite:</b> {tarjeta.limite_credito} {tarjeta.moneda}</p>
+                        </div>
+
+                        <button onClick={siguiente} className={styles.btnNav}>{">"}</button>
+                    </section>
+
+                    {/* Indicadores */}
+                    <div className={styles.indicadores}>
+                        {tarjetas.map((_, idx) => (
+                            <span
+                                key={idx}
+                                className={`${styles.indicador} ${idx === indice ? styles.activo : ""}`}
+                            ></span>
+                        ))}
                     </div>
                 </div>
-            )}
 
-            {mostrarConsultarPIN && (
-                <ModalConsultarPIN
-                    tarjeta={tarjetaActual}
-                    onClose={() => setMostrarConsultarPIN(false)}
-                />
-            )}
-        </div>
-        </Layout>
+                {/* 🔐 MODAL OTP */}
+                {mostrarModalOTP && (
+                    <div className={styles.overlay}>
+                        <div className={styles.modalOTP}>
+                            <h3>Confirmación OTP</h3>
+                            <p>Verifica tu correo electronico e inserta el código</p>
+
+                            {!otpEnviado && (
+                                <button className={styles.btnEnviarOTP} onClick={enviarOTP}>
+                                    Enviar OTP
+                                </button>
+                            )}
+
+                            {otpEnviado && (
+                                <>
+                                    <input
+                                        type="text"
+                                        maxLength={6}
+                                        className={styles.inputOTP}
+                                        placeholder="Código OTP"
+                                        value={codigoOTP}
+                                        onChange={(e) => setCodigoOTP(e.target.value)}
+                                    />
+
+                                    <button className={styles.btnConfirmar} onClick={confirmarOTP}>
+                                        Confirmar
+                                    </button>
+                                </>
+                            )}
+
+                            <button
+                                className={styles.btnCancelar}
+                                onClick={() => {
+                                    setCodigoOTP("");
+                                    setOtpEnviado(false);
+                                    setMostrarModalOTP(false);
+                                }}
+                            >
+                                Cerrar
+                            </button>
+                        </div>
+                    </div>
+                )}
+            </section>
+        </section>
     );
 }
 

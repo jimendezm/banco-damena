@@ -1,246 +1,224 @@
+/* CONTENEDOR GENERAL */
 .contenedorSeccion {
   display: flex;
-  justify-content: center;
-  align-items: center;
-  padding: 2rem;
-  background: #f5f7fa;
-  min-height: 100vh;
-}
-
-.seccionTarjetas {
-  display: flex;
-  align-items: center;
-  gap: 1rem;
+  flex-direction: column;
+    padding: 2rem;
+    min-height: 100vh;
+    background: #f5f7fa;
+    font-family: "Poppins", sans-serif;
+    justify-content: center;
+    align-items: center;
+    
 }
 
 .tituloSeccion {
-  position: absolute;
-  top: 10px;
-  left: 20px;
-  font-size: 1.2rem;
-  font-weight: bold;
-  color: inherit;
+    text-align: center;
+    font-size: 1.8rem;
+    margin-bottom: 1rem;
+    color: #126341;
 }
 
-.logoDamena {
-  width: 9rem;
-  align-self: flex-end;
+/* SECCIÓN TARJETAS */
+.seccionTarjetas {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 1rem;
+    touch-action: pan-y;
 }
 
-.seccionTarjetas button {
-  background: #0077ff;
-  color: white;
-  border: none;
-  padding: 0.75rem 1rem;
-  border-radius: 50%;
-  cursor: pointer;
-  font-size: 1.2rem;
-  transition: background 0.3s ease;
+/* BOTONES DE NAVEGACIÓN */
+.btnNav {
+    background: #0077ff;
+    color: white;
+    border: none;
+    padding: 0.8rem 1.1rem;
+    border-radius: 50%;
+    cursor: pointer;
+    font-size: 1.3rem;
+    transition: 0.2s;
 }
 
-.seccionTarjetas button:hover {
-  background: #005fcc;
+.btnNav:hover {
+    background: #005fcc;
 }
 
-.overlay {
-  position: fixed;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  background: rgba(0, 0, 0, 0.5);
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  z-index: 10;
-}
-
-.modalPin {
-  background: #fff;
-  border-radius: 1rem;
-  padding: 2rem;
-  width: 400px;
-  max-width: 90%;
-  text-align: center;
-  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.3);
-  animation: fadeIn 0.3s ease-in-out;
-}
-.modalPin h3 {
-  margin-bottom: 1rem;
-  font-size: 1.4rem;
-  color: #333;
-}
-.modalPin h3 {
-  margin-bottom: 1rem;
-  font-size: 1.4rem;
-  color: #333;
-}
-.selectFiltro {
-  height: 2rem;
-  background-color: #ccc;
-  color: black;
-  border-radius: 5px;
-}
-
-.modalPin p {
-  margin-bottom: 1rem;
-  font-size: 1.4rem;
-  color: #333;
-}
-.inputCodigo {
-  background-color: transparent;
-  width: 100%;
-  padding: 0.7rem;
-  margin: 1rem 0;
-  border: 1px solid #ccc;
-  border-radius: 0.5rem;
-  font-size: 1rem;
-}
-.botonContinuar,
-.botonCancelar,
-.botonCerrar {
-  display: inline-block;
-  margin: 0.5rem;
-  padding: 0.7rem 1.2rem;
-  font-size: 1rem;
-  border-radius: 0.5rem;
-  border: none;
-  cursor: pointer;
-  transition: background 0.2s ease-in-out;
-}
-.resumenCuenta {
-  display: flex;
-  flex-direction: column;
-  gap: 1rem;
-  background: white;
-  padding: 2rem;
-  border-radius: 1rem;
-  width: 400px;
-  max-width: 90%;
-  position: relative;
-}
-
-.cerrarResumen {
-  margin-top: 1rem;
-  background: #f82f2f;
-  color: white;
-  border: none;
-  padding: 0.5rem 1rem;
-  border-radius: 0.5rem;
-  cursor: pointer;
-  transition: background 0.3s ease;
-}
-
-.cerrarResumen:hover {
-  background: #4b5157;
-}
-
-@keyframes fadeIn {
-  from {
-    from {
-      opacity: 0;
-      transform: scale(0.9);
-    }
-
-    to {
-      opacity: 1;
-      transform: scale(1);
-    }
-  }
-
-  to {
-    opacity: 1;
-    transform: translateY(0);
-  }
-}
-
-.filtroDescripcion {
-  width: 100%;
-  height: 2rem;
-  background-color: transparent;
-  border-color: #f5f7fa;
-}
-
-.botonFiltro {
-  align-self: flex-start;
-  padding: 0.5rem 1rem;
-  border: none;
-  border-radius: 0.5rem;
-  color: white;
-  font-weight: bold;
-  cursor: pointer;
-  transition: background 0.3s ease;
-}
-
-.botonDatosTarjeta {
-  background: #005fcc;
-}
-
+/* TARJETA */
 .tarjeta {
-  color: white;
-  border-radius: 1rem;
-  padding: 1.5rem;
-  width: 300px;
-  min-height: 180px;
-  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
-  text-align: left;
-  display: flex;
-  flex-direction: column;
-  justify-content: space-between;
-  transition: transform 0.3s ease, background-color 0.5s ease;
-  cursor: pointer;
-}
-.botonContinuar {
-  background-color: #4caf50;
-  color: white;
-}
-
-.botonContinuar:hover {
-  background-color: #43a047;
-}
-
-/* Botón cancelar */
-.botonCancelar {
-  background-color: #e53935;
-  color: white;
-}
-
-.botonCancelar:hover {
-  background-color: #d32f2f;
-}
-
-/* Botón cerrar en paso 2 */
-.botonCerrar {
-  background-color: #1976d2;
-  color: white;
-}
-
-.botonCerrar:hover {
-  background-color: #1565c0;
-}
-
-.tarjetaWrapper {
-  width: 100%;
-  height: 100%;
-  background-color: #f5f5f5;
-  padding: 1rem;
-  border-radius: 1rem;
-  margin: 1rem;
-  transition: background-color 0.5s ease;
+    width: 310px;
+    height: 190px;
+    border-radius: 1rem;
+    padding: 1.3rem;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    box-shadow: 0 8px 18px rgba(0, 0, 0, 0.25);
+    transition: transform 0.3s ease;
+    cursor: pointer;
 }
 
 .tarjeta:hover {
-  transform: translateY(-5px);
-  box-shadow: 0 8px 16px rgba(0, 0, 0, 0.3);
+    transform: translateY(-5px);
 }
 
 .tarjeta h3 {
-  margin-bottom: 1rem;
-  font-size: 1.5rem;
-  font-weight: bold;
+    margin: 0;
+    font-size: 1.4rem;
 }
 
 .tarjeta p {
-  margin: 0.3rem 0;
-  font-size: 1rem;
+    margin: 0.3rem 0;
+}
+
+/* LOGO TARJETA */
+.logoDamena {
+    width: 90px;
+    align-self: flex-end;
+}
+
+/* INDICADORES */
+.indicadores {
+    margin-top: 1rem;
+    display: flex;
+    justify-content: center;
+    gap: 8px;
+}
+
+.indicador {
+    width: 10px;
+    height: 10px;
+    background: #c7c7c7;
+    border-radius: 50%;
+    transition: 0.3s ease;
+}
+
+.indicador.activo {
+    background: #0077ff;
+    transform: scale(1.25);
+}
+
+/* TEXTO CARGANDO */
+.cargando {
+    text-align: center;
+    padding: 2rem;
+    font-size: 1.2rem;
+}
+
+/* RESPONSIVE */
+@media (max-width: 480px) {
+    .tarjeta {
+        width: 260px;
+        height: 170px;
+    }
+
+    .btnNav {
+        padding: 0.6rem 0.9rem;
+    }
+}
+
+/* --- OVERLAY OSCURO --- */
+.overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0,0,0,0.55);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    backdrop-filter: blur(2px);
+    z-index: 1000;
+}
+
+/* --- MODAL PRINCIPAL --- */
+.modalOTP {
+    width: 90%;
+    max-width: 380px;
+    background: white;
+    padding: 2rem;
+    border-radius: 1rem;
+    text-align: center;
+    animation: modalFade 0.3s ease;
+    box-shadow: 0 8px 25px rgba(0,0,0,0.25);
+}
+
+.modalOTP h3 {
+    font-size: 1.4rem;
+    color: #222;
+    margin-bottom: 0.5rem;
+}
+
+.modalOTP p {
+    font-size: 1rem;
+    color: #444;
+    margin-bottom: 1.5rem;
+}
+
+/* --- INPUT OTP --- */
+.inputOTP {
+    width: 100%;
+    padding: 0.9rem;
+    border: 2px solid #d6d6d6;
+    border-radius: 8px;
+    font-size: 1.1rem;
+    letter-spacing: 2px;
+    text-align: center;
+    margin-bottom: 1.5rem;
+    outline: none;
+}
+
+.inputOTP:focus {
+    border-color: #0077ff;
+}
+
+/* --- BOTONES --- */
+.botonesModal {
+    display: flex;
+    justify-content: space-between;
+    gap: 1rem;
+}
+
+.btnConfirmar {
+    flex: 1;
+    background: #25CB86;
+    color: white;
+    padding: 0.8rem;
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+    font-size: 1rem;
+    transition: 0.2s ease;
+}
+
+.btnConfirmar:hover {
+    background: #1da06b;
+}
+
+.btnCancelar {
+    flex: 1;
+    background: #e53935;
+    color: white;
+    padding: 0.8rem;
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+    font-size: 1rem;
+    transition: 0.2s ease;
+}
+
+.btnCancelar:hover {
+    background: #c62828;
+}
+
+/* --- Animación --- */
+@keyframes modalFade {
+    from {
+        opacity: 0;
+        transform: scale(0.85);
+    }
+    to {
+        opacity: 1;
+        transform: scale(1);
+    }
 }
