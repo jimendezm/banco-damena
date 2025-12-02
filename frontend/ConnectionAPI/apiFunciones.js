@@ -139,6 +139,59 @@ export async function generateOTP(idTarjeta, token){
         return { success: false, message: "No se pudo conectar con el servidor." };
     }
 }
+
+export async function ValidarOTP(email, otp, token){
+    try{
+        const response = await fetch(`https://bdproyectoweb-3.onrender.com/api/v1/auth/verify-otp`, {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json",
+                "x-api-key": API_KEY,
+                "Authorization": `Bearer ${token}`
+            },
+            body: JSON.stringify({
+                email,
+                otp
+            })
+        });
+        const data = await response.json();
+        return {
+            success: response.ok,
+            status: data.status,
+            message: data.message,
+            valid: data.data.valid || null,
+        }
+        
+    }catch(error){
+        console.error("Error en ValidarOTP: ", error);
+        return { success: false, message: "No se pudo conectar con el servidor." };
+    }
+}
+
+
+export async function ObtenerTransaccionesTarjeta(idTarjeta, token){
+    console.log("ObtenerTransaccionesTarjeta llamado con idTarjeta:", idTarjeta);
+    try{
+        const response = await fetch(`https://bdproyectoweb-3.onrender.com/api/v1/cards/${idTarjeta}/movements`, {
+            method: "GET",
+            headers: {
+                "Content-Type": "application/json",
+                "x-api-key": API_KEY,
+                "Authorization": `Bearer ${token}`
+            }
+        });
+        console.log("Respuesta de ObtenerTransaccionesTarjeta:", response);
+        const data = await response.json();
+        return {
+            success: response.ok,
+            movimientos: data.data.items || null,
+        }
+        
+    }catch(error){
+        console.error("Error en ObtenerTransaccionesTarjeta: ", error);
+        return { success: false, message: "No se pudo conectar con el servidor." };
+    }
+}
 export async function ObtenerCuentasUsuario(token) {
     try {
         const response = await fetch("https://bdproyectoweb-3.onrender.com/api/v1/accounts", {

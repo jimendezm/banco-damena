@@ -33,6 +33,7 @@ function Login(){
             localStorage.setItem("userId", dataLogin.id);
             localStorage.setItem("loginTime", Date.now().toString());
             localStorage.setItem("identificacion", dataLogin.identificacion);
+            localStorage.setItem("email", dataLogin.email);
             console.log("Token almacenado en localStorage:", dataLogin.token, "  identificacion: ", dataLogin.identificacion);
             navigate("/dashboard");
         }else{
