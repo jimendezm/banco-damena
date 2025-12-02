@@ -139,3 +139,82 @@ export async function generateOTP(idTarjeta, token){
         return { success: false, message: "No se pudo conectar con el servidor." };
     }
 }
+export async function ObtenerCuentasUsuario(token) {
+    try {
+        const response = await fetch("https://bdproyectoweb-3.onrender.com/api/v1/accounts", {
+            method: "GET",
+            headers: {
+                "Content-Type": "application/json",
+                "x-api-key": API_KEY,
+                "Authorization": `Bearer ${token}`
+            }
+        });
+        const data = await response.json();
+        return {
+            success: response.ok,
+            status: data.status,
+            message: data.message,
+            cuentas: data.data || null,
+        };
+        
+    } catch(error) {
+        console.error("Error en ObtenerCuentasUsuario: ", error);
+        return { success: false, message: "No se pudo conectar con el servidor." };
+    }
+}
+
+export async function BuscarCuentasTerceros(searchTerm, token) {
+    try {
+        const response = await fetch(`https://bdproyectoweb-3.onrender.com/api/v1/accounts/search?q=${encodeURIComponent(searchTerm)}`, {
+            method: "GET",
+            headers: {
+                "Content-Type": "application/json",
+                "x-api-key": API_KEY,
+                "Authorization": `Bearer ${token}`
+            }
+        });
+        const data = await response.json();
+        return {
+            success: response.ok,
+            status: data.status,
+            message: data.message,
+            cuentas: data.data || null,
+        };
+        
+    } catch(error) {
+        console.error("Error en BuscarCuentasTerceros: ", error);
+        return { success: false, message: "No se pudo conectar con el servidor." };
+    }
+}
+
+export async function CrearTransferenciaInterna(transferData, token) {
+    try {
+        const response = await fetch("https://bdproyectoweb-3.onrender.com/api/v1/transfers/internal", {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json",
+                "x-api-key": API_KEY,
+                "Authorization": `Bearer ${token}`
+            },
+            body: JSON.stringify(transferData)
+        });
+        const data = await response.json();
+        return {
+            success: response.ok,
+            status: data.status,
+            message: data.message,
+            data: data.data || null,
+            error_code: data.error_code || null,
+            http_code: data.http_code || null
+        };
+        
+    } catch(error) {
+        console.error("Error en CrearTransferenciaInterna: ", error);
+        return { 
+            success: false, 
+            message: "No se pudo conectar con el servidor.",
+            http_code: 500,
+            error_code: 'NETWORK_ERROR'
+        };
+    }
+}
