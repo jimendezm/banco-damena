@@ -4,6 +4,8 @@ import Layout from "../components/Layout";
 import {
     generateOTP,
     ObtenerTarjetasUsuario,
+    ObtenerTransaccionesTarjeta,
+    ValidarOTP,
 
 } from "../../ConnectionAPI/apiFunciones";
 
@@ -14,6 +16,9 @@ function Tarjetas() {
 
     const [tarjetas, setTarjetas] = useState([]);
     const [indice, setIndice] = useState(0);
+    const [mostrarModalMovimientos, setMostrarModalMovimientos] = useState(false);
+    const [movimientos, setMovimientos] = useState([]);
+    const [filtro, setFiltro] = useState("Todos");
 
     // MODAL OTP
     const [mostrarModalOTP, setMostrarModalOTP] = useState(false);
@@ -103,8 +108,29 @@ function Tarjetas() {
 
     // 🔐 Confirmar OTP
     const confirmarOTP = async () => {
+        const token = localStorage.getItem("token");
+        const email = localStorage.getItem("email");
         
+        const result = await ValidarOTP(email, codigoOTP, token);
+        if (result.success) {
+            alert("OTP verificado correctamente.");
+            setMostrarModalOTP(false);
+            setCodigoOTP("");
+            setOtpEnviado(false);
+        } else {
+            alert("Error al verificar OTP: " + result.message);
+        }
     };
+    const abrirModalMovimientos = async () => {
+        const token = localStorage.getItem("token");
+
+        const result = await ObtenerTransaccionesTarjeta(tarjeta.id, token);
+        const movs = result.movimientos || [];
+
+        setMovimientos(movs);
+        setMostrarModalMovimientos(true);
+    };
+
 
     return (
         <section className={styles.contenedorPagina}>
@@ -115,7 +141,7 @@ function Tarjetas() {
                     <section id="zonaSwipe" className={styles.seccionTarjetas}>
                         <button onClick={anterior} className={styles.btnNav}>{"<"}</button>
 
-                        {/* 👉 AHORA el modal abre al presionar la tarjeta */}
+                        {}
                         <div
                             className={styles.tarjeta}
                             style={{
@@ -143,9 +169,12 @@ function Tarjetas() {
                             ></span>
                         ))}
                     </div>
+                    <button className={styles.botonMovimientos} onClick={abrirModalMovimientos}>
+                        Ver movimientos
+                    </button>
                 </div>
 
-                {/* 🔐 MODAL OTP */}
+                {}
                 {mostrarModalOTP && (
                     <div className={styles.overlay}>
                         <div className={styles.modalOTP}>
@@ -188,6 +217,63 @@ function Tarjetas() {
                         </div>
                     </div>
                 )}
+                {mostrarModalMovimientos && (
+                    <div className={styles.overlay}>
+                        <div className={styles.modalMovimientos}>
+                            <h3>Movimientos de la tarjeta</h3>
+
+                            {/* FILTRO */}
+                            <select
+                                className={styles.selectFiltroMov}
+                                value={filtro}
+                                onChange={(e) => setFiltro(e.target.value)}
+                            >
+                                <option value="Todos">No filtrar</option>
+                                <option value="Compra">Compra</option>
+                                <option value="Pago">Pago</option>
+                            </select>
+
+                            {/* LISTA */}
+                            <div className={styles.listaMovimientos}>
+                                {movimientos
+                                    .filter(m => filtro === "Todos" || m.tipo === filtro)
+                                    .map(m => (
+                                        <div className={styles.movimientoItem} key={m.id}>
+                                            <p className={styles.movFecha}>
+                                                {new Date(m.fecha).toLocaleDateString("es-CR")}
+                                            </p>
+
+                                            <p className={styles.movDescripcion}>
+                                                {m.descripcion} <br />
+                                                {m.monto}
+                                                {m.moneda}
+                                            </p>
+
+                                            <span className={`${styles.movTipo} ${
+                                                m.tipo === "Compra"
+                                                    ? styles.compra
+                                                    : styles.pago
+                                            }`}>
+                                                {m.tipo}
+                                            </span>
+                                        </div>
+                                    ))}
+                                
+                                {movimientos.length === 0 && (
+                                    <p className={styles.sinMovimientos}>No hay movimientos registrados.</p>
+                                )}
+                            </div>
+
+                            <button
+                                className={styles.btnCerrarMov}
+                                onClick={() => setMostrarModalMovimientos(false)}
+                            >
+                                Cerrar
+                            </button>
+                        </div>
+                    </div>
+                )}
+
             </section>
         </section>
     );
