@@ -192,9 +192,9 @@ export async function ObtenerTransaccionesTarjeta(idTarjeta, token){
         return { success: false, message: "No se pudo conectar con el servidor." };
     }
 }
-export async function ObtenerCuentasUsuario(token) {
+export async function ObtenerCuentasUsuario(idCuenta,token) {
     try {
-        const response = await fetch("https://bdproyectoweb-3.onrender.com/api/v1/accounts", {
+        const response = await fetch(`https://bdproyectoweb-3.onrender.com/api/v1/accounts/${idCuenta}`, {
             method: "GET",
             headers: {
                 "Content-Type": "application/json",
@@ -212,6 +212,30 @@ export async function ObtenerCuentasUsuario(token) {
         
     } catch(error) {
         console.error("Error en ObtenerCuentasUsuario: ", error);
+        return { success: false, message: "No se pudo conectar con el servidor." };
+    }
+}
+
+export async function ObtenerDetallesCuenta(token) {
+    try {
+        const response = await fetch("https://bdproyectoweb-3.onrender.com/api/v1/accounts/details", {
+            method: "GET",
+            headers: {
+                "Content-Type": "application/json",
+                "x-api-key": API_KEY,
+                "Authorization": `Bearer ${token}`
+            }
+        });
+        const data = await response.json();
+        return {
+            success: response.ok,
+            status: data.status,
+            message: data.message,
+            cuenta: data.data || null,
+        };
+        
+    } catch(error) {
+        console.error("Error en ObtenerDetallesCuenta: ", error);
         return { success: false, message: "No se pudo conectar con el servidor." };
     }
 }
