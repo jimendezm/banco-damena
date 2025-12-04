@@ -376,3 +376,29 @@ export async function verificarCodigoRecuperacion(email, otp){
         return { success: false, message: "No se pudo conectar con el servidor." };
     }
 }
+
+export async function restablecerContrasena(userId, otpHash, newPassword){
+    try{
+        const response = await fetch("https://bdproyectoweb-3.onrender.com/api/v1/auth/reset-password", {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json",
+                "x-api-key": API_KEY
+            },
+            body: JSON.stringify({
+                userId,
+                otpHash,
+                newPassword
+            })
+        });
+        const data = await response.json();
+        return {
+            success: response.ok,
+            message: data.message,
+        }
+        
+    }catch(error){
+        console.error("Error en restablecerContrasena: ", error);
+        return { success: false, message: "No se pudo conectar con el servidor." };
+    }
+};

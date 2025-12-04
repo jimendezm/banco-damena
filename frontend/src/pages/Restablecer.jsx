@@ -2,6 +2,7 @@ import { useState } from "react";
 import styles from '../styles/Restablecer.module.css'
 import logo from '../assets/Damena-logo-original.png'
 import { useNavigate } from "react-router-dom";
+import { restablecerContrasena } from "../../ConnectionAPI/apiFunciones";
 
 function Restablecer(){
     const navigate = useNavigate();
@@ -14,7 +15,7 @@ function Restablecer(){
     const [errorContrasenia, setErrorContrasenia] = useState("");
     const [errorConfirmacion, setErrorConfirmacion] = useState("");
 
-    const handleValidarContra = () =>{
+    const handleValidarContra = async () =>{
         let valido = true;
 
         if(!/^(?=.*[a-z])(?=.*[A-Z])(?=.*\d).{8,}$/.test(contrasenia)){
@@ -32,6 +33,9 @@ function Restablecer(){
         }
 
         if(valido){
+            const otpHash = localStorage.getItem("codigoHash");
+            const id = localStorage.getItem("id");
+            const restablecer = await restablecerContrasena(id, otpHash, contrasenia);
             navigate("/");
         }
     };
