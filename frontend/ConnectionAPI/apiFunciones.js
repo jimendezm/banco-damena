@@ -219,9 +219,9 @@ export async function ObtenerCuentasUsuario(idCuenta,token) {
     }
 }
 
-export async function ObtenerDetallesCuenta(token) {
+export async function ObtenerDetallesCuenta(idCuenta,token) {
     try {
-        const response = await fetch("https://bdproyectoweb-3.onrender.com/api/v1/accounts/details", {
+        const response = await fetch(`https://bdproyectoweb-3.onrender.com/api/v1/accounts/${idCuenta}`, {
             method: "GET",
             headers: {
                 "Content-Type": "application/json",
