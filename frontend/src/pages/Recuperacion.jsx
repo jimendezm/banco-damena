@@ -1,8 +1,8 @@
-import { useState } from "react";
+import { use, useEffect, useState } from "react";
 import styles from '../styles/Recuperacion.module.css'
 import logo from '../assets/Damena-logo-original.png'
 import { useNavigate } from "react-router-dom";
-import { obtenerCodigoRecuperacion } from "../../ConnectionAPI/apiFunciones";
+import { obtenerCodigoRecuperacion, verificarCodigoRecuperacion } from "../../ConnectionAPI/apiFunciones";
 function Recuperacion(){
     const navigate = useNavigate();
 
@@ -10,6 +10,7 @@ function Recuperacion(){
     const [codigo, setCodigo] = useState("");
     const [codigoEnviado, setCodigoEnviado] = useState(false);
     const [campoEmailActivo, setCampoEmailActivo] = useState(true);
+    const [resultadoCodigo, setResultadoCodigo] = useState(null);
 
     // Estados de error
     const [errorEmail, setErrorEmail] = useState("");
@@ -33,14 +34,24 @@ function Recuperacion(){
 
     };
 
-    const handleValidarCodigo = () => {
+    const handleValidarCodigo = async () => {
         if (!/^\d{6}$/.test(codigo)) {
             setErrorCodigo("El código debe tener 6 dígitos.");
             return;
         }
-
-        setErrorCodigo("");
-        navigate("/restablecer");
+        const resultadoCod = await verificarCodigoRecuperacion(email, codigo);
+        console.log("Resultado verificación código: ", resultadoCod);
+        setResultadoCodigo(resultadoCod);
+        if (resultadoCod.success) {
+            localStorage.setItem("codigoHash", resultadoCod.otpHash);
+            localStorage.setItem("id", resultadoCod.id);
+            setCodigo("");
+            setEmail("");
+            navigate('/restablecer');
+        }
+        else{
+            setErrorCodigo("Código incorrecto. Intente nuevamente.");
+        }
     };
 
     return(

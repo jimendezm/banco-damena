@@ -349,3 +349,30 @@ export async function obtenerCodigoRecuperacion(email){
         return { success: false, message: "No se pudo conectar con el servidor." };
     }
 }
+
+
+export async function verificarCodigoRecuperacion(email, otp){
+    try{
+        const response = await fetch("https://bdproyectoweb-3.onrender.com/api/v1/auth/verify-otp", {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json",
+                "x-api-key": API_KEY
+            },
+            body: JSON.stringify({
+                email,
+                otp
+            })
+        });
+        const data = await response.json();
+        return {
+            success: response.ok,
+            id: data.id || null,
+            otpHash: data.codigo || null,
+        }
+        
+    }catch(error){
+        console.error("Error en verificarCodigoRecuperacion: ", error);
+        return { success: false, message: "No se pudo conectar con el servidor." };
+    }
+}
