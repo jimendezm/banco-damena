@@ -2,13 +2,14 @@ import { useState } from "react";
 import styles from '../styles/Recuperacion.module.css'
 import logo from '../assets/Damena-logo-original.png'
 import { useNavigate } from "react-router-dom";
-
+import { obtenerCodigoRecuperacion } from "../../ConnectionAPI/apiFunciones";
 function Recuperacion(){
     const navigate = useNavigate();
 
     const [email, setEmail] = useState("");
     const [codigo, setCodigo] = useState("");
     const [codigoEnviado, setCodigoEnviado] = useState(false);
+    const [campoEmailActivo, setCampoEmailActivo] = useState(true);
 
     // Estados de error
     const [errorEmail, setErrorEmail] = useState("");
@@ -19,13 +20,17 @@ function Recuperacion(){
         return regex.test(correo);
     };
 
-    const handleEnviarCodigo = () => {
+    const handleEnviarCodigo = async () => {
+        setCampoEmailActivo(false);
         if (!validarEmail(email)) {
             setErrorEmail("Ingrese un correo válido.");
             return;
         }
         setErrorEmail("");
         setCodigoEnviado(true);
+        const resultado = await obtenerCodigoRecuperacion(email);
+        console.log("CódigoOTP: ", resultado.otp || "No se recibió código");
+
     };
 
     const handleValidarCodigo = () => {
@@ -55,6 +60,7 @@ function Recuperacion(){
                         setEmail(e.target.value);
                         setErrorEmail("");
                     }}
+                    disabled={!campoEmailActivo}
                 />
 
                 {errorEmail && <p className={styles.error}>{errorEmail}</p>}
@@ -62,7 +68,7 @@ function Recuperacion(){
                 <button 
                     className={styles.btnPrimario}
                     onClick={handleEnviarCodigo}
-                    disabled={!email}
+                    disabled={!email || !campoEmailActivo}
                 >
                     Enviar código
                 </button>

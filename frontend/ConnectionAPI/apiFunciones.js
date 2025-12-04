@@ -322,3 +322,30 @@ export async function CrearTransferenciaInterna(transferData, token) {
         };
     }
 }
+
+
+
+export async function obtenerCodigoRecuperacion(email){
+    try{
+        const response = await fetch("https://bdproyectoweb-3.onrender.com/api/v1/auth/forgot-password", {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json",
+                "x-api-key": API_KEY
+            },
+            body: JSON.stringify({
+                email
+            })
+        });
+        const data = await response.json();
+        return {
+            success: response.ok,
+            message: data.message,
+            otp: data.otp || null,
+        }
+        
+    }catch(error){
+        console.error("Error en obtenerCodigoRecuperacion: ", error);
+        return { success: false, message: "No se pudo conectar con el servidor." };
+    }
+}
