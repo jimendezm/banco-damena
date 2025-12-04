@@ -6,7 +6,6 @@ import {
     ObtenerTarjetasUsuario,
     ObtenerTransaccionesTarjeta,
     ValidarOTPTarjeta
-
 } from "../../ConnectionAPI/apiFunciones";
 
 import logoDamenaClaro from '../assets/logoDamenaSinFondoClaro.png';
@@ -24,6 +23,11 @@ function Tarjetas() {
     const [mostrarModalOTP, setMostrarModalOTP] = useState(false);
     const [codigoOTP, setCodigoOTP] = useState("");
     const [otpEnviado, setOtpEnviado] = useState(false);
+
+    // MODAL DATOS SENSIBLES
+    const [mostrarModalDatos, setMostrarModalDatos] = useState(false);
+    const [datosSensibles, setDatosSensibles] = useState(null);
+    const [contador, setContador] = useState(60);
 
     // Obtener tarjetas
     useEffect(() => {
@@ -67,6 +71,22 @@ function Tarjetas() {
         };
     }, [tarjetas]);
 
+    // 🕒 COUNTDOWN PARA DATOS SENSIBLES
+    useEffect(() => {
+        if (!mostrarModalDatos) return;
+
+        if (contador === 0) {
+            setMostrarModalDatos(false);
+            return;
+        }
+
+        const timer = setTimeout(() => {
+            setContador(prev => prev - 1);
+        }, 1000);
+
+        return () => clearTimeout(timer);
+    }, [contador, mostrarModalDatos]);
+
     if (tarjetas.length === 0) {
         return (
             <section className={styles.contenedorPagina}>
@@ -87,8 +107,7 @@ function Tarjetas() {
         Débito: "#25CB86",
     };
 
-    const logo =
-        tarjeta.tipo === "Black" ? logoDamenaOscuro : logoDamenaClaro;
+    const logo = tarjeta.tipo === "Black" ? logoDamenaOscuro : logoDamenaClaro;
 
     const siguiente = () => setIndice((prev) => (prev + 1) % tarjetas.length);
     const anterior = () => setIndice((prev) => (prev - 1 + tarjetas.length) % tarjetas.length);
@@ -100,7 +119,7 @@ function Tarjetas() {
 
         if (result.success) {
             setOtpEnviado(true);
-            console.log("OTP generado:", result.otp); // Para pruebas
+            console.log("OTP generado:", result.otp);
         } else {
             alert("Error al generar OTP: " + result.message);
         }
@@ -110,16 +129,26 @@ function Tarjetas() {
     const confirmarOTP = async () => {
         const token = localStorage.getItem("token");
         console.log("Validando OTP:", codigoOTP);
+
         const result = await ValidarOTPTarjeta(tarjeta.id, codigoOTP, token);
+
         if (result.success) {
-            alert("OTP verificado correctamente.");
+            console.log("Datos sensibles:", result.valid);
+
+            setDatosSensibles(result.valid);
             setMostrarModalOTP(false);
             setCodigoOTP("");
             setOtpEnviado(false);
+
+            setContador(60);
+            setMostrarModalDatos(true);
+
         } else {
             alert("Error al verificar OTP: " + result.message);
+            setCodigoOTP("");
         }
     };
+
     const abrirModalMovimientos = async () => {
         const token = localStorage.getItem("token");
 
@@ -140,7 +169,6 @@ function Tarjetas() {
                     <section id="zonaSwipe" className={styles.seccionTarjetas}>
                         <button onClick={anterior} className={styles.btnNav}>{"<"}</button>
 
-                        {}
                         <div
                             className={styles.tarjeta}
                             style={{
@@ -159,7 +187,6 @@ function Tarjetas() {
                         <button onClick={siguiente} className={styles.btnNav}>{">"}</button>
                     </section>
 
-                    {/* Indicadores */}
                     <div className={styles.indicadores}>
                         {tarjetas.map((_, idx) => (
                             <span
@@ -168,17 +195,18 @@ function Tarjetas() {
                             ></span>
                         ))}
                     </div>
+
                     <button className={styles.botonMovimientos} onClick={abrirModalMovimientos}>
                         Ver movimientos
                     </button>
                 </div>
 
-                {}
+                {/* MODAL OTP */}
                 {mostrarModalOTP && (
                     <div className={styles.overlay}>
                         <div className={styles.modalOTP}>
                             <h3>Confirmación OTP</h3>
-                            <p>Verifica tu correo electronico e inserta el código</p>
+                            <p>Revisa tu correo e ingresa el código</p>
 
                             {!otpEnviado && (
                                 <button className={styles.btnEnviarOTP} onClick={enviarOTP}>
@@ -216,12 +244,13 @@ function Tarjetas() {
                         </div>
                     </div>
                 )}
+
+                {/* MODAL MOVIMIENTOS */}
                 {mostrarModalMovimientos && (
                     <div className={styles.overlay}>
                         <div className={styles.modalMovimientos}>
                             <h3>Movimientos de la tarjeta</h3>
 
-                            {/* FILTRO */}
                             <select
                                 className={styles.selectFiltroMov}
                                 value={filtro}
@@ -232,7 +261,6 @@ function Tarjetas() {
                                 <option value="Pago">Pago</option>
                             </select>
 
-                            {/* LISTA */}
                             <div className={styles.listaMovimientos}>
                                 {movimientos
                                     .filter(m => filtro === "Todos" || m.tipo === filtro)
@@ -244,8 +272,7 @@ function Tarjetas() {
 
                                             <p className={styles.movDescripcion}>
                                                 {m.descripcion} <br />
-                                                {m.monto}
-                                                {m.moneda}
+                                                {m.monto}{m.moneda}
                                             </p>
 
                                             <span className={`${styles.movTipo} ${
@@ -257,7 +284,7 @@ function Tarjetas() {
                                             </span>
                                         </div>
                                     ))}
-                                
+
                                 {movimientos.length === 0 && (
                                     <p className={styles.sinMovimientos}>No hay movimientos registrados.</p>
                                 )}
@@ -268,6 +295,31 @@ function Tarjetas() {
                                 onClick={() => setMostrarModalMovimientos(false)}
                             >
                                 Cerrar
+                            </button>
+                        </div>
+                    </div>
+                )}
+
+                {/* MODAL DATOS SENSIBLES */}
+                {mostrarModalDatos && (
+                    <div className={styles.overlay}>
+                        <div className={styles.modalDatos}>
+                            <h3>Datos Sensibles de la Tarjeta</h3>
+
+                            <p className={styles.subtitulo}>
+                                Este código desaparecerá en <b>{contador}</b> segundos
+                            </p>
+
+                            <div className={styles.datosBox}>
+                                <p><b>CVV:</b> {datosSensibles?.cvv}</p>
+                                <p><b>PIN:</b> {datosSensibles?.pin}</p>
+                            </div>
+
+                            <button
+                                className={styles.btnCerrarMov}
+                                onClick={() => setMostrarModalDatos(false)}
+                            >
+                                Cerrar ahora
                             </button>
                         </div>
                     </div>
