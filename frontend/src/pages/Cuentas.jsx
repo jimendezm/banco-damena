@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react';
 import { useParams } from 'react-router-dom';
 import { getUsers } from '../services/userService';
 import '../styles/Cuentas.css';
-import { ObtenerCuentasUsuario } from '../../ConnectionAPI/apiFunciones';
+import { ObtenerCuentasUsuario, ObtenerTransaccionesCuenta } from '../../ConnectionAPI/apiFunciones';
 
 function Cuentas() {
   const [cuentas, setCuentas] = useState([]);
@@ -22,6 +22,7 @@ function Cuentas() {
       const result = await ObtenerCuentasUsuario(idUsuario, token);
       if (result.success) {
         setCuentas(result.cuentas);
+        console.log("Cuentas obtenidas:", result.cuentas);
         if (result.cuentas.length > 0) {
           console.log("todo ok");
         }
@@ -30,65 +31,29 @@ function Cuentas() {
       };
     };
     fetchData();
-
-    if (idUsuario) {
-      const usersData = getUsers();
-      userData = usersData.users.find(u => u.id === parseInt(idUsuario));
-    } else {
-      const storedUser = sessionStorage.getItem('currentUser');
-      userData = storedUser ? JSON.parse(storedUser) : null;
-    }
-
-    if (!userData) {
-      const usersData = getUsers();
-      userData = usersData.users.find(u => u.username === 'demo');
-    }
-
-    
-    if (userData && userData.cuentas) {
-      setCuentas(userData.cuentas);
-      if (userData.cuentas.length > 0) {
-        setCuentaSeleccionada(userData.cuentas[0]);
-        cargarMovimientos(userData.cuentas[0].account_id);
-      }
-    }
   }, [idUsuario]);
 
+    useEffect(() => {
+      if (cuentas.length > 0) {
+        setCuentaSeleccionada(cuentas[0]);
+        cargarMovimientos(cuentas[0].id);
+      }
+    }, [cuentas]);
+
   const cargarMovimientos = async (accountId) => {
+    const token = localStorage.getItem('token');
     setCargando(true);
-    setTimeout(() => {
-      const movimientosEjemplo = [
-        {
-          id: 'TXN-001',
-          account_id: accountId,
-          fecha: '2024-01-15T10:30:00Z',
-          tipo: 'CREDITO',
-          descripcion: 'Depósito de nómina',
-          moneda: 'CRC',
-          monto: 750000.00,
-          saldo: 1523400.50
-        },
-        {
-          id: 'TXN-002', 
-          account_id: accountId,
-          fecha: '2024-01-14T14:20:00Z',
-          tipo: 'DEBITO',
-          descripcion: 'Pago de servicios',
-          moneda: 'CRC',
-          monto: -45000.00,
-          saldo: 773400.50
-        }
-      ];
-      setMovimientos(movimientosEjemplo);
+    const movimientos = await ObtenerTransaccionesCuenta(accountId, token);
+    setMovimientos(movimientos.transacciones || []);
       setCargando(false);
-    }, 800);
   };
 
   const handleSeleccionarCuenta = (cuenta) => {
     setCuentaSeleccionada(cuenta);
     setBusqueda('');
     setFiltroTipo('todos');
-    cargarMovimientos(cuenta.account_id);
+    console.log("Cuenta seleccionada:", cuenta.id);
+    cargarMovimientos(cuenta.id);
   };
 
   const movimientosFiltrados = movimientos.filter(movimiento => {
@@ -137,7 +102,7 @@ function Cuentas() {
             {cuentas.map((cuenta) => (
               <div
                 key={cuenta.cuenta_id}
-                className={`cuenta-item ${cuentaSeleccionada?.cuenta_id === cuenta.cuenta_id ? 'selected' : ''}`}
+                className={`cuenta-item ${cuentaSeleccionada?.id === cuenta.id ? 'selected' : ''}`}
                 onClick={() => handleSeleccionarCuenta(cuenta)}
               >
                 <div className="cuenta-info">
@@ -158,15 +123,15 @@ function Cuentas() {
                 <div className="cuenta-detalle">
                   <h2>{cuentaSeleccionada.alias}</h2>
                   <div className="cuenta-meta">
-                    <span className="account-number">{cuentaSeleccionada.account_id}</span>
-                    <span className="account-type">{cuentaSeleccionada.tipo}</span>
-                    <span className="account-currency">{cuentaSeleccionada.moneda}</span>
+                    <span className="account-number">{cuentaSeleccionada.iban}</span>
+                    <span className="account-type">{cuentaSeleccionada.tipo_cuenta}</span>
+                    <span className="account-currency">{cuentaSeleccionada.moneda_iso}</span>
                   </div>
                 </div>
                 <div className="saldo-actual">
                   <h3>Saldo Disponible</h3>
                   <p className="saldo-total">
-                    {formatearMoneda(cuentaSeleccionada.saldo, cuentaSeleccionada.moneda)}
+                    {formatearMoneda(cuentaSeleccionada.saldo, cuentaSeleccionada.moneda_iso)}
                   </p>
                 </div>
               </div>

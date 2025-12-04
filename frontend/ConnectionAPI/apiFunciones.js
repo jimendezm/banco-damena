@@ -267,6 +267,29 @@ export async function BuscarCuentasTerceros(searchTerm, token) {
         return { success: false, message: "No se pudo conectar con el servidor." };
     }
 }
+export async function ObtenerTransaccionesCuenta(idCuenta, token) {
+    try {
+        const response = await fetch(`https://bdproyectoweb-3.onrender.com/api/v1/accounts/${idCuenta}/movements`, {
+            method: "GET",
+            headers: {
+                "Content-Type": "application/json",
+                "x-api-key": API_KEY,
+                "Authorization": `Bearer ${token}`
+            }
+        });
+        const data = await response.json();
+        return {
+            success: response.ok,
+            status: data.status,
+            message: data.message,
+            movimientos: data.data || null,
+        };
+        
+    } catch(error) {
+        console.error("Error en ObtenerTransaccionesCuenta: ", error);
+        return { success: false, message: "No se pudo conectar con el servidor." };
+    }
+}
 
 export async function CrearTransferenciaInterna(transferData, token) {
     try {
