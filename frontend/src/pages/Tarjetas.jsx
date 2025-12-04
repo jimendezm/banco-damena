@@ -2,10 +2,10 @@ import { useState, useEffect } from "react";
 import styles from "../styles/Tarjetas.module.css";
 import Layout from "../components/Layout";
 import {
-    generateOTP,
+    generateOTPTarjeta,
     ObtenerTarjetasUsuario,
     ObtenerTransaccionesTarjeta,
-    ValidarOTP,
+    ValidarOTPTarjeta
 
 } from "../../ConnectionAPI/apiFunciones";
 
@@ -96,7 +96,7 @@ function Tarjetas() {
     // 🔐 Enviar OTP
     const enviarOTP = async () => {
         const token = localStorage.getItem("token");
-        const result = await generateOTP(tarjeta.id, token);
+        const result = await generateOTPTarjeta(tarjeta.id, token);
 
         if (result.success) {
             setOtpEnviado(true);
@@ -109,9 +109,8 @@ function Tarjetas() {
     // 🔐 Confirmar OTP
     const confirmarOTP = async () => {
         const token = localStorage.getItem("token");
-        const email = localStorage.getItem("email");
-        
-        const result = await ValidarOTP(email, codigoOTP, token);
+        console.log("Validando OTP:", codigoOTP);
+        const result = await ValidarOTPTarjeta(tarjeta.id, codigoOTP, token);
         if (result.success) {
             alert("OTP verificado correctamente.");
             setMostrarModalOTP(false);

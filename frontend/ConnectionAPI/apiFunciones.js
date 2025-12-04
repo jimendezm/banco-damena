@@ -113,7 +113,7 @@ export async function ObtenerTarjetasUsuario(userId, token){
     }
 }
 
-export async function generateOTP(idTarjeta, token){
+export async function generateOTPTarjeta(idTarjeta, token){
     try{
 
         const response = await fetch(`https://bdproyectoweb-3.onrender.com/api/v1/cards/${idTarjeta}/otp`, {
@@ -141,9 +141,9 @@ export async function generateOTP(idTarjeta, token){
     }
 }
 
-export async function ValidarOTP(email, otp, token){
+export async function ValidarOTPTarjeta(idTarjeta, otp, token){
     try{
-        const response = await fetch(`https://bdproyectoweb-3.onrender.com/api/v1/auth/verify-otp`, {
+        const response = await fetch(`https://bdproyectoweb-3.onrender.com/api/v1/cards/${idTarjeta}/view-details`, {
             method: "POST",
             headers: {
                 "Content-Type": "application/json",
@@ -151,16 +151,16 @@ export async function ValidarOTP(email, otp, token){
                 "Authorization": `Bearer ${token}`
             },
             body: JSON.stringify({
-                email,
                 otp
             })
         });
         const data = await response.json();
+        console.log("Respuesta de ValidarOTP:", data);
         return {
             success: response.ok,
             status: data.status,
             message: data.message,
-            valid: data.data.valid || null,
+            valid: data.data || null,
         }
         
     }catch(error){
