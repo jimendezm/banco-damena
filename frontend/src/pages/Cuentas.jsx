@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import { useParams } from 'react-router-dom';
 import { getUsers } from '../services/userService';
 import '../styles/Cuentas.css';
+import { ObtenerCuentasUsuario } from '../../ConnectionAPI/apiFunciones';
 
 function Cuentas() {
   const [cuentas, setCuentas] = useState([]);
@@ -15,6 +16,21 @@ function Cuentas() {
   useEffect(() => {
     let userData;
     
+    const fetchData = async () => {
+      const token = localStorage.getItem('token');
+      const idUsuario = localStorage.getItem('idUsuario');
+      const result = await ObtenerCuentasUsuario(idUsuario, token);
+      if (result.success) {
+        setCuentas(result.cuentas);
+        if (result.cuentas.length > 0) {
+          console.log("todo ok");
+        }
+      } else {
+        console.error("Error al obtener cuentas:", result.message);
+      };
+    };
+    fetchData();
+
     if (idUsuario) {
       const usersData = getUsers();
       userData = usersData.users.find(u => u.id === parseInt(idUsuario));
@@ -28,6 +44,7 @@ function Cuentas() {
       userData = usersData.users.find(u => u.username === 'demo');
     }
 
+    
     if (userData && userData.cuentas) {
       setCuentas(userData.cuentas);
       if (userData.cuentas.length > 0) {
@@ -119,14 +136,14 @@ function Cuentas() {
           <div className="cuentas-list">
             {cuentas.map((cuenta) => (
               <div
-                key={cuenta.account_id}
-                className={`cuenta-item ${cuentaSeleccionada?.account_id === cuenta.account_id ? 'selected' : ''}`}
+                key={cuenta.cuenta_id}
+                className={`cuenta-item ${cuentaSeleccionada?.cuenta_id === cuenta.cuenta_id ? 'selected' : ''}`}
                 onClick={() => handleSeleccionarCuenta(cuenta)}
               >
                 <div className="cuenta-info">
                   <h4>{cuenta.alias}</h4>
-                  <p className="cuenta-number">{cuenta.account_id}</p>
-                  <p className="cuenta-type">{cuenta.tipo} - {cuenta.moneda}</p>
+                  <p className="cuenta-number">{cuenta.iban}</p>
+                  <p className="cuenta-type">{cuenta.tipo_cuenta} - {cuenta.moneda_iso}</p>
                 </div>
               </div>
             ))}

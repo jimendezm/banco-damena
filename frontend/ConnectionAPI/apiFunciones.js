@@ -115,6 +115,7 @@ export async function ObtenerTarjetasUsuario(userId, token){
 
 export async function generateOTP(idTarjeta, token){
     try{
+
         const response = await fetch(`https://bdproyectoweb-3.onrender.com/api/v1/cards/${idTarjeta}/otp`, {
             method: "POST",
             headers: {
@@ -194,6 +195,7 @@ export async function ObtenerTransaccionesTarjeta(idTarjeta, token){
 }
 export async function ObtenerCuentasUsuario(idCuenta,token) {
     try {
+        idCuenta = idCuenta || "";
         const response = await fetch(`https://bdproyectoweb-3.onrender.com/api/v1/accounts/${idCuenta}`, {
             method: "GET",
             headers: {
@@ -203,6 +205,7 @@ export async function ObtenerCuentasUsuario(idCuenta,token) {
             }
         });
         const data = await response.json();
+        console.log("Respuesta de ObtenerCuentasUsuario:", data);
         return {
             success: response.ok,
             status: data.status,
@@ -227,6 +230,7 @@ export async function ObtenerDetallesCuenta(token) {
             }
         });
         const data = await response.json();
+        console.log("Respuesta de ObtenerDetallesCuenta:", data);
         return {
             success: response.ok,
             status: data.status,
