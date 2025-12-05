@@ -50,13 +50,13 @@
   min-height: auto;
 }
 
-.sidebar-header-a {
+.sidebar-header2 {
   padding: 1.5rem;
   border-bottom: 1px solid #E9FBF4;
   background: linear-gradient(135deg, #E9FBF4, #C3F4DF);
 }
 
-.sidebar-header-a h3 {
+.sidebar-header2 h3 {
   margin: 0 0 0.5rem 0;
   color: #126341;
   font-size: 1.3rem;
@@ -157,8 +157,8 @@
   border: 1px solid #E9FBF4;
   padding: 2rem;
   overflow-y: auto;
-    max-height: 48vh;
-    min-height: auto;
+  max-height: 48vh;
+  min-height: auto;
 }
 
 .detalle-header {
@@ -218,19 +218,22 @@
   margin: 0;
 }
 
-/* Filtros */
 .filtros-container {
   display: flex;
   justify-content: space-between;
   align-items: center;
   margin-bottom: 2rem;
-  gap: 1rem;
+  gap: 1.5rem;
+  flex-wrap: wrap;
+  position: relative;
 }
 
 .search-box {
   position: relative;
   flex: 1;
-  max-width: 400px;
+  min-width: 300px;
+  max-width: 450px;
+  transition: all 0.3s ease;
 }
 
 .search-icon {
@@ -240,6 +243,8 @@
   transform: translateY(-50%);
   color: #666;
   font-size: 1.1rem;
+  z-index: 2;
+  pointer-events: none;
 }
 
 .search-input {
@@ -250,6 +255,10 @@
   font-size: 1rem;
   transition: all 0.3s ease;
   background: #f8fafc;
+  font-family: 'Poppins', sans-serif;
+  box-sizing: border-box;
+  position: relative;
+  z-index: 1;
 }
 
 .search-input:focus {
@@ -259,9 +268,15 @@
   box-shadow: 0 0 0 3px rgba(37, 203, 134, 0.1);
 }
 
+.search-input::placeholder {
+  color: #999;
+  font-size: 0.95rem;
+}
+
 .filter-buttons {
   display: flex;
   gap: 0.75rem;
+  flex-wrap: nowrap;
 }
 
 .filter-btn {
@@ -276,11 +291,14 @@
   font-weight: 500;
   cursor: pointer;
   transition: all 0.3s ease;
+  white-space: nowrap;
+  font-family: 'Poppins', sans-serif;
 }
 
 .filter-btn:hover {
   border-color: #25CB86;
   color: #126341;
+  background: #f0f9f4;
 }
 
 .filter-btn.active {
@@ -449,7 +467,14 @@
   100% { transform: rotate(360deg); }
 }
 
-/* Responsive */
+/* Responsive - MEJORADO */
+@media (max-width: 1200px) {
+  .cuentas-content {
+    grid-template-columns: 350px 1fr;
+    gap: 1.5rem;
+  }
+}
+
 @media (max-width: 1024px) {
   .cuentas-content {
     grid-template-columns: 1fr;
@@ -458,10 +483,21 @@
   
   .cuentas-sidebar {
     order: 2;
+    max-height: 45vh;
   }
   
   .cuentas-main {
     order: 1;
+    max-height: 55vh;
+  }
+  
+  .search-box {
+    min-width: 250px;
+    max-width: 350px;
+  }
+  
+  .filtros-container {
+    gap: 1rem;
   }
 }
 
@@ -472,37 +508,158 @@
   
   .cuentas-main {
     padding: 1.5rem;
+    max-height: none;
   }
   
   .detalle-header {
     flex-direction: column;
     gap: 1.5rem;
+    align-items: flex-start;
   }
   
   .saldo-actual {
     text-align: left;
+    width: 100%;
   }
   
   .filtros-container {
     flex-direction: column;
     align-items: stretch;
+    gap: 1rem;
+    margin-bottom: 1.5rem;
   }
   
   .search-box {
-    max-width: none;
+    min-width: 100%;
+    max-width: 100%;
+    order: 1;
+    margin-bottom: 0.5rem;
+    position: relative;
+    z-index: 5;
+  }
+  
+  .search-input {
+    width: 100%;
+    font-size: 0.95rem;
+    padding: 0.7rem 1rem 0.7rem 3rem;
+  }
+  
+  .search-icon {
+    left: 1rem;
+    font-size: 1rem;
   }
   
   .filter-buttons {
+    order: 2;
+    display: flex;
+    gap: 0.5rem;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    width: 100%;
+    position: relative;
+    z-index: 4;
+  }
+  
+  .filter-btn {
+    flex: 1 0 calc(50% - 0.25rem);
+    min-width: calc(50% - 0.25rem);
+    max-width: calc(50% - 0.25rem);
     justify-content: center;
+    padding: 0.65rem 0.75rem;
+    font-size: 0.9rem;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    margin-bottom: 0.5rem;
   }
   
   .movimiento-item {
     flex-direction: column;
     text-align: center;
     gap: 0.75rem;
+    padding: 1rem;
   }
   
   .movimiento-monto {
     text-align: center;
+    width: 100%;
+  }
+  
+  .cuentas-sidebar {
+    max-height: 50vh;
+  }
+}
+
+@media (max-width: 480px) {
+  .cuentas-header h1 {
+    font-size: 1.6rem;
+  }
+  
+  .header-icon {
+    font-size: 1.8rem;
+  }
+  
+  .cuentas-main {
+    padding: 1rem;
+  }
+  
+  .detalle-header {
+    margin-bottom: 1.5rem;
+  }
+  
+  .cuenta-detalle h2 {
+    font-size: 1.5rem;
+  }
+  
+  .saldo-total {
+    font-size: 1.8rem;
+  }
+  
+  .cuenta-meta {
+    gap: 0.5rem;
+  }
+  
+  .account-number,
+  .account-type,
+  .account-currency {
+    font-size: 0.75rem;
+    padding: 0.3rem 0.6rem;
+  }
+  
+  /* FILTROS EN MÓVILES PEQUEÑOS */
+  .filtros-container {
+    gap: 0.75rem;
+  }
+  
+  .search-input {
+    font-size: 0.9rem;
+    padding: 0.65rem 1rem 0.65rem 2.8rem;
+  }
+  
+  .search-icon {
+    left: 0.9rem;
+    font-size: 0.9rem;
+  }
+  
+  .filter-buttons {
+    gap: 0.4rem;
+  }
+  
+  .filter-btn {
+    flex: 1 0 100%;
+    min-width: 100%;
+    max-width: 100%;
+    padding: 0.6rem;
+    font-size: 0.85rem;
+    margin-bottom: 0.4rem;
+  }
+  
+  .filter-btn:last-child {
+    margin-bottom: 0;
+  }
+  
+  .movimientos-container h3 {
+    font-size: 1.2rem;
+    margin-bottom: 1rem;
   }
 }

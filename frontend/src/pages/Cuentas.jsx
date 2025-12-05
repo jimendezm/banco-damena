@@ -123,7 +123,7 @@ function Cuentas() {
       <div className="cuentas-content">
         {/* Panel lateral de cuentas */}
         <div className="cuentas-sidebar">
-          <div className="sidebar-header">
+          <div className="sidebar-header2">
             <h3>Tus Cuentas</h3>
             <span className="cuentas-count">{cuentas.length} cuenta(s)</span>
           </div>
