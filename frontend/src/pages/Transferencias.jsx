@@ -1,7 +1,7 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { useParams } from 'react-router-dom';
 import '../styles/Transferencias.css';
-import { ObtenerCuentasUsuario, BuscarCuentasTerceros, CrearTransferenciaInterna } from "../../ConnectionAPI/apiFunciones";
+import { ObtenerCuentasUsuario, CrearTransferenciaInterna } from "../../ConnectionAPI/apiFunciones";
 import Alert from '../components/Alert';
 
 function Transferencias() {
@@ -9,23 +9,19 @@ function Transferencias() {
   const [pasoActual, setPasoActual] = useState(1);
   const [tipoTransferencia, setTipoTransferencia] = useState('propias');
   const [cuentasPropias, setCuentasPropias] = useState([]);
-  const [cuentasTerceros, setCuentasTerceros] = useState([]);
-  const [currentUser, setCurrentUser] = useState(null);
   const [formData, setFormData] = useState({
-    from_account_id: '',
-    to_account_id: '',
+    from_account_iban: '',
+    to_account_iban: '',
     amount: '',
-    currency: 'CRC',
+    currency_code: 'CRC',
     description: ''
   });
   const [confirmacionData, setConfirmacionData] = useState(null);
   const [comprobanteData, setComprobanteData] = useState(null);
-  const [busquedaTerceros, setBusquedaTerceros] = useState('');
-  const [cuentaDestinoValida, setCuentaDestinoValida] = useState(null);
-  const [validandoCuenta, setValidandoCuenta] = useState(false);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
   const [isLoadingAccounts, setIsLoadingAccounts] = useState(true);
+  const [shouldShowSingleAccountAlert, setShouldShowSingleAccountAlert] = useState(false);
 
   const [alertState, setAlertState] = useState({
     isOpen: false,
@@ -34,99 +30,88 @@ function Transferencias() {
     message: ''
   });
 
-  const token = localStorage.getItem("token");
-  const userId = localStorage.getItem("userId");
-
-  useEffect(() => {
-    cargarCuentasPropias();
-  }, []);
-
-  useEffect(() => {
-    if (busquedaTerceros && busquedaTerceros.length >= 3) {
-      buscarCuentasTerceros();
-    }
-  }, [busquedaTerceros]);
-
-  const showAlert = (type, title, message) => {
+  const showAlert = useCallback((type, title, message) => {
     setAlertState({
       isOpen: true,
       type,
       title,
       message
     });
-  };
+  }, []);
 
   const closeAlert = () => {
     setAlertState(prev => ({ ...prev, isOpen: false }));
   };
 
-  const cargarCuentasPropias = async () => {
-    setIsLoadingAccounts(true);
-    setError(null);
-    const result = await ObtenerCuentasUsuario(token);
-    
-    if (result.success && result.cuentas) {
-      const cuentasMapeadas = result.cuentas.map(cuenta => ({
-        id: cuenta.id,
-        account_id: cuenta.account_number || cuenta.iban || cuenta.id,
-        alias: cuenta.alias || `Cuenta ${cuenta.currency}`,
-        tipo: cuenta.account_type || 'Cuenta Corriente',
-        moneda: cuenta.currency,
-        saldo: parseFloat(cuenta.balance || 0),
-        usuario_id: cuenta.user_id,
-        iban: cuenta.iban || cuenta.account_number
-      }));
+  // Cargar cuentas
+  useEffect(() => {
+    const cargarCuentas = async () => {
+      const token = localStorage.getItem('token');
+      const idUsuario = localStorage.getItem('idUsuario');
       
-      setCuentasPropias(cuentasMapeadas);
-
-      if (cuentasMapeadas.length > 0) {
-        const primeraCuenta = cuentasMapeadas[0];
-        setFormData(prev => ({
-          ...prev,
-          from_account_id: primeraCuenta.id,
-          currency: primeraCuenta.moneda
-        }));
+      const result = await ObtenerCuentasUsuario(idUsuario, token);
+      if (result.success) {
+        setCuentasPropias(result.cuentas || []);
+        console.log("Cuentas obtenidas (Transferencias):", result.cuentas);
+        
+        if (result.cuentas && result.cuentas.length > 0) {
+          // Establecer primera cuenta como origen (usando IBAN)
+          const primeraCuenta = result.cuentas[0];
+          setFormData(prev => ({
+            ...prev,
+            from_account_iban: primeraCuenta.iban,
+            currency_code: primeraCuenta.moneda_iso || primeraCuenta.currency || 'CRC'
+          }));
+        }
+      } else {
+        console.error("Error al obtener cuentas:", result.message);
+        showAlert('error', 'Error', 'No se pudieron cargar las cuentas');
       }
-    } else {
-      setError(result.message || 'No se pudieron cargar las cuentas');
-      showAlert('error', 'Error', result.message || 'No se pudieron cargar las cuentas');
-    }
-    setIsLoadingAccounts(false);
-  };
-
-  const buscarCuentasTerceros = async () => {
-    setValidandoCuenta(true);
-    const result = await BuscarCuentasTerceros(busquedaTerceros, token);
+      setIsLoadingAccounts(false);
+    };
     
-    if (result.success && result.cuentas) {
-      const cuentasFiltradas = result.cuentas
-        .filter(cuenta => cuenta.id !== formData.from_account_id)
-        .map(cuenta => ({
-          id: cuenta.id,
-          account_id: cuenta.account_number || cuenta.iban || cuenta.id,
-          nombre: `${cuenta.user_name || ''} ${cuenta.user_lastname || ''}`.trim() || 'Cliente Banco',
-          alias: cuenta.alias || 'Cuenta Personal',
-          moneda: cuenta.currency || 'CRC'
-        }));
-      
-      setCuentasTerceros(cuentasFiltradas);
-    } else {
-      setCuentasTerceros([]);
+    cargarCuentas();
+  }, [showAlert]);
+
+  // Actualizar moneda cuando cambia la cuenta de origen
+  useEffect(() => {
+    if (formData.from_account_iban && cuentasPropias.length > 0) {
+      const cuentaSeleccionada = cuentasPropias.find(c => c.iban === formData.from_account_iban);
+      if (cuentaSeleccionada) {
+        const monedaCuenta = cuentaSeleccionada.moneda_iso || cuentaSeleccionada.currency || 'CRC';
+        if (monedaCuenta !== formData.currency_code) {
+          setFormData(prev => ({
+            ...prev,
+            currency_code: monedaCuenta
+          }));
+        }
+      }
     }
-    setValidandoCuenta(false);
-  };
+  }, [formData.from_account_iban, cuentasPropias]);
+
+  // Mostrar alerta de cuenta única solo una vez
+  useEffect(() => {
+    if (!isLoadingAccounts && cuentasPropias.length === 1 && !shouldShowSingleAccountAlert) {
+      const timer = setTimeout(() => {
+        showAlert('info', 'Transferencia limitada', 
+          'Necesitas al menos dos cuentas para realizar transferencias entre tus propias cuentas. ' +
+          'Actualmente solo tienes una cuenta registrada.');
+        setShouldShowSingleAccountAlert(true);
+      }, 1000);
+      
+      return () => clearTimeout(timer);
+    }
+  }, [isLoadingAccounts, cuentasPropias.length, shouldShowSingleAccountAlert, showAlert]);
 
   const handleTipoTransferenciaChange = (tipo) => {
     setTipoTransferencia(tipo);
     setFormData(prev => ({
       ...prev,
-      to_account_id: '',
+      to_account_iban: '',
       amount: '',
       description: ''
     }));
     setPasoActual(1);
-    setCuentasTerceros([]);
-    setBusquedaTerceros('');
     setError(null);
   };
 
@@ -135,107 +120,83 @@ function Transferencias() {
       ...prev,
       [field]: value
     }));
-
-    if (field === 'from_account_id') {
-      const cuentaSeleccionada = cuentasPropias.find(c => c.id === value);
-      if (cuentaSeleccionada) {
-        setFormData(prev => ({
-          ...prev,
-          currency: cuentaSeleccionada.moneda
-        }));
-      }
-    }
-
-    if (field === 'to_account_id') {
-      validarCuentaDestino(value);
-    }
   };
 
   const validarFormulario = () => {
-    setError(null);
-    
-    if (!formData.from_account_id) {
-      setError('Selecciona una cuenta de origen');
-      showAlert('warning', 'Cuenta de Origen', 'Selecciona una cuenta de origen');
+    // Verificar si hay al menos 2 cuentas para transferencias propias
+    if (tipoTransferencia === 'propias' && cuentasPropias.length < 2) {
       return false;
     }
-    if (!formData.to_account_id) {
-      setError('Selecciona una cuenta de destino');
-      showAlert('warning', 'Cuenta de Destino', 'Selecciona una cuenta de destino');
+
+    if (!formData.from_account_iban) {
       return false;
     }
+
+    if (!formData.to_account_iban) {
+      return false;
+    }
+
     if (!formData.amount || parseFloat(formData.amount) <= 0) {
-      setError('El monto debe ser mayor a cero');
-      showAlert('warning', 'Monto Inválido', 'El monto debe ser mayor a cero');
-      return false;
-    }
-    if (!formData.currency) {
-      setError('Selecciona una moneda');
-      showAlert('warning', 'Moneda', 'Selecciona una moneda');
-      return false;
-    }
-    
-    if (formData.from_account_id === formData.to_account_id) {
-      setError('No puedes transferir a la misma cuenta');
-      showAlert('warning', 'Cuenta Duplicada', 'No puedes transferir a la misma cuenta');
       return false;
     }
 
-    const cuentaOrigen = cuentasPropias.find(c => c.id === formData.from_account_id);
+    if (!formData.currency_code) {
+      return false;
+    }
+    
+    if (formData.from_account_iban === formData.to_account_iban) {
+      return false;
+    }
+
+    const cuentaOrigen = cuentasPropias.find(c => c.iban === formData.from_account_iban);
     if (cuentaOrigen && parseFloat(formData.amount) > cuentaOrigen.saldo) {
-      setError('Saldo insuficiente para realizar la transferencia');
-      showAlert('error', 'Saldo Insuficiente', 'No tienes suficiente saldo para realizar esta transferencia');
       return false;
     }
 
-    const cuentaDestino = tipoTransferencia === 'propias' 
-      ? cuentasPropias.find(c => c.id === formData.to_account_id)
-      : cuentasTerceros.find(c => c.id === formData.to_account_id);
+    const cuentaDestino = cuentasPropias.find(c => c.iban === formData.to_account_iban);
     
-    if (cuentaOrigen && cuentaDestino && cuentaOrigen.moneda !== cuentaDestino.moneda) {
-      setError('Las cuentas deben tener la misma moneda');
-      showAlert('warning', 'Moneda Incorrecta', 'Las cuentas deben tener la misma moneda');
-      return false;
+    if (cuentaOrigen && cuentaDestino) {
+      const monedaOrigen = cuentaOrigen.moneda_iso || cuentaOrigen.currency || 'CRC';
+      const monedaDestino = cuentaDestino.moneda_iso || cuentaDestino.currency || 'CRC';
+      
+      if (monedaOrigen !== monedaDestino) {
+        return false;
+      }
     }
 
     return true;
   };
 
-  const validarCuentaDestino = (accountId) => {
-    if (!accountId) {
-      setCuentaDestinoValida(null);
+  const handleContinuar = () => {
+    const esValido = validarFormulario();
+    
+    if (!esValido) {
+      // Solo mostrar alertas cuando el usuario intenta continuar
+      if (tipoTransferencia === 'propias' && cuentasPropias.length < 2) {
+        showAlert('warning', 'Transferencia no disponible', 
+          'Necesitas al menos dos cuentas para realizar transferencias entre tus propias cuentas. ' +
+          'Actualmente solo tienes una cuenta registrada.');
+      } else if (!formData.from_account_iban) {
+        showAlert('warning', 'Cuenta de Origen', 'Selecciona una cuenta de origen');
+      } else if (!formData.to_account_iban) {
+        showAlert('warning', 'Cuenta de Destino', 'Selecciona una cuenta de destino');
+      } else if (!formData.amount || parseFloat(formData.amount) <= 0) {
+        showAlert('warning', 'Monto Inválido', 'El monto debe ser mayor a cero');
+      } else if (formData.from_account_iban === formData.to_account_iban) {
+        showAlert('warning', 'Cuenta Duplicada', 'No puedes transferir a la misma cuenta');
+      } else {
+        const cuentaOrigen = cuentasPropias.find(c => c.iban === formData.from_account_iban);
+        if (cuentaOrigen && parseFloat(formData.amount) > cuentaOrigen.saldo) {
+          showAlert('error', 'Saldo Insuficiente', 'No tienes suficiente saldo para realizar esta transferencia');
+        }
+      }
       return;
     }
 
-    setValidandoCuenta(true);
+    const cuentaOrigen = cuentasPropias.find(c => c.iban === formData.from_account_iban);
+    const cuentaDestino = cuentasPropias.find(c => c.iban === formData.to_account_iban);
     
-    setTimeout(() => {
-      let cuentaValida = null;
-      
-      if (tipoTransferencia === 'propias') {
-        cuentaValida = cuentasPropias.find(c => c.id === accountId);
-      } else {
-        cuentaValida = cuentasTerceros.find(c => c.id === accountId);
-      }
-      
-      setCuentaDestinoValida(cuentaValida);
-      setValidandoCuenta(false);
-    }, 500);
-  };
-
-  const handleContinuar = () => {
-    if (!validarFormulario()) return;
-
-    const cuentaOrigen = cuentasPropias.find(c => c.id === formData.from_account_id);
-    let cuentaDestinoInfo = null;
-
-    if (tipoTransferencia === 'propias') {
-      cuentaDestinoInfo = cuentasPropias.find(c => c.id === formData.to_account_id);
-    } else {
-      cuentaDestinoInfo = cuentasTerceros.find(c => c.id === formData.to_account_id);
-    }
-
-    if (!cuentaOrigen || !cuentaDestinoInfo) {
+    if (!cuentaOrigen || !cuentaDestino) {
       setError('Información de cuentas no válida');
       showAlert('error', 'Error', 'Información de cuentas no válida');
       return;
@@ -244,9 +205,9 @@ function Transferencias() {
     setConfirmacionData({
       tipo: tipoTransferencia,
       cuentaOrigen: cuentaOrigen,
-      cuentaDestino: cuentaDestinoInfo,
+      cuentaDestino: cuentaDestino,
       monto: parseFloat(formData.amount),
-      moneda: formData.currency,
+      moneda: formData.currency_code,
       descripcion: formData.description,
       fecha: new Date().toISOString(),
       formData: { ...formData }
@@ -261,14 +222,22 @@ function Transferencias() {
     setError(null);
     
     try {
+      if (cuentasPropias.length < 2) {
+        showAlert('warning', 'Transferencia no disponible', 'Necesitas al menos dos cuentas para realizar transferencias entre tus propias cuentas');
+        setLoading(false);
+        setPasoActual(1);
+        return;
+      }
+
       const transferData = {
-        from_account_id: formData.from_account_id,
-        to_account_id: formData.to_account_id,
+        from_account_iban: formData.from_account_iban,
+        to_account_iban: formData.to_account_iban,
         amount: parseFloat(formData.amount),
-        currency: formData.currency,
+        currency_code: formData.currency_code,
         description: formData.description || ''
       };
-
+      console.log("Datos de transferencia enviados:", transferData);
+      const token = localStorage.getItem("token");
       const result = await CrearTransferenciaInterna(transferData, token);
       
       if (result.success) {
@@ -286,7 +255,18 @@ function Transferencias() {
         
         showAlert('success', '¡Transferencia Exitosa!', 'Tu transferencia se ha procesado correctamente');
         
-        setTimeout(() => cargarCuentasPropias(), 1000);
+        // Recargar cuentas para actualizar saldos
+        setTimeout(() => {
+          const recargarCuentas = async () => {
+            const token = localStorage.getItem('token');
+            const idUsuario = localStorage.getItem('idUsuario');
+            const result = await ObtenerCuentasUsuario(idUsuario, token);
+            if (result.success) {
+              setCuentasPropias(result.cuentas || []);
+            }
+          };
+          recargarCuentas();
+        }, 1000);
       } else {
         const errorMessage = result.message || 'Error al procesar la transferencia';
         setError(errorMessage);
@@ -303,6 +283,10 @@ function Transferencias() {
           showAlert('warning', 'Cuenta Duplicada', 'No se puede transferir a la misma cuenta.');
         } else if (result.error_code === 'ACCOUNT_NOT_FOUND') {
           showAlert('error', 'Cuenta no Encontrada', 'La cuenta destino no existe.');
+        } else if (result.error_code === 'INVALID_IBAN') {
+          showAlert('error', 'IBAN Inválido', 'El número de cuenta es inválido.');
+        } else if (result.error_code === 'INVALID_CURRENCY') {
+          showAlert('error', 'Moneda Inválida', 'La moneda especificada no es válida.');
         } else {
           showAlert('error', 'Error', `Error: ${errorMessage}`);
         }
@@ -321,13 +305,12 @@ function Transferencias() {
     setPasoActual(1);
     setFormData(prev => ({
       ...prev,
-      to_account_id: '',
+      to_account_iban: '',
       amount: '',
       description: ''
     }));
     setConfirmacionData(null);
     setComprobanteData(null);
-    setCuentaDestinoValida(null);
     setError(null);
   };
 
@@ -342,17 +325,18 @@ function Transferencias() {
       Estado: ${comprobanteData.estado}
       
       CUENTA ORIGEN:
-      Número: ${comprobanteData.cuentaOrigen.account_id}
+      IBAN: ${comprobanteData.cuentaOrigen.iban || comprobanteData.cuentaOrigen.account_number}
       Alias: ${comprobanteData.cuentaOrigen.alias}
-      Tipo: ${comprobanteData.cuentaOrigen.tipo}
+      Tipo: ${comprobanteData.cuentaOrigen.tipo_cuenta || 'Cuenta Corriente'}
       
       CUENTA DESTINO:
-      Número: ${comprobanteData.cuentaDestino.account_id}
-      ${comprobanteData.tipo === 'terceros' ? `Titular: ${comprobanteData.cuentaDestino.nombre}` : `Alias: ${comprobanteData.cuentaDestino.alias}`}
+      IBAN: ${comprobanteData.cuentaDestino.iban || comprobanteData.cuentaDestino.account_number}
+      Alias: ${comprobanteData.cuentaDestino.alias}
+      Tipo: ${comprobanteData.cuentaDestino.tipo_cuenta || 'Cuenta Corriente'}
       
       DETALLES:
       Monto: ${formatearMoneda(comprobanteData.monto, comprobanteData.moneda)}
-      Tipo: ${comprobanteData.tipo === 'propias' ? 'Entre Mis Cuentas' : 'A Terceros'}
+      Tipo: ${comprobanteData.tipo === 'propias' ? 'Entre Mis Cuentas' : 'Transferencia Interna'}
       Descripción: ${comprobanteData.descripcion || 'Sin descripción'}
       
       ¡Transferencia realizada con éxito!
@@ -392,9 +376,24 @@ function Transferencias() {
     });
   };
 
-  const cuentasDestinoDisponibles = tipoTransferencia === 'propias' 
-    ? cuentasPropias.filter(c => c.id !== formData.from_account_id)
-    : cuentasTerceros;
+  const cuentasDestinoDisponibles = cuentasPropias.filter(c => c.iban !== formData.from_account_iban);
+
+  // Función para verificar si el botón debe estar deshabilitado
+  const isContinuarDisabled = () => {
+    return !validarFormulario() || loading || tipoTransferencia !== 'propias' || cuentasPropias.length < 2;
+  };
+
+  // Obtener cuenta por IBAN
+  const getCuentaPorIban = (iban) => {
+    return cuentasPropias.find(c => c.iban === iban);
+  };
+
+  // Formatear IBAN para mostrar
+  const formatearIBAN = (iban) => {
+    if (!iban) return '';
+    // Formato: CRXX XXXX XXXX XXXX XXXX
+    return iban.replace(/(.{4})/g, '$1 ').trim();
+  };
 
   return (
     <div className="transferencias-container">
@@ -451,18 +450,34 @@ function Transferencias() {
               <button
                 className={`tipo-btn ${tipoTransferencia === 'propias' ? 'activo' : ''}`}
                 onClick={() => handleTipoTransferenciaChange('propias')}
+                disabled={cuentasPropias.length < 2}
               >
                 <UserIcon className="tipo-icon" />
                 <span>Entre Mis Cuentas</span>
                 <p>Transferir entre tus propias cuentas</p>
+                {cuentasPropias.length < 2 && (
+                  <span className="coming-soon">Necesitas 2+ cuentas</span>
+                )}
               </button>
               <button
-                className={`tipo-btn ${tipoTransferencia === 'terceros' ? 'activo' : ''}`}
-                onClick={() => handleTipoTransferenciaChange('terceros')}
+                className={`tipo-btn ${tipoTransferencia === 'mismo-banco' ? 'activo' : ''}`}
+                onClick={() => handleTipoTransferenciaChange('mismo-banco')}
+                disabled
               >
                 <UsersIcon className="tipo-icon" />
-                <span>A Terceros</span>
-                <p>Transferir a otros clientes del banco</p>
+                <span>Mismo Banco</span>
+                <p>Transferir a otros clientes del mismo banco</p>
+                <span className="coming-soon">Próximamente</span>
+              </button>
+              <button
+                className={`tipo-btn ${tipoTransferencia === 'interbancaria' ? 'activo' : ''}`}
+                onClick={() => handleTipoTransferenciaChange('interbancaria')}
+                disabled
+              >
+                <BankIcon className="tipo-icon" />
+                <span>Interbancaria</span>
+                <p>Transferir a cuentas de otros bancos</p>
+                <span className="coming-soon">Próximamente</span>
               </button>
             </div>
           </div>
@@ -477,6 +492,19 @@ function Transferencias() {
               <div className="no-accounts">
                 <p>No tienes cuentas disponibles para transferencias.</p>
               </div>
+            ) : cuentasPropias.length === 1 ? (
+              <div className="single-account-warning">
+                <InfoIcon className="warning-icon" />
+                <h4>Transferencia no disponible</h4>
+                <p>Necesitas al menos dos cuentas para realizar transferencias entre tus propias cuentas.</p>
+                <p>Actualmente solo tienes una cuenta registrada.</p>
+                <button 
+                  className="btn-primary"
+                  onClick={() => showAlert('info', 'Agregar Cuenta', 'Contacta al banco para abrir una nueva cuenta.')}
+                >
+                  Solicitar nueva cuenta
+                </button>
+              </div>
             ) : (
               <>
                 <div className="form-group">
@@ -485,25 +513,32 @@ function Transferencias() {
                     Cuenta de Origen *
                   </label>
                   <select
-                    value={formData.from_account_id}
-                    onChange={(e) => handleInputChange('from_account_id', e.target.value)}
+                    value={formData.from_account_iban || ''}
+                    onChange={(e) => handleInputChange('from_account_iban', e.target.value)}
                     className="form-select"
                     disabled={isLoadingAccounts}
                   >
                     <option value="">Selecciona una cuenta</option>
-                    {cuentasPropias.map(cuenta => (
-                      <option key={cuenta.id} value={cuenta.id}>
-                        {cuenta.alias} - {formatearMoneda(cuenta.saldo, cuenta.moneda)} ({cuenta.moneda})
-                      </option>
-                    ))}
+                    {cuentasPropias.map(cuenta => {
+                      const monedaCuenta = cuenta.moneda_iso || cuenta.currency || 'CRC';
+                      return (
+                        <option key={cuenta.iban} value={cuenta.iban}>
+                          {cuenta.alias} - {formatearIBAN(cuenta.iban)} - {formatearMoneda(cuenta.saldo, monedaCuenta)} ({monedaCuenta})
+                        </option>
+                      );
+                    })}
                   </select>
-                  {formData.from_account_id && (
+                  {formData.from_account_iban && (
                     <div className="cuenta-info-selected">
                       <span className="cuenta-saldo">
-                        Saldo disponible: {formatearMoneda(
-                          cuentasPropias.find(c => c.id === formData.from_account_id)?.saldo || 0,
-                          formData.currency
-                        )}
+                        Saldo disponible: {(() => {
+                          const cuenta = getCuentaPorIban(formData.from_account_iban);
+                          if (cuenta) {
+                            const monedaCuenta = cuenta.moneda_iso || cuenta.currency || 'CRC';
+                            return formatearMoneda(cuenta.saldo, monedaCuenta);
+                          }
+                          return '0.00';
+                        })()}
                       </span>
                     </div>
                   )}
@@ -518,67 +553,49 @@ function Transferencias() {
                   {tipoTransferencia === 'propias' ? (
                     <>
                       <select
-                        value={formData.to_account_id}
-                        onChange={(e) => handleInputChange('to_account_id', e.target.value)}
+                        value={formData.to_account_iban || ''}
+                        onChange={(e) => handleInputChange('to_account_iban', e.target.value)}
                         className="form-select"
-                        disabled={!formData.from_account_id}
+                        disabled={!formData.from_account_iban || cuentasDestinoDisponibles.length === 0}
                       >
                         <option value="">Selecciona una cuenta destino</option>
-                        {cuentasDestinoDisponibles.map(cuenta => (
-                          <option key={cuenta.id} value={cuenta.id}>
-                            {cuenta.alias} - {formatearMoneda(cuenta.saldo, cuenta.moneda)} ({cuenta.moneda})
-                          </option>
-                        ))}
+                        {cuentasDestinoDisponibles.map(cuenta => {
+                          const monedaCuenta = cuenta.moneda_iso || cuenta.currency || 'CRC';
+                          return (
+                            <option key={cuenta.iban} value={cuenta.iban}>
+                              {cuenta.alias} - {formatearIBAN(cuenta.iban)} - {formatearMoneda(cuenta.saldo, monedaCuenta)} ({monedaCuenta})
+                            </option>
+                          );
+                        })}
                       </select>
-                      {validandoCuenta && (
-                        <div className="validando-cuenta">
-                          <div className="loading-spinner-small"></div>
-                          Validando cuenta...
+                      {cuentasDestinoDisponibles.length === 0 && formData.from_account_iban && (
+                        <div className="no-destination-accounts">
+                          <InfoIcon className="info-icon" />
+                          <span>No hay otras cuentas disponibles para transferir</span>
                         </div>
                       )}
                     </>
+                  ) : tipoTransferencia === 'mismo-banco' ? (
+                    <div className="disabled-section">
+                      <input
+                        type="text"
+                        placeholder="Ingresa el IBAN del destinatario"
+                        className="form-input"
+                        value={formData.to_account_iban || ''}
+                        onChange={(e) => handleInputChange('to_account_iban', e.target.value)}
+                      />
+                      <small>Ejemplo: CR05152000010262840672</small>
+                    </div>
                   ) : (
-                    <>
-                      <div className="search-box">
-                        <SearchIcon className="search-icon" />
-                        <input
-                          type="text"
-                          placeholder="Buscar por número de cuenta, nombre o alias (mínimo 3 caracteres)..."
-                          value={busquedaTerceros}
-                          onChange={(e) => setBusquedaTerceros(e.target.value)}
-                          className="search-input"
-                          disabled={!formData.from_account_id}
-                        />
-                      </div>
-                      
-                      <select
-                        value={formData.to_account_id}
-                        onChange={(e) => handleInputChange('to_account_id', e.target.value)}
-                        className="form-select"
-                        disabled={!formData.from_account_id || cuentasTerceros.length === 0}
-                      >
-                        <option value="">{cuentasTerceros.length === 0 ? "Ingresa un término de búsqueda" : "Selecciona una cuenta de terceros"}</option>
-                        {cuentasTerceros.map(cuenta => (
-                          <option key={cuenta.id} value={cuenta.id}>
-                            {cuenta.account_id} - {cuenta.nombre} ({cuenta.alias})
-                          </option>
-                        ))}
-                      </select>
-
-                      {validandoCuenta && busquedaTerceros.length >= 3 && (
-                        <div className="validando-cuenta">
-                          <div className="loading-spinner-small"></div>
-                          Buscando cuentas...
-                        </div>
-                      )}
-
-                      {cuentaDestinoValida && !validandoCuenta && (
-                        <div className="cuenta-validada">
-                          <CheckIcon className="check-icon" />
-                          Cuenta válida: {cuentaDestinoValida.nombre}
-                        </div>
-                      )}
-                    </>
+                    <div className="disabled-section">
+                      <input
+                        type="text"
+                        placeholder="Ingresa el IBAN interbancario"
+                        className="form-input"
+                        disabled
+                      />
+                      <span className="coming-soon">Próximamente</span>
+                    </div>
                   )}
                 </div>
 
@@ -593,20 +610,24 @@ function Transferencias() {
                         type="number"
                         step="0.01"
                         min="0.01"
-                        value={formData.amount}
+                        value={formData.amount || ''}
                         onChange={(e) => handleInputChange('amount', e.target.value)}
                         placeholder="0.00"
                         className="form-input"
-                        disabled={!formData.from_account_id || !formData.to_account_id}
+                        disabled={!formData.from_account_iban || !formData.to_account_iban}
                       />
-                      <span className="moneda-indicator">{formData.currency}</span>
+                      <span className="moneda-indicator">{formData.currency_code}</span>
                     </div>
-                    {formData.amount && formData.from_account_id && (
+                    {formData.amount && formData.from_account_iban && (
                       <div className="saldo-restante">
-                        Saldo después de transferencia: {formatearMoneda(
-                          (cuentasPropias.find(c => c.id === formData.from_account_id)?.saldo || 0) - parseFloat(formData.amount || 0),
-                          formData.currency
-                        )}
+                        Saldo después de transferencia: {(() => {
+                          const cuenta = getCuentaPorIban(formData.from_account_iban);
+                          if (cuenta) {
+                            const nuevoSaldo = cuenta.saldo - parseFloat(formData.amount || 0);
+                            return formatearMoneda(nuevoSaldo, formData.currency_code);
+                          }
+                          return '0.00';
+                        })()}
                       </div>
                     )}
                   </div>
@@ -614,14 +635,13 @@ function Transferencias() {
                   <div className="form-group">
                     <label className="form-label">Moneda</label>
                     <select
-                      value={formData.currency}
-                      onChange={(e) => handleInputChange('currency', e.target.value)}
+                      value={formData.currency_code || 'CRC'}
+                      onChange={(e) => handleInputChange('currency_code', e.target.value)}
                       className="form-select"
-                      disabled={!formData.from_account_id}
+                      disabled={!formData.from_account_iban}
                     >
                       <option value="CRC">Colones (₡)</option>
                       <option value="USD">Dólares ($)</option>
-                      <option value="EUR">Euros (€)</option>
                     </select>
                   </div>
                 </div>
@@ -632,21 +652,21 @@ function Transferencias() {
                     Descripción (Opcional)
                   </label>
                   <textarea
-                    value={formData.descripcion}
-                    onChange={(e) => handleInputChange('descripcion', e.target.value)}
+                    value={formData.description || ''}
+                    onChange={(e) => handleInputChange('description', e.target.value)}
                     placeholder="Ej: Pago de servicios, Transferencia familiar, etc."
                     className="form-textarea"
                     maxLength="255"
-                    disabled={!formData.from_account_id || !formData.to_account_id || !formData.amount}
+                    disabled={!formData.from_account_iban || !formData.to_account_iban || !formData.amount}
                   />
                   <div className="contador-caracteres">
-                    {formData.descripcion.length}/255 caracteres
+                    {(formData.description?.length || 0)}/255 caracteres
                   </div>
                 </div>
 
                 <button
                   onClick={handleContinuar}
-                  disabled={!validarFormulario() || loading}
+                  disabled={isContinuarDisabled()}
                   className="continuar-btn"
                 >
                   {loading ? 'Procesando...' : 'Continuar'} <ArrowRightIcon className="btn-icon" />
@@ -672,7 +692,8 @@ function Transferencias() {
                 <div className="dato-item">
                   <span className="dato-label">Tipo:</span>
                   <span className="dato-valor">
-                    {confirmacionData.tipo === 'propias' ? 'Entre Mis Cuentas' : 'A Terceros'}
+                    {confirmacionData.tipo === 'propias' ? 'Entre Mis Cuentas' : 
+                     confirmacionData.tipo === 'mismo-banco' ? 'Mismo Banco' : 'Interbancaria'}
                   </span>
                 </div>
                 <div className="dato-item">
@@ -699,9 +720,9 @@ function Transferencias() {
             <div className="datos-section">
               <h3>Cuenta de Origen</h3>
               <div className="cuenta-info origen">
-                <span className="cuenta-numero">{confirmacionData.cuentaOrigen.account_id}</span>
+                <span className="cuenta-numero">{formatearIBAN(confirmacionData.cuentaOrigen.iban)}</span>
                 <span className="cuenta-alias">{confirmacionData.cuentaOrigen.alias}</span>
-                <span className="cuenta-tipo">{confirmacionData.cuentaOrigen.tipo}</span>
+                <span className="cuenta-tipo">{confirmacionData.cuentaOrigen.tipo_cuenta || 'Cuenta Corriente'}</span>
                 <span className="cuenta-saldo-origen">
                   Saldo antes: {formatearMoneda(confirmacionData.cuentaOrigen.saldo, confirmacionData.moneda)}
                 </span>
@@ -711,15 +732,9 @@ function Transferencias() {
             <div className="datos-section">
               <h3>Cuenta de Destino</h3>
               <div className="cuenta-info destino">
-                <span className="cuenta-numero">{confirmacionData.cuentaDestino.account_id}</span>
-                {confirmacionData.tipo === 'propias' ? (
-                  <>
-                    <span className="cuenta-alias">{confirmacionData.cuentaDestino.alias}</span>
-                    <span className="cuenta-tipo">{confirmacionData.cuentaDestino.tipo}</span>
-                  </>
-                ) : (
-                  <span className="cuenta-nombre">{confirmacionData.cuentaDestino.nombre}</span>
-                )}
+                <span className="cuenta-numero">{formatearIBAN(confirmacionData.cuentaDestino.iban)}</span>
+                <span className="cuenta-alias">{confirmacionData.cuentaDestino.alias}</span>
+                <span className="cuenta-tipo">{confirmacionData.cuentaDestino.tipo_cuenta || 'Cuenta Corriente'}</span>
               </div>
             </div>
           </div>
@@ -735,7 +750,7 @@ function Transferencias() {
             <button
               onClick={handleConfirmar}
               className="btn-primary"
-              disabled={loading}
+              disabled={loading || confirmacionData.tipo !== 'propias' || cuentasPropias.length < 2}
             >
               {loading ? (
                 <>
@@ -787,7 +802,8 @@ function Transferencias() {
                 <div className="comprobante-item">
                   <span className="comprobante-label">Tipo:</span>
                   <span className="comprobante-valor">
-                    {comprobanteData.tipo === 'propias' ? 'Entre Mis Cuentas' : 'A Terceros'}
+                    {comprobanteData.tipo === 'propias' ? 'Entre Mis Cuentas' : 
+                     comprobanteData.tipo === 'mismo-banco' ? 'Mismo Banco' : 'Interbancaria'}
                   </span>
                 </div>
               </div>
@@ -796,11 +812,13 @@ function Transferencias() {
             <div className="comprobante-resumen">
               <div className="resumen-item">
                 <span className="resumen-label">Cuenta Origen:</span>
-                <span className="resumen-valor">{comprobanteData.cuentaOrigen.account_id}</span>
+                <span className="resumen-valor">{formatearIBAN(comprobanteData.cuentaOrigen.iban)}</span>
               </div>
               <div className="resumen-item">
                 <span className="resumen-label">Cuenta Destino:</span>
-                <span className="resumen-valor">{comprobanteData.cuentaDestino.account_id}</span>
+                <span className="resumen-valor">
+                  {formatearIBAN(comprobanteData.cuentaDestino.iban)}
+                </span>
               </div>
               <div className="resumen-item">
                 <span className="resumen-label">Nuevo saldo origen:</span>
@@ -835,7 +853,7 @@ function Transferencias() {
   );
 }
 
-// SVG Icons (sin cambios)
+// SVG Icons
 const TransferIcon = ({ className }) => (
   <svg width="24" height="24" viewBox="0 0 24 24" fill="currentColor" className={className}>
     <path d="M4 10V12H16L10.5 17.5L11.92 18.92L19.84 11L11.92 3.08L10.5 4.5L16 10H4Z"/>
@@ -854,6 +872,12 @@ const UsersIcon = ({ className }) => (
   </svg>
 );
 
+const BankIcon = ({ className }) => (
+  <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor" className={className}>
+    <path d="M12 2L2 8H5V20H19V8H22L12 2ZM11 10H13V18H11V10ZM7 10H9V18H7V10ZM15 10H17V18H15V10Z"/>
+  </svg>
+);
+
 const HomeIcon = ({ className }) => (
   <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor" className={className}>
     <path d="M10 20V14H14V20H19V12H22L12 3L2 12H5V20H10Z"/>
@@ -863,12 +887,6 @@ const HomeIcon = ({ className }) => (
 const ArrowRightIcon = ({ className }) => (
   <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor" className={className}>
     <path d="M8.59 16.59L13.17 12L8.59 7.41L10 6L16 12L10 18L8.59 16.59Z"/>
-  </svg>
-);
-
-const SearchIcon = ({ className }) => (
-  <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor" className={className}>
-    <path d="M15.5 14H14.71L14.43 13.73C15.41 12.59 16 11.11 16 9.5C16 5.91 13.09 3 9.5 3C5.91 3 3 5.91 3 9.5C3 13.09 5.91 16 9.5 16C11.11 16 12.59 15.41 13.73 14.43L14 14.71V15.5L19 20.49L20.49 19L15.5 14ZM9.5 14C7.01 14 5 11.99 5 9.5C5 7.01 7.01 5 9.5 5C11.99 5 14 7.01 14 9.5C14 11.99 11.99 14 9.5 14Z"/>
   </svg>
 );
 
@@ -893,6 +911,12 @@ const CheckIcon = ({ className }) => (
 const DownloadIcon = ({ className }) => (
   <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor" className={className}>
     <path d="M19 9H15V3H9V9H5L12 16L19 9ZM5 18V20H19V18H5Z"/>
+  </svg>
+);
+
+const InfoIcon = ({ className }) => (
+  <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor" className={className}>
+    <path d="M12 2C6.48 2 2 6.48 2 12C2 17.52 6.48 22 12 22C17.52 22 22 17.52 22 12C22 6.48 17.52 2 12 2ZM13 17H11V11H13V17ZM13 9H11V7H13V9Z"/>
   </svg>
 );
 
