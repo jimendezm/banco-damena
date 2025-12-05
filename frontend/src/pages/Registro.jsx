@@ -3,6 +3,8 @@ import { useNavigate } from "react-router-dom";
 import styles from '../styles/Registro.module.css';
 import { initializeSampleData, createUser, usernameExists, emailExists } from '../services/userService';
 import { RegistrarUsuario } from "../../ConnectionAPI/apiFunciones";
+import Alert from '../components/Alert';
+
 function Registro() {
   const navigate = useNavigate();
 
@@ -23,9 +25,29 @@ function Registro() {
   const [isLoading, setIsLoading] = useState(false);
   const [errors, setErrors] = useState({});
 
+  const [alertState, setAlertState] = useState({
+    isOpen: false,
+    type: 'success',
+    title: '',
+    message: ''
+  });
+
   useEffect(() => {
     initializeSampleData();
   }, []);
+
+  const showAlert = (type, title, message) => {
+    setAlertState({
+      isOpen: true,
+      type,
+      title,
+      message
+    });
+  };
+
+  const closeAlert = () => {
+    setAlertState(prev => ({ ...prev, isOpen: false }));
+  };
 
   const handleChange = (e) => {
     const { name, value, type, checked } = e.target;
@@ -92,6 +114,7 @@ function Registro() {
     if (!validarFormulario()) {
       setIsLoading(false);
       setMensaje("Por favor, corrige los errores del formulario.");
+      showAlert('warning', 'Formulario con Errores', 'Por favor, corrige los errores del formulario.');
       return;
     }
 
@@ -100,6 +123,7 @@ function Registro() {
       console.log(result.message)
       if (result.status == "success") {
         setMensaje("Registro exitoso! Redirigiendo…");
+        showAlert('success', '¡Registro Exitoso!', 'Tu cuenta ha sido creada correctamente. Redirigiendo...');
 
         setTimeout(() => {
           setIsLoading(false);
@@ -108,12 +132,14 @@ function Registro() {
 
       } else {
         setMensaje("Error en el registro. Verifique sus datos y cambie su usuario y correo por uno no registrado");
+        showAlert('error', 'Error en el Registro', 'Error en el registro. Verifique sus datos y cambie su usuario y correo por uno no registrado');
         setIsLoading(false);
       }
 
     } catch (error) {
       console.log(error)
       setMensaje("Error en el registro.");
+      showAlert('error', 'Error del Sistema', 'Ha ocurrido un error en el sistema. Intenta nuevamente.');
       setIsLoading(false);
     }
   };
@@ -124,6 +150,14 @@ function Registro() {
 
   return (
     <div className={styles.registroContainer}>
+      <Alert
+        isOpen={alertState.isOpen}
+        onClose={closeAlert}
+        type={alertState.type}
+        title={alertState.title}
+        message={alertState.message}
+      />
+
       <div className={styles.registroCard}>
 
         <div className={styles.registroHeader}>

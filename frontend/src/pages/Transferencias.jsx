@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import { useParams } from 'react-router-dom';
 import '../styles/Transferencias.css';
 import { ObtenerCuentasUsuario, BuscarCuentasTerceros, CrearTransferenciaInterna } from "../../ConnectionAPI/apiFunciones";
+import Alert from '../components/Alert';
 
 function Transferencias() {
   const { idUsuario } = useParams(); 
@@ -26,7 +27,13 @@ function Transferencias() {
   const [error, setError] = useState(null);
   const [isLoadingAccounts, setIsLoadingAccounts] = useState(true);
 
-  // Obtener token de localStorage
+  const [alertState, setAlertState] = useState({
+    isOpen: false,
+    type: 'error',
+    title: '',
+    message: ''
+  });
+
   const token = localStorage.getItem("token");
   const userId = localStorage.getItem("userId");
 
@@ -39,6 +46,19 @@ function Transferencias() {
       buscarCuentasTerceros();
     }
   }, [busquedaTerceros]);
+
+  const showAlert = (type, title, message) => {
+    setAlertState({
+      isOpen: true,
+      type,
+      title,
+      message
+    });
+  };
+
+  const closeAlert = () => {
+    setAlertState(prev => ({ ...prev, isOpen: false }));
+  };
 
   const cargarCuentasPropias = async () => {
     setIsLoadingAccounts(true);
@@ -59,7 +79,6 @@ function Transferencias() {
       
       setCuentasPropias(cuentasMapeadas);
 
-      // Establecer valores por defecto si hay cuentas
       if (cuentasMapeadas.length > 0) {
         const primeraCuenta = cuentasMapeadas[0];
         setFormData(prev => ({
@@ -70,6 +89,7 @@ function Transferencias() {
       }
     } else {
       setError(result.message || 'No se pudieron cargar las cuentas');
+      showAlert('error', 'Error', result.message || 'No se pudieron cargar las cuentas');
     }
     setIsLoadingAccounts(false);
   };
@@ -80,7 +100,7 @@ function Transferencias() {
     
     if (result.success && result.cuentas) {
       const cuentasFiltradas = result.cuentas
-        .filter(cuenta => cuenta.id !== formData.from_account_id) // Excluir cuenta propia
+        .filter(cuenta => cuenta.id !== formData.from_account_id)
         .map(cuenta => ({
           id: cuenta.id,
           account_id: cuenta.account_number || cuenta.iban || cuenta.id,
@@ -136,39 +156,45 @@ function Transferencias() {
     
     if (!formData.from_account_id) {
       setError('Selecciona una cuenta de origen');
+      showAlert('warning', 'Cuenta de Origen', 'Selecciona una cuenta de origen');
       return false;
     }
     if (!formData.to_account_id) {
       setError('Selecciona una cuenta de destino');
+      showAlert('warning', 'Cuenta de Destino', 'Selecciona una cuenta de destino');
       return false;
     }
     if (!formData.amount || parseFloat(formData.amount) <= 0) {
       setError('El monto debe ser mayor a cero');
+      showAlert('warning', 'Monto Inválido', 'El monto debe ser mayor a cero');
       return false;
     }
     if (!formData.currency) {
       setError('Selecciona una moneda');
+      showAlert('warning', 'Moneda', 'Selecciona una moneda');
       return false;
     }
     
     if (formData.from_account_id === formData.to_account_id) {
       setError('No puedes transferir a la misma cuenta');
+      showAlert('warning', 'Cuenta Duplicada', 'No puedes transferir a la misma cuenta');
       return false;
     }
 
     const cuentaOrigen = cuentasPropias.find(c => c.id === formData.from_account_id);
     if (cuentaOrigen && parseFloat(formData.amount) > cuentaOrigen.saldo) {
       setError('Saldo insuficiente para realizar la transferencia');
+      showAlert('error', 'Saldo Insuficiente', 'No tienes suficiente saldo para realizar esta transferencia');
       return false;
     }
 
-    // Validar que las monedas coincidan
     const cuentaDestino = tipoTransferencia === 'propias' 
       ? cuentasPropias.find(c => c.id === formData.to_account_id)
       : cuentasTerceros.find(c => c.id === formData.to_account_id);
     
     if (cuentaOrigen && cuentaDestino && cuentaOrigen.moneda !== cuentaDestino.moneda) {
       setError('Las cuentas deben tener la misma moneda');
+      showAlert('warning', 'Moneda Incorrecta', 'Las cuentas deben tener la misma moneda');
       return false;
     }
 
@@ -211,6 +237,7 @@ function Transferencias() {
 
     if (!cuentaOrigen || !cuentaDestinoInfo) {
       setError('Información de cuentas no válida');
+      showAlert('error', 'Error', 'Información de cuentas no válida');
       return;
     }
 
@@ -257,32 +284,33 @@ function Transferencias() {
         setComprobanteData(comprobante);
         setPasoActual(3);
         
-        // Recargar cuentas para actualizar saldos
+        showAlert('success', '¡Transferencia Exitosa!', 'Tu transferencia se ha procesado correctamente');
+        
         setTimeout(() => cargarCuentasPropias(), 1000);
       } else {
         const errorMessage = result.message || 'Error al procesar la transferencia';
         setError(errorMessage);
         
-        // Manejar errores específicos
         if (result.error_code === 'INSUFFICIENT_FUNDS') {
-          alert('Fondos insuficientes para realizar la transferencia');
+          showAlert('error', 'Fondos Insuficientes', 'No tienes suficiente saldo para realizar esta transferencia.');
         } else if (result.error_code === 'ACCOUNT_INACTIVE') {
-          alert('Una de las cuentas no está activa');
+          showAlert('warning', 'Cuenta Inactiva', 'Una de las cuentas no está activa. Contacta al banco.');
         } else if (result.error_code === 'CURRENCY_MISMATCH') {
-          alert('Las cuentas deben tener la misma moneda');
+          showAlert('warning', 'Moneda Incorrecta', 'Las cuentas deben tener la misma moneda.');
         } else if (result.error_code === 'FORBIDDEN') {
-          alert('No tienes permiso para transferir desde esta cuenta');
+          showAlert('error', 'Permiso Denegado', 'No tienes permiso para transferir desde esta cuenta.');
         } else if (result.error_code === 'SAME_ACCOUNT') {
-          alert('No se puede transferir a la misma cuenta');
+          showAlert('warning', 'Cuenta Duplicada', 'No se puede transferir a la misma cuenta.');
         } else if (result.error_code === 'ACCOUNT_NOT_FOUND') {
-          alert('Cuenta no encontrada');
+          showAlert('error', 'Cuenta no Encontrada', 'La cuenta destino no existe.');
         } else {
-          alert(`Error: ${errorMessage}`);
+          showAlert('error', 'Error', `Error: ${errorMessage}`);
         }
         setPasoActual(1);
       }
     } catch (error) {
       setError('Error de conexión al procesar la transferencia');
+      showAlert('error', 'Error de Conexión', 'No se pudo conectar con el servidor. Intenta nuevamente.');
       console.error('Error:', error);
     } finally {
       setLoading(false);
@@ -340,6 +368,8 @@ function Transferencias() {
     a.click();
     document.body.removeChild(a);
     URL.revokeObjectURL(url);
+    
+    showAlert('success', 'Comprobante Descargado', 'El comprobante se ha descargado correctamente');
   };
 
   const formatearMoneda = (monto, moneda) => {
@@ -368,6 +398,14 @@ function Transferencias() {
 
   return (
     <div className="transferencias-container">
+      <Alert
+        isOpen={alertState.isOpen}
+        onClose={closeAlert}
+        type={alertState.type}
+        title={alertState.title}
+        message={alertState.message}
+      />
+
       <div className="transferencias-header">
         <h1>
           <TransferIcon className="header-icon" /> 
@@ -376,7 +414,6 @@ function Transferencias() {
         <p>Realiza transferencias entre tus cuentas o hacia otros clientes</p>
       </div>
 
-      {/* Mensaje de error */}
       {error && (
         <div className="error-message">
           <span className="error-icon">⚠️</span>
@@ -384,7 +421,6 @@ function Transferencias() {
         </div>
       )}
 
-      {/* Loading indicator */}
       {loading && (
         <div className="loading-overlay">
           <div className="loading-spinner-large"></div>
@@ -392,7 +428,6 @@ function Transferencias() {
         </div>
       )}
 
-      {/* Indicador de pasos */}
       <div className="pasos-container">
         <div className={`paso ${pasoActual >= 1 ? 'activo' : ''}`}>
           <span className="paso-numero">1</span>
@@ -408,7 +443,6 @@ function Transferencias() {
         </div>
       </div>
 
-      {/* Paso 1: Formulario de transferencia */}
       {pasoActual === 1 && (
         <div className="formulario-transferencia">
           <div className="tipo-transferencia-selector">
@@ -623,7 +657,6 @@ function Transferencias() {
         </div>
       )}
 
-      {/* Paso 2: Confirmación */}
       {pasoActual === 2 && confirmacionData && (
         <div className="confirmacion-container">
           <div className="confirmacion-header">
@@ -715,7 +748,6 @@ function Transferencias() {
         </div>
       )}
 
-      {/* Paso 3: Comprobante */}
       {pasoActual === 3 && comprobanteData && (
         <div className="comprobante-container">
           <div className="comprobante-header">
@@ -803,7 +835,7 @@ function Transferencias() {
   );
 }
 
-// SVG Icons para Transferencias
+// SVG Icons (sin cambios)
 const TransferIcon = ({ className }) => (
   <svg width="24" height="24" viewBox="0 0 24 24" fill="currentColor" className={className}>
     <path d="M4 10V12H16L10.5 17.5L11.92 18.92L19.84 11L11.92 3.08L10.5 4.5L16 10H4Z"/>

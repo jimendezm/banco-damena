@@ -3,6 +3,7 @@ import { useParams } from 'react-router-dom';
 import { getUsers } from '../services/userService';
 import '../styles/Cuentas.css';
 import { ObtenerCuentasUsuario, ObtenerTransaccionesCuenta } from '../../ConnectionAPI/apiFunciones';
+import Alert from '../components/Alert';
 
 function Cuentas() {
   const [cuentas, setCuentas] = useState([]);
@@ -12,6 +13,26 @@ function Cuentas() {
   const [filtroTipo, setFiltroTipo] = useState('todos');
   const [busqueda, setBusqueda] = useState('');
   const [cargando, setCargando] = useState(false);
+
+  const [alertState, setAlertState] = useState({
+    isOpen: false,
+    type: 'error',
+    title: '',
+    message: ''
+  });
+
+  const showAlert = (type, title, message) => {
+    setAlertState({
+      isOpen: true,
+      type,
+      title,
+      message
+    });
+  };
+
+  const closeAlert = () => {
+    setAlertState(prev => ({ ...prev, isOpen: false }));
+  };
 
   useEffect(() => {
     let userData;
@@ -28,6 +49,7 @@ function Cuentas() {
         }
       } else {
         console.error("Error al obtener cuentas:", result.message);
+        showAlert('error', 'Error', 'No se pudieron cargar las cuentas');
       };
     };
     fetchData();
@@ -82,6 +104,14 @@ function Cuentas() {
 
   return (
     <div className="cuentas-container">
+      <Alert
+        isOpen={alertState.isOpen}
+        onClose={closeAlert}
+        type={alertState.type}
+        title={alertState.title}
+        message={alertState.message}
+      />
+
       <div className="cuentas-header">
         <h1>
           <HomeIcon className="header-icon" /> 
@@ -235,7 +265,7 @@ function Cuentas() {
   );
 }
 
-// SVG Icons para Cuentas
+// SVG Icons para Cuentas (sin cambios)
 const HomeIcon = ({ className }) => (
   <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor" className={className}>
     <path d="M10 20V14H14V20H19V12H22L12 3L2 12H5V20H10Z"/>

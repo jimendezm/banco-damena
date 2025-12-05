@@ -5,6 +5,7 @@ import { Link } from "react-router-dom";
 import { useNavigate } from "react-router-dom";
 import { initializeSampleData, verificarCredenciales} from '../services/userService';
 import { IniciarSesion } from "../../ConnectionAPI/apiFunciones";
+import Alert from '../components/Alert';
 
 function Login(){
     useEffect(() => {
@@ -18,6 +19,26 @@ function Login(){
     const [usuario, setUsuario] = useState("");
     const [contrasenia, setContrasenia] = useState("");
     const [mostrarContrasenia, setMostrarContrasenia] = useState(false);
+
+    const [alertState, setAlertState] = useState({
+        isOpen: false,
+        type: 'error',
+        title: '',
+        message: ''
+    });
+
+    const showAlert = (type, title, message) => {
+        setAlertState({
+            isOpen: true,
+            type,
+            title,
+            message
+        });
+    };
+
+    const closeAlert = () => {
+        setAlertState(prev => ({ ...prev, isOpen: false }));
+    };
 
     const toggleMostrarContrasenia = () => {
         setMostrarContrasenia(!mostrarContrasenia);
@@ -37,12 +58,20 @@ function Login(){
             console.log("Token almacenado en localStorage:", dataLogin.token, "  identificacion: ", dataLogin.identificacion);
             navigate("/dashboard");
         }else{
-            alert("Respuesta del servidor: "+ dataLogin.message)
+            showAlert('error', 'Error de Inicio de Sesión', dataLogin.message || "Credenciales incorrectas");
         }
     };
 
     return(
         <div className={styles.contenedorPaginaLogin}>
+            <Alert
+                isOpen={alertState.isOpen}
+                onClose={closeAlert}
+                type={alertState.type}
+                title={alertState.title}
+                message={alertState.message}
+            />
+
             <section className={styles.contenedorSeccionLogin}>
                 <img className={styles.logoDamenaLogin}  src={logo} alt="Imagen del logo de banco Damena en su versión clara" />
                 <h2 className={styles.tituloSeccionLogin}>Iniciar sesión</h2>

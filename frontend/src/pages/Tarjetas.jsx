@@ -7,6 +7,7 @@ import {
     ObtenerTransaccionesTarjeta,
     ValidarOTPTarjeta
 } from "../../ConnectionAPI/apiFunciones";
+import Alert from '../components/Alert';
 
 import logoDamenaClaro from '../assets/logoDamenaSinFondoClaro.png';
 import logoDamenaOscuro from '../assets/logoDamenaSinFondo.png';
@@ -29,6 +30,27 @@ function Tarjetas() {
     const [datosSensibles, setDatosSensibles] = useState(null);
     const [contador, setContador] = useState(60);
 
+    // ALERT
+    const [alertState, setAlertState] = useState({
+        isOpen: false,
+        type: 'error',
+        title: '',
+        message: ''
+    });
+
+    const showAlert = (type, title, message) => {
+        setAlertState({
+            isOpen: true,
+            type,
+            title,
+            message
+        });
+    };
+
+    const closeAlert = () => {
+        setAlertState(prev => ({ ...prev, isOpen: false }));
+    };
+
     // Obtener tarjetas
     useEffect(() => {
         const token = localStorage.getItem("token");
@@ -41,6 +63,7 @@ function Tarjetas() {
                 setTarjetas(result.tarjetas);
             } else {
                 console.error("Error al obtener tarjetas:", result);
+                showAlert('error', 'Error', 'No se pudieron cargar las tarjetas');
             }
         };
 
@@ -77,6 +100,7 @@ function Tarjetas() {
 
         if (contador === 0) {
             setMostrarModalDatos(false);
+            showAlert('info', 'Tiempo Agotado', 'El tiempo para ver los datos sensibles ha expirado');
             return;
         }
 
@@ -120,8 +144,9 @@ function Tarjetas() {
         if (result.success) {
             setOtpEnviado(true);
             console.log("OTP generado:", result.otp);
+            showAlert('success', 'OTP Enviado', 'El código OTP ha sido enviado a tu correo');
         } else {
-            alert("Error al generar OTP: " + result.message);
+            showAlert('error', 'Error al Generar OTP', result.message || 'Error al generar OTP');
         }
     };
 
@@ -144,7 +169,7 @@ function Tarjetas() {
             setMostrarModalDatos(true);
 
         } else {
-            alert("Error al verificar OTP: " + result.message);
+            showAlert('error', 'Código Inválido', 'El código OTP es incorrecto. Intenta nuevamente');
             setCodigoOTP("");
         }
     };
@@ -162,6 +187,14 @@ function Tarjetas() {
 
     return (
         <section className={styles.contenedorPagina}>
+            <Alert
+                isOpen={alertState.isOpen}
+                onClose={closeAlert}
+                type={alertState.type}
+                title={alertState.title}
+                message={alertState.message}
+            />
+
             <section className={styles.contenedorPagina}>
                 <div className={styles.contenedorSeccion}>
                     <h2 className={styles.tituloSeccion}>Tus Tarjetas</h2>
