@@ -31,7 +31,8 @@ export async function IniciarSesion(username_or_email, password){
 }
 
 export async function RegistrarUsuario(tipo_identificacion, identificacion, nombre, apellido, correo, telefono, usuario, contrasena, rol){
-    console.log("ok");
+    console.log("Enviando datos de registro:", {tipo_identificacion, identificacion, nombre, apellido, correo, telefono, usuario, contrasena, rol});
+    
     try{
         const response = await fetch("https://bdproyectoweb-3.onrender.com/api/v1/users/", {
             method: "POST",
@@ -40,18 +41,20 @@ export async function RegistrarUsuario(tipo_identificacion, identificacion, nomb
                 "x-api-key": API_KEY
             },
             body: JSON.stringify({
-                tipo_identificacion,
+                tipo_identificacion: tipo_identificacion || "Cédula Física", // Valor por defecto
                 identificacion,
                 nombre,
-                apellido,
+                apellido: apellido || " ", // Enviar vacío si no hay apellido
                 correo,
-                telefono,
+                telefono: telefono || " ", // Enviar vacío si no hay teléfono
                 usuario,
                 contrasena,
-                rol
+                rol: rol || "Cliente" // Valor por defecto
             })
         });
         const data = await response.json();
+        console.log("Respuesta del servidor:", data);
+        
         return {
             success: response.ok,
             status: data.status,

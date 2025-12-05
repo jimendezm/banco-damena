@@ -1,2 +1,2 @@
-Repositorio: https://github.com/jimendezm/banco-damena.git
+Repositorio: https://github.com/jimendezm/banco-damena.git y backend: https://github.com/Chedrick343/BDProyectoWeb.git
 Enlace de netlify: https://banco-damena.netlify.app/
